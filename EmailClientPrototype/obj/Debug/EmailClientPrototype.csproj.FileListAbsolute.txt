@@ -1,0 +1,14 @@
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\bin\Debug\EmailClientPrototype.exe.config
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\bin\Debug\EmailClientPrototype.exe
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\bin\Debug\EmailClientPrototype.pdb
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype.csprojResolveAssemblyReference.cache
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\MainWindow.g.cs
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\App.g.cs
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype_MarkupCompile.cache
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype_MarkupCompile.lref
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\MainWindow.baml
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype.g.resources
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype.Properties.Resources.resources
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype.csproj.GenerateResource.Cache
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype.exe
+c:\users\yongjec\documents\visual studio 2015\Projects\EmailClientPrototype\EmailClientPrototype\obj\Debug\EmailClientPrototype.pdb
