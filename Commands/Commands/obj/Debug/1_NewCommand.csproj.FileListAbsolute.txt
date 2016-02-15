@@ -1,0 +1,13 @@
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\bin\Debug\Commands.exe.config
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\bin\Debug\Commands.exe
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\bin\Debug\Commands.pdb
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\MainWindow.g.cs
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\App.g.cs
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\Commands_MarkupCompile.cache
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\Commands_MarkupCompile.lref
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\MainWindow.baml
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\Commands.g.resources
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\Commands.Properties.Resources.resources
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\1_NewCommand.csproj.GenerateResource.Cache
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\Commands.exe
+c:\users\yongjec\documents\visual studio 2015\Projects\Commands\Commands\obj\Debug\Commands.pdb

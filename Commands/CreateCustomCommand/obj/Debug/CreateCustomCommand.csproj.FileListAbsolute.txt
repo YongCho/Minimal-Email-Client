@@ -1,0 +1,13 @@
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\bin\Debug\CreateCustomCommand.exe.config
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\bin\Debug\CreateCustomCommand.exe
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\bin\Debug\CreateCustomCommand.pdb
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\MainWindow.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\App.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand_MarkupCompile.cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand_MarkupCompile.lref
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\MainWindow.baml
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand.g.resources
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand.Properties.Resources.resources
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand.csproj.GenerateResource.Cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand.exe
+c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CreateCustomCommand\obj\Debug\CreateCustomCommand.pdb

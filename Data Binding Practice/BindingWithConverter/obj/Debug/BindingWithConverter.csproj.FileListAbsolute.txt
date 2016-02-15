@@ -13,3 +13,6 @@ c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConver
 c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.csproj.GenerateResource.Cache
 c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.exe
 c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.pdb
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\Data Binding Practice\BindingWithConverter\bin\Debug\BindingWithConverter.exe.config
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\Data Binding Practice\BindingWithConverter\obj\Debug\BindingWithConverter.exe
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\Data Binding Practice\BindingWithConverter\obj\Debug\BindingWithConverter.pdb

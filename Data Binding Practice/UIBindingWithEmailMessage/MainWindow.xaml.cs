@@ -104,6 +104,7 @@ namespace UIBindingWithEmailMessage
             }
         }
 
+        // The PropertyChanged notification exists to alert the View that a value has changed so it knows to update.
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(string propertyName)
         {
