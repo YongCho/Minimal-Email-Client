@@ -1,0 +1,14 @@
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\bin\Debug\UIBindingWithEmailMessage.exe.config
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\bin\Debug\UIBindingWithEmailMessage.exe
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\bin\Debug\UIBindingWithEmailMessage.pdb
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage.csprojResolveAssemblyReference.cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\MainWindow.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\App.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage_MarkupCompile.cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage_MarkupCompile.lref
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\MainWindow.baml
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage.g.resources
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage.Properties.Resources.resources
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage.csproj.GenerateResource.Cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage.exe
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\UIBindingWithEmailMessage\obj\Debug\UIBindingWithEmailMessage.pdb

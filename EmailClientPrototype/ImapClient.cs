@@ -33,6 +33,7 @@ namespace EmailClientPrototype
         public void beginFetch(string mailbox, int startUid, int endUid)
         {
             // TODO: Do this in another thread.
+            
             _backend.fetch(mailbox, startUid, endUid);
         }
         

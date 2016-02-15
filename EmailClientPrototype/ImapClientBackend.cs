@@ -176,8 +176,15 @@ namespace EmailClientPrototype
 
         private void CleanUpConnection()
         {
-            _sslStream.Close();
-            _tcpClient.Close();
+            try
+            {
+                _sslStream.Close();
+                _tcpClient.Close();
+            }
+            catch
+            {
+                // Do nothing. Maybe they are already closed.
+            }
         }
     }
 }

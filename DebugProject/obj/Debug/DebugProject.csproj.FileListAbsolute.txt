@@ -1,0 +1,13 @@
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\bin\Debug\DebugProject.exe.config
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\bin\Debug\DebugProject.exe
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\bin\Debug\DebugProject.pdb
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\MainWindow.g.cs
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\App.g.cs
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject_MarkupCompile.cache
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject_MarkupCompile.lref
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\MainWindow.baml
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject.g.resources
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject.Properties.Resources.resources
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject.csproj.GenerateResource.Cache
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject.exe
+D:\Data\online\Classes\2016 Spring\Data Communications\DC2 - Project\EmailClientPrototype\DebugProject\obj\Debug\DebugProject.pdb

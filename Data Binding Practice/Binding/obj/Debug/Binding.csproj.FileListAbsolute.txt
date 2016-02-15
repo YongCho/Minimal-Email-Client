@@ -1,0 +1,14 @@
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\bin\Debug\Binding.exe.config
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\bin\Debug\Binding.exe
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\bin\Debug\Binding.pdb
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding.csprojResolveAssemblyReference.cache
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\MainWindow.g.cs
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\App.g.cs
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding_MarkupCompile.cache
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding_MarkupCompile.lref
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\MainWindow.baml
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding.g.resources
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding.Properties.Resources.resources
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding.csproj.GenerateResource.Cache
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding.exe
+c:\users\yongjec\documents\visual studio 2015\Projects\Binding\Binding\obj\Debug\Binding.pdb

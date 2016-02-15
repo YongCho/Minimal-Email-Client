@@ -1,0 +1,15 @@
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\bin\Debug\BindingWithConverter.exe.config
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\bin\Debug\BindingWithConverter.exe
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\bin\Debug\BindingWithConverter.pdb
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.csprojResolveAssemblyReference.cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\MainWindow.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\App.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\GeneratedInternalTypeHelper.g.cs
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter_MarkupCompile.cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter_MarkupCompile.lref
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\MainWindow.baml
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.g.resources
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.Properties.Resources.resources
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.csproj.GenerateResource.Cache
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.exe
+c:\Users\yongjec\documents\visual studio 2015\Projects\Binding\BindingWithConverter\obj\Debug\BindingWithConverter.pdb
