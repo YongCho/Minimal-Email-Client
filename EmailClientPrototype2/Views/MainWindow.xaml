@@ -41,12 +41,12 @@
             </TreeView>
 
             <!-- List of messages in the selected mailbox. -->
-            <ListView Grid.Column="1" BorderThickness="0" Name="lvMessages">
+            <ListView Grid.Column="1" BorderThickness="0" Name="lvMessages" ItemsSource="{Binding Messages}">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn x:Name="col0"  Header="From" Width="200" />
-                        <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}" />
-                        <GridViewColumn x:Name="col2" Header="Date" Width="200" />
+                        <GridViewColumn x:Name="col0"  Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
+                        <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}" DisplayMemberBinding="{Binding Subject}" />
+                        <GridViewColumn x:Name="col2" Header="Date" DisplayMemberBinding="{Binding Date}" Width="200" />
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -61,6 +61,7 @@
                 <Grid Grid.Column="1" x:Name="helperField"/>
             </Grid>
             
+            <!-- -->
             <GridSplitter Grid.Column="1" x:Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
         </Grid>
 

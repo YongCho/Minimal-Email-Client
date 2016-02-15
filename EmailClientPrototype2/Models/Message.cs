@@ -144,8 +144,8 @@ namespace EmailClientPrototype2.Models
 
         public override string ToString()
         {
-            return string.Format("Message UID={0}, Subject={1}, Sender={2}<{3}>, Date={4}",
-                Uid, Subject, SenderName, SenderAddress, Date.ToString());
+            return string.Format("Message UID={0}, Subject={1}, Sender={2}<{3}>, Date={4}, New?={5}",
+                Uid, Subject, SenderName, SenderAddress, Date.ToString(), IsSeen ? "Yes" : "No");
         }
     }
 }
