@@ -1,3 +1,0 @@
-c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CutAndPaste\bin\Debug\CutAndPaste.exe.config
-c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CutAndPaste\obj\Debug\CutAndPaste.exe
-c:\Users\yongjec\documents\visual studio 2015\Projects\Commands\CutAndPaste\obj\Debug\CutAndPaste.pdb
