@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace EmailClientPrototype2.Models
 {
-    class Message : INotifyPropertyChanged
+    class Message : CommonBase
     {
         private int uid;
         #region public int Uid
@@ -132,16 +132,7 @@ namespace EmailClientPrototype2.Models
             }
         }
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void RaisePropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
+        
         public override string ToString()
         {
             return string.Format("Message UID={0}, Subject={1}, Sender={2}<{3}>, Date={4}, New?={5}",

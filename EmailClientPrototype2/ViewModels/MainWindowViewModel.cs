@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace EmailClientPrototype2.ViewModels
 {
-    class MainWindowViewModel : ObservableClass
+    class MainWindowViewModel : CommonBase
     {
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }
@@ -31,18 +31,19 @@ namespace EmailClientPrototype2.ViewModels
         public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
-
+            
 
 
             // Let's get some dummy messages to test the UI.
-            OnSync();
+            Sync();
         }
 
-        public async void OnSync()
+        public async void Sync()
         {
             List<Message> msgs = await Task.Run<List<Message>>(() => 
             {
-                return Downloader.getDummyMessages();
+                Downloader downloader = new Downloader("imap.gmail.com", 993, "test.racketscience", "12#$zxCV");
+                return downloader.getDummyMessages();
             });
 
             foreach (Message m in msgs)

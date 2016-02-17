@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace EmailClientPrototype2.ViewModels
+namespace EmailClientPrototype2.Models
 {
-    public abstract class ObservableClass : INotifyPropertyChanged
+    public abstract class CommonBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         

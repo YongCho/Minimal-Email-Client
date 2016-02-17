@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EmailClientPrototype2"
         mc:Ignorable="d"
-        Title="Email Client Prototype 2" Height="600" Width="800">
-    
+        Title="Email Client Prototype 2" Height="600" Width="800">    
     <DockPanel>
+        <!-- Menu Bar -->
         <Menu DockPanel.Dock="Top" Height="20" Background="White" BorderThickness="0,0,0,1" BorderBrush="AliceBlue">
             <MenuItem Header="File">
                 <MenuItem Header="New">
@@ -18,20 +18,30 @@
             </MenuItem>
         </Menu>
 
+        <!-- Toolbar -->
+        <ToolBarPanel DockPanel.Dock="Top">
+            <ToolBar ToolBarTray.IsLocked="True">
+                <Button Content="New" />
+                <Button Content="Reply" />
+            </ToolBar>
+        </ToolBarPanel>
+        
+        <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom" Height="20">
             <StatusBarItem>
                 <TextBlock Name="lblStatus" Text="Idle" />
             </StatusBarItem>
         </StatusBar>
-        
+
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="13.053" />
+                <ColumnDefinition Width="167.947"/>
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- List of mailboxes in the connected account. -->
-            <TreeView Grid.Column="0" BorderThickness="0">
+            <TreeView Grid.Column="0" BorderThickness="0" Grid.ColumnSpan="2">
                 <!-- These are dummies for now. -->
                 <TreeViewItem Header="test.racketscience@gmail.com" IsExpanded="True">
                     <TreeViewItem Header="Inbox" Margin="0,0,0,2" />
@@ -41,7 +51,7 @@
             </TreeView>
 
             <!-- List of messages in the selected mailbox. -->
-            <ListView Grid.Column="1" BorderThickness="0" Name="lvMessages" ItemsSource="{Binding Messages}">
+            <ListView Grid.Column="2" BorderThickness="0" Name="lvMessages" ItemsSource="{Binding Messages}">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn x:Name="col0"  Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
@@ -52,7 +62,7 @@
             </ListView>
 
             <!-- This is the helper to resize the above ListView columns. -->
-            <Grid Grid.Column="1" Visibility="Hidden">
+            <Grid Grid.Column="2" Visibility="Hidden">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding ElementName=col0, Path=ActualWidth}"/>
                     <ColumnDefinition Width="*"/>
@@ -60,9 +70,9 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="1" x:Name="helperField"/>
             </Grid>
-            
+
             <!-- -->
-            <GridSplitter Grid.Column="1" x:Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
+            <GridSplitter Grid.Column="2" x:Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
         </Grid>
 
     </DockPanel>

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DebugProject"
         mc:Ignorable="d"
-        Title="MainWindow" Height="auto" Width="auto">
+        Title="MainWindow" Height="auto" Width="auto" Loaded="Window_Loaded">
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
