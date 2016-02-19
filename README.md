@@ -2,7 +2,5 @@
 
 ### Setting up the environment to open the project.
 
-- Install Visual Studio 2015 Community.
-- Launch the Visual Studio and go to File->New->Project.
-- Navigate to Templates->Visual C#->Windows->Classic Desktop and check if there is 'WPF Application' on the list to the right. If not, it will prompt you to start downloading and installing the necessary components.
-- Once you see the WPF Appliation on the list, you are ready to open any project files in this repository.
+- Install Visual Studio 2015 Community. Make sure you install the components to develop C# WPF Application. This might be installed by default. If they are not installed initially, you will have an option to install them later when you open the project.
+- Double-click the .sln file to open the project.
