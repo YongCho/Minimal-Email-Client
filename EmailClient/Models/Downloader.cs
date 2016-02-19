@@ -69,7 +69,7 @@ namespace EmailClientPrototype2.Models
             //    msgs.Add(msg);
             //}
 
-            getMessagesRegex(1, 3, "Inbox");
+            getMessagesRegex(1, 10000, "Inbox");
 
 
             return msgs;
@@ -98,7 +98,7 @@ namespace EmailClientPrototype2.Models
                 // Read the next chunk from the stream.
                 int bytesRead = sslStream.Read(buffer, bytesInBuffer, buffer.Length - bytesInBuffer);
 
-                string strBuffer = Encoding.ASCII.GetString(buffer, 0, bytesInBuffer + bytesRead);
+                string strBuffer = Encoding.UTF8.GetString(buffer, 0, bytesInBuffer + bytesRead);
                 Match match;
                 string remainder = strBuffer;
                 bool doneMatching = false;
@@ -107,7 +107,11 @@ namespace EmailClientPrototype2.Models
                     match = Regex.Match(remainder, nonTaggedResponsePattern);
                     if (match.Success)
                     {
-                        Debug.WriteLine(match.Groups[2].ToString());
+                        string header = match.Groups[2].ToString();
+                        Debug.WriteLine(header);
+
+
+
                         remainder = remainder.Substring(match.Groups[2].ToString().Length);
                     }
                     else
@@ -143,89 +147,7 @@ namespace EmailClientPrototype2.Models
 
             return messages;
         }
-
-        public List<Message> getMessages(int startUid, int endUid, string mailBox)
-        {
-            Login();
-
-            string tag = NextTag();
-            SendCommand(tag + " EXAMINE " + mailBox);
-            ReadResponse(tag);
-
-            // a1 UID FETCH 1:2 (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)
-            tag = NextTag();
-            SendCommand(string.Format("{0} UID FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startUid, endUid));
-
-            var messages = new List<Message>(endUid - startUid + 1);
-            int bytesInBuffer = 0;
-            bool doneFetching = false;
-
-            while (!doneFetching)
-            {
-                // Read the next chunk from the stream.
-                int bytesRead = sslStream.Read(buffer, bytesInBuffer, buffer.Length - bytesInBuffer);
-
-                // Check for one or more delimiter sequences in the chunk. (delimiter sequence = '\r\n').
-                int lastDelimiterPos = -1;
-                int i;
-                for (i = bytesInBuffer; i < bytesInBuffer + bytesRead; ++i)
-                {
-                    if (i == 0)
-                    {
-                        continue;
-                    }
-
-                    if (buffer[i-1] == '\r' && buffer[i] == '\n')
-                    {
-                        // Delimiter is found. This is one full response line.
-                        // Copy it over to a string and examine it.
-                        byte[] storage = new byte[i - lastDelimiterPos];
-                        Array.Copy(buffer, lastDelimiterPos + 1, storage, 0, i - lastDelimiterPos);
-                        string responseLine = Encoding.ASCII.GetString(storage);
-                        Debug.WriteLine(responseLine);
-                        bool tagOk;
-                        if (hasTagAtBeginning(responseLine, tag, out tagOk))
-                        {
-                            // If the line starts with a tag, it must be the status line that comes at the end.
-                            doneFetching = true;
-                        }
-                        else
-                        {
-                            // Otherwise it must be one of the message headers.
-                            // Parse the header and create a Message object.
-                        }
-                        // There can be more data left in the buffer. We must continue reading from
-                        // where we left off.
-                        lastDelimiterPos = i;
-                    }
-                }
-                --i;
-                bytesInBuffer += bytesRead;
-                if (lastDelimiterPos != i)
-                {
-                    // This means the chunk we read from the stream did not end at the delimiter boundary 
-                    // and the buffer now has some dangling data in it.
-                    // Move these dangling bytes to the beginning of the buffer so we can read more
-                    // after it.
-                    int firstDanglingBytePos = lastDelimiterPos + 1;
-                    int numDanglingBytes = bytesInBuffer - firstDanglingBytePos;
-                    for (int j = 0, k = 0; k < numDanglingBytes; ++j, ++k)
-                    {
-                        buffer[j] = buffer[firstDanglingBytePos + k];
-                    }
-
-                    bytesInBuffer = numDanglingBytes;
-                }
-                // We're done processing this chunk. Move on to reading the next chunk.
-            }
-
-            Logout();
-
-            return messages;
-        }
-
-
-
+        
         public void Login()
         {
             if (!sslStream.IsAuthenticated)
