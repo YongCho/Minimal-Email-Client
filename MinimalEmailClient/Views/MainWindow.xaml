@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EmailClientPrototype2"
         mc:Ignorable="d"
-        Title="Email Client Prototype 2" Height="600" Width="800">    
+        Title="Minimal Email Client" Height="600" Width="800">    
     <DockPanel>
         <!-- Menu Bar -->
         <Menu DockPanel.Dock="Top" Height="20" Background="White" BorderThickness="0,0,0,1" BorderBrush="AliceBlue">
@@ -21,8 +21,20 @@
         <!-- Toolbar -->
         <ToolBarPanel DockPanel.Dock="Top">
             <ToolBar ToolBarTray.IsLocked="True">
-                <Button Content="Write" />
-                <Button Content="Reply" />
+                <!-- 'Write' button -->
+                <Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/write.png" Stretch="Uniform" Height="25" Width="25" />
+                        <TextBlock Text="Write" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <!-- 'Reply' button -->
+                <Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Images/reply.png" Stretch="Uniform" Height="25" Width="25" />
+                        <TextBlock Text="Reply" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
             </ToolBar>
         </ToolBarPanel>
         
