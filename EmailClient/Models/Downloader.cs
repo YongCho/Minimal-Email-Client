@@ -69,7 +69,7 @@ namespace EmailClientPrototype2.Models
             //    msgs.Add(msg);
             //}
 
-            getMessagesRegex(1, 10000, "Inbox");
+            getMessagesRegex(10, 20, "Inbox");
 
 
             return msgs;
@@ -90,7 +90,7 @@ namespace EmailClientPrototype2.Models
             var messages = new List<Message>(endUid - startUid + 1);
             int bytesInBuffer = 0;
             bool doneFetching = false;
-            string nonTaggedResponsePattern = "(^|\r\n)(\\* (.*\r\n)*?)(\\*|" + tag + ") ";
+            string unTaggedResponsePattern = "(^|\r\n)(\\* (.*\r\n)*?)(\\*|" + tag + ") ";
             string taggedResponsePattern = "^" + tag + " .*\r\n";
 
             while (!doneFetching)
@@ -98,19 +98,41 @@ namespace EmailClientPrototype2.Models
                 // Read the next chunk from the stream.
                 int bytesRead = sslStream.Read(buffer, bytesInBuffer, buffer.Length - bytesInBuffer);
 
-                string strBuffer = Encoding.UTF8.GetString(buffer, 0, bytesInBuffer + bytesRead);
+                string strBuffer = Encoding.ASCII.GetString(buffer, 0, bytesInBuffer + bytesRead);
                 Match match;
                 string remainder = strBuffer;
                 bool doneMatching = false;
                 while (!doneMatching)
                 {
-                    match = Regex.Match(remainder, nonTaggedResponsePattern);
+                    match = Regex.Match(remainder, unTaggedResponsePattern);
                     if (match.Success)
                     {
-                        string header = match.Groups[2].ToString();
-                        Debug.WriteLine(header);
+                        string responseItem = match.Groups[2].ToString();
+                        Debug.WriteLine(responseItem);
 
+                        string itemHeaderPattern = "^(.*)\r\n";
+                        string itemHeader = Regex.Match(responseItem, itemHeaderPattern).Groups[1].ToString();
+                        Debug.WriteLine("Item Header: " + itemHeader);
 
+                        string subjectPattern = "\r\nSubject: (.*)\r\n";
+                        string subject = Regex.Match(responseItem, subjectPattern).Groups[1].ToString();
+                        subject = Decoder.decodeHeaderElement(subject);
+                        Debug.WriteLine("Subject: " + subject);
+
+                        string datePattern = "\r\nDate: (.*)\r\n";
+                        string date = Regex.Match(responseItem, datePattern).Groups[1].ToString();
+                        Debug.WriteLine("Date: " + date);
+
+                        string senderPattern = "\r\nFrom: (.*)<(\\S*)>\r\n";
+                        Match m = Regex.Match(responseItem, senderPattern);
+                        string senderName = Decoder.decodeHeaderElement(m.Groups[1].ToString());
+                        string senderAddress = m.Groups[2].ToString();
+                        if (senderName.Trim() == string.Empty)
+                        {
+                            senderName = senderAddress;
+                        }
+                        Debug.WriteLine("Sender Name: " + senderName);
+                        Debug.WriteLine("Sender Address: " + senderAddress);
 
                         remainder = remainder.Substring(match.Groups[2].ToString().Length);
                     }

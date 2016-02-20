@@ -21,7 +21,7 @@
         <!-- Toolbar -->
         <ToolBarPanel DockPanel.Dock="Top">
             <ToolBar ToolBarTray.IsLocked="True">
-                <Button Content="New" />
+                <Button Content="Write" />
                 <Button Content="Reply" />
             </ToolBar>
         </ToolBarPanel>
