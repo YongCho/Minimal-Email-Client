@@ -1,15 +1,12 @@
 ﻿using MinimalEmailClient.Models;
-using MinimalEmailClient.Views;
 using System.Collections.ObjectModel;
-using System;
-using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
 using Prism.Mvvm;
 using Prism.Commands;
+using Prism.Interactivity.InteractionRequest;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -17,7 +14,8 @@ namespace MinimalEmailClient.ViewModels
     {
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }
-        public ICommand NewMailCommand { get; set; }
+        public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
+        public ICommand WriteNewMessageCommand { get; set; }
         private string selectedInboxName;
         public string SelectedInboxName
         {
@@ -28,7 +26,8 @@ namespace MinimalEmailClient.ViewModels
         public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
-            NewMailCommand = new DelegateCommand(writeNewMail);
+            WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
+            WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest);
 
             // Let's get some dummy messages to test the UI.
             Sync();
@@ -53,12 +52,11 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        private void writeNewMail()
+        private void RaiseWriteNewMessagePopupRequest()
         {
-            NewMailWindow view = new NewMailWindow();
-            NewMailWindowViewModel newMailWindowViewModel = new NewMailWindowViewModel();  // Could pass an account info here.
-            view.DataContext = newMailWindowViewModel;
-            view.Show();
+            WriteNewMessageNotification notification = new WriteNewMessageNotification("Currently selected account info goes here");
+            notification.Title = "New Message";
+            WriteNewMessagePopupRequest.Raise(notification);
         }
     }
 }
