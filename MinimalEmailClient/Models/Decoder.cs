@@ -8,7 +8,7 @@ namespace MinimalEmailClient.Models
 {
     class Decoder
     {
-        public static string decodeHeaderElement(string encodedString)
+        public static string DecodeHeaderElement(string encodedString)
         {
             var regex = new Regex(@"=\?(?<charset>.*?)\?(?<encoding>[qQbB])\?(?<value>.*?)\?=");
             var decodedString = string.Empty;

@@ -58,7 +58,7 @@ namespace MinimalEmailClient.ViewModels
             {
                 if (this.newMailCommand == null)
                 {
-                    newMailCommand = new RelayCommand(param => this.writeNewMail());
+                    this.newMailCommand = new RelayCommand(param => this.writeNewMail());
                 }
                 return this.newMailCommand;
             }

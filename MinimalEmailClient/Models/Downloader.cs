@@ -17,14 +17,13 @@ namespace MinimalEmailClient.Models
         public string User { get; set; }
         public string Password { get; set; }
 
-        private const int bufferSize = 65536;
-        private byte[] buffer = new byte[bufferSize];
-        int nextTagSequence = 0;
-        string response;
+        private byte[] buffer = new byte[65536];
+        private int nextTagSequence = 0;
+        private string response;
 
         TcpClient tcpClient;
         SslStream sslStream;
-        
+
 
         public Downloader(string serverName, int port, string user, string password)
         {
@@ -33,8 +32,8 @@ namespace MinimalEmailClient.Models
             User = user;
             Password = password;
 
-            tcpClient = new TcpClient(ServerName, Port);
-            sslStream = new SslStream(tcpClient.GetStream(), false);
+            this.tcpClient = new TcpClient(ServerName, Port);
+            this.sslStream = new SslStream(this.tcpClient.GetStream(), false);
         }
 
         ~Downloader()
@@ -96,9 +95,9 @@ namespace MinimalEmailClient.Models
             while (!doneFetching)
             {
                 // Read the next chunk from the stream.
-                int bytesRead = sslStream.Read(buffer, bytesInBuffer, buffer.Length - bytesInBuffer);
+                int bytesRead = this.sslStream.Read(this.buffer, bytesInBuffer, this.buffer.Length - bytesInBuffer);
 
-                string strBuffer = Encoding.ASCII.GetString(buffer, 0, bytesInBuffer + bytesRead);
+                string strBuffer = Encoding.ASCII.GetString(this.buffer, 0, bytesInBuffer + bytesRead);
                 Match match;
                 string remainder = strBuffer;
                 bool doneMatching = false;
@@ -116,7 +115,7 @@ namespace MinimalEmailClient.Models
 
                         string subjectPattern = "\r\nSubject: (.*)\r\n";
                         string subject = Regex.Match(responseItem, subjectPattern).Groups[1].ToString();
-                        subject = Decoder.decodeHeaderElement(subject);
+                        subject = Decoder.DecodeHeaderElement(subject);
                         Debug.WriteLine("Subject: " + subject);
 
                         string datePattern = "\r\nDate: (.*)\r\n";
@@ -125,7 +124,7 @@ namespace MinimalEmailClient.Models
 
                         string senderPattern = "\r\nFrom: (.*)<(\\S*)>\r\n";
                         Match m = Regex.Match(responseItem, senderPattern);
-                        string senderName = Decoder.decodeHeaderElement(m.Groups[1].ToString());
+                        string senderName = Decoder.DecodeHeaderElement(m.Groups[1].ToString());
                         string senderAddress = m.Groups[2].ToString();
                         if (senderName.Trim() == string.Empty)
                         {
@@ -144,7 +143,7 @@ namespace MinimalEmailClient.Models
                         {
                             Debug.WriteLine(match.Groups[0].ToString());
                             doneMatching = true;
-                            doneFetching = true;                            
+                            doneFetching = true;
                         }
                         else
                         {
@@ -156,7 +155,7 @@ namespace MinimalEmailClient.Models
                             {
                                 for (int i = 0; i < remainder.Length; ++i)
                                 {
-                                    buffer[i] = (byte)remainder[i];
+                                    this.buffer[i] = (byte)remainder[i];
                                 }
                                 bytesInBuffer = remainder.Length;
                             }
@@ -169,19 +168,19 @@ namespace MinimalEmailClient.Models
 
             return messages;
         }
-        
+
         public void Login()
         {
-            if (!sslStream.IsAuthenticated)
+            if (!this.sslStream.IsAuthenticated)
             {
                 Debug.WriteLine("Logging in");
-                sslStream.AuthenticateAsClient(ServerName);
+                this.sslStream.AuthenticateAsClient(ServerName);
                 // We are greeted by the server at this point.
-                sslStream.ReadTimeout = 5000;  // For synchronous read calls.
+                this.sslStream.ReadTimeout = 5000;  // For synchronous read calls.
             }
 
             // Attempt to log in.
-            response = "";
+            this.response = "";
             string tag = NextTag();
             SendCommand(tag + " LOGIN " + User + " " + Password);
             if (!ReadResponse(tag))
@@ -199,12 +198,12 @@ namespace MinimalEmailClient.Models
 
         private string NextTag()
         {
-            return "A" + (++nextTagSequence);
+            return "A" + (++this.nextTagSequence);
         }
 
         private void SendCommand(string command)
         {
-            sslStream.Write(Encoding.ASCII.GetBytes(command + "\r\n"));
+            this.sslStream.Write(Encoding.ASCII.GetBytes(command + "\r\n"));
         }
 
         private bool hasTagAtBeginning(string responseLine, string tag, out bool tagOk)
@@ -235,10 +234,10 @@ namespace MinimalEmailClient.Models
             {
                 byteCount = ReadItemIntoBuffer(0);
                 byte[] data = new byte[byteCount];
-                Array.Copy(buffer, data, byteCount);
-                response += Encoding.ASCII.GetString(data);
+                Array.Copy(this.buffer, data, byteCount);
+                this.response += Encoding.ASCII.GetString(data);
                 string pattern = "(^|\r\n)" + tag + " (\\w+) ";
-                Match match = Regex.Match(response, pattern);
+                Match match = Regex.Match(this.response, pattern);
                 if (match.Success)
                 {
                     if (match.Groups[2].ToString() == "OK")
@@ -255,7 +254,7 @@ namespace MinimalEmailClient.Models
                     // Process the item.
                 }
 
-                Debug.Write(response);
+                Debug.Write(this.response);
             }
 
             return (bool)tagOk;
@@ -272,7 +271,7 @@ namespace MinimalEmailClient.Models
                 try
                 {
                     // Offset always points to the next available slot.
-                    byteCount += sslStream.Read(buffer, offset, buffer.Length - offset);
+                    byteCount += this.sslStream.Read(this.buffer, offset, this.buffer.Length - offset);
                 }
                 catch (Exception e)
                 {
@@ -281,20 +280,20 @@ namespace MinimalEmailClient.Models
                 }
 
                 offset += byteCount;
-                if (buffer[offset - 2] == '\r' && buffer[offset - 1] == '\n')
+                if (this.buffer[offset - 2] == '\r' && this.buffer[offset - 1] == '\n')
                 {
                     done = true;
                 }
             }
             return byteCount;
         }
-        
+
         private void CleanUpConnection()
         {
             try
             {
-                sslStream.Close();
-                tcpClient.Close();
+                this.sslStream.Close();
+                this.tcpClient.Close();
             }
             catch
             {
