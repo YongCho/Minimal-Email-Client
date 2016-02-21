@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:EmailClientPrototype2"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
-        <Style TargetType="Window">
+        <Style TargetType="{x:Type Window}">
             <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
             <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
         </Style>
@@ -220,7 +220,7 @@
         </ControlTemplate>
 
         <!-- Apply one of the templates to a menu item based on its position. -->
-        <Style TargetType="MenuItem">
+        <Style TargetType="{x:Type MenuItem}">
             <Style.Triggers>
                 <Trigger Property="Role" Value="TopLevelItem">
                     <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
