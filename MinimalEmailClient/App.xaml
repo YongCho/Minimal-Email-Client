@@ -219,6 +219,7 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
+        <!-- Apply one of the templates to a menu item based on its position. -->
         <Style TargetType="MenuItem">
             <Style.Triggers>
                 <Trigger Property="Role" Value="TopLevelItem">
@@ -236,5 +237,21 @@
             </Style.Triggers>
         </Style>
         
+        <!-- Separator -->
+        <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="{x:Type Separator}">
+            <Setter Property="Background" Value="#FFD7D7D7"/>
+            <Setter Property="BorderBrush" Value="#FFD7D7D7"/>
+            <Setter Property="MinHeight" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Separator}">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="30,0,3,0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Application.Resources>
 </Application>
