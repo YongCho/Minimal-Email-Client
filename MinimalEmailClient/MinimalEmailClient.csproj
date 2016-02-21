@@ -58,6 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\NewMailWindowViewModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Views\NewMailWindow.xaml.cs">
       <DependentUpon>NewMailWindow.xaml</DependentUpon>
@@ -117,6 +118,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="mail.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\send.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\attachment.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

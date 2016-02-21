@@ -7,13 +7,13 @@ namespace MinimalEmailClient.Models
     public abstract class CommonBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        
         protected virtual void RaisePropertyChanged(string propertyName)
         {
-            if (this.PropertyChanged != null)
+            var handler = PropertyChanged;
+            if (handler != null)
             {
                 var e = new PropertyChangedEventArgs(propertyName);
-                this.PropertyChanged(this, e);
+                handler(this, e);
             }
         }
     }

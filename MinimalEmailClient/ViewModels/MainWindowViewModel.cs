@@ -1,4 +1,5 @@
 ﻿using MinimalEmailClient.Models;
+using MinimalEmailClient.Views;
 using System.Collections.ObjectModel;
 using System;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows.Input;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -13,6 +15,7 @@ namespace MinimalEmailClient.ViewModels
     {
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }
+        private RelayCommand newMailCommand;
 
         private string selectedInboxName;
         public string SelectedInboxName
@@ -31,8 +34,6 @@ namespace MinimalEmailClient.ViewModels
         public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
-
-
 
             // Let's get some dummy messages to test the UI.
             Sync();
@@ -55,6 +56,26 @@ namespace MinimalEmailClient.ViewModels
             {
                 Debug.WriteLine(m.ToString());
             }
+        }
+
+        public ICommand NewMailCommand
+        {
+            get
+            {
+                if (this.newMailCommand == null)
+                {
+                    newMailCommand = new RelayCommand(param => this.writeNewMail());
+                }
+                return this.newMailCommand;
+            }
+        }
+
+        private void writeNewMail()
+        {
+            NewMailWindow view = new NewMailWindow();
+            NewMailWindowViewModel newMailWindowViewModel = new NewMailWindowViewModel();  // Could pass an account info here.
+            view.DataContext = newMailWindowViewModel;
+            view.Show();
         }
     }
 }
