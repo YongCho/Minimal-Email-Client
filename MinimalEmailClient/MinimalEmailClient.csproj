@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Models\Account.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="Views\CreateMessageView.xaml.cs">
