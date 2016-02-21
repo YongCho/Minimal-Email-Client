@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Threading;
 
-namespace EmailClientPrototype2.Models
+namespace MinimalEmailClient.Models
 {
     class Downloader
     {

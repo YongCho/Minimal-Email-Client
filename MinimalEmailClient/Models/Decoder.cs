@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace EmailClientPrototype2.Models
+namespace MinimalEmailClient.Models
 {
     class Decoder
     {

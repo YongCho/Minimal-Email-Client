@@ -1,7 +1,7 @@
 ﻿using System.Windows;
-using EmailClientPrototype2.ViewModels;
+using MinimalEmailClient.ViewModels;
 
-namespace EmailClientPrototype2
+namespace MinimalEmailClient.Views
 {
     public partial class MainWindow : Window
     {

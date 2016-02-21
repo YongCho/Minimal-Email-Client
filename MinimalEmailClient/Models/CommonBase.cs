@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 
-namespace EmailClientPrototype2.Models
+namespace MinimalEmailClient.Models
 {
     public abstract class CommonBase : INotifyPropertyChanged
     {

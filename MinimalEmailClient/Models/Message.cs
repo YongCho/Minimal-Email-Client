@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace EmailClientPrototype2.Models
+namespace MinimalEmailClient.Models
 {
     class Message : CommonBase
     {

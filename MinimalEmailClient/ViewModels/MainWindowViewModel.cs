@@ -1,4 +1,4 @@
-﻿using EmailClientPrototype2.Models;
+﻿using MinimalEmailClient.Models;
 using System.Collections.ObjectModel;
 using System;
 using System.ComponentModel;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace EmailClientPrototype2.ViewModels
+namespace MinimalEmailClient.ViewModels
 {
     class MainWindowViewModel : CommonBase
     {
@@ -31,7 +31,7 @@ namespace EmailClientPrototype2.ViewModels
         public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
-            
+
 
 
             // Let's get some dummy messages to test the UI.
@@ -40,7 +40,7 @@ namespace EmailClientPrototype2.ViewModels
 
         public async void Sync()
         {
-            List<Message> msgs = await Task.Run<List<Message>>(() => 
+            List<Message> msgs = await Task.Run<List<Message>>(() =>
             {
                 Downloader downloader = new Downloader("imap.gmail.com", 993, "test.racketscience", "12#$zxCV");
                 return downloader.getDummyMessages();
