@@ -8,14 +8,20 @@
             <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
             <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
         </Style>
-        
+
         <SolidColorBrush x:Key="MenuItemBackgroundBrush" Color="White" />
         <SolidColorBrush x:Key="MenuItemBorderBrush" Color="#FFDADADA" />
-        <SolidColorBrush x:Key="MenuItemHighlightBackgroundBrush" Color="#FFD7E6F7" />
-        
+        <SolidColorBrush x:Key="MenuItemHighlightBackgroundBrush" Color="#FFD4E9FB" />
+        <SolidColorBrush x:Key="ToolBarButtonHoverBorder" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+        <SolidColorBrush x:Key="ToolBarButtonHover" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+        <SolidColorBrush x:Key="ToolBarButtonPressedBorder" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+        <SolidColorBrush x:Key="ToolBarButtonPressed" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+        <Thickness x:Key="MenuItemBorderThickness">0</Thickness>
+        <Thickness x:Key="ToolbarButtonBorderThickness">0</Thickness>
+
         <!-- Top level items -->
         <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
-            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="0" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
+            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="{StaticResource MenuItemBorderThickness}" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
                 <Grid VerticalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -55,7 +61,7 @@
 
         <!-- Top level headers -->
         <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TopLevelHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
-            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="0" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
+            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="{StaticResource MenuItemBorderThickness}" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
                 <Grid VerticalAlignment="Center" Height="25">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -107,10 +113,10 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        
+
         <!-- Submenu items -->
         <ControlTemplate x:Key="{ComponentResourceKey ResourceId=SubmenuItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
-            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="0" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
+            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="{StaticResource MenuItemBorderThickness}" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
                 <Grid Margin="-1" Height="25">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MinWidth="22" SharedSizeGroup="MenuItemIconColumnGroup" Width="Auto"/>
@@ -157,7 +163,7 @@
 
         <!-- Submenu headers -->
         <ControlTemplate x:Key="{ComponentResourceKey ResourceId=SubmenuHeaderTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}" TargetType="{x:Type MenuItem}">
-            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="0" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
+            <Border x:Name="templateRoot" BorderBrush="{StaticResource MenuItemBorderBrush}" BorderThickness="{StaticResource MenuItemBorderThickness}" Background="{StaticResource MenuItemBackgroundBrush}" SnapsToDevicePixels="True">
                 <Grid Margin="-1" Height="25">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition MinWidth="22" SharedSizeGroup="MenuItemIconColumnGroup" Width="Auto"/>
@@ -236,7 +242,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <!-- Separator -->
         <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="{x:Type Separator}">
             <Setter Property="Background" Value="#FFD7D7D7"/>
@@ -248,6 +254,52 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type Separator}">
                         <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Margin="30,0,3,0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Toolbar buttons -->
+        <Style x:Key="{x:Static ToolBar.ButtonStyleKey}" TargetType="{x:Type Button}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="BorderThickness" Value="{StaticResource ToolbarButtonBorderThickness}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonHoverBorder}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="true">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonHoverBorder}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonPressedBorder}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonPressed}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
