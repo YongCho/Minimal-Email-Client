@@ -63,7 +63,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ViewModels\NewMailWindowViewModel.cs" />
-    <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="Views\NewMailWindow.xaml.cs">
       <DependentUpon>NewMailWindow.xaml</DependentUpon>
     </Compile>

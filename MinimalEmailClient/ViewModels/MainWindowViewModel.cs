@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
 using Prism.Mvvm;
+using Prism.Commands;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -16,8 +17,7 @@ namespace MinimalEmailClient.ViewModels
     {
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }
-        private RelayCommand newMailCommand;
-
+        public ICommand NewMailCommand { get; set; }
         private string selectedInboxName;
         public string SelectedInboxName
         {
@@ -28,6 +28,7 @@ namespace MinimalEmailClient.ViewModels
         public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
+            NewMailCommand = new DelegateCommand(writeNewMail);
 
             // Let's get some dummy messages to test the UI.
             Sync();
@@ -49,18 +50,6 @@ namespace MinimalEmailClient.ViewModels
             foreach (Message m in Messages)
             {
                 Debug.WriteLine(m.ToString());
-            }
-        }
-
-        public ICommand NewMailCommand
-        {
-            get
-            {
-                if (this.newMailCommand == null)
-                {
-                    this.newMailCommand = new RelayCommand(param => this.writeNewMail());
-                }
-                return this.newMailCommand;
             }
         }
 
