@@ -1,23 +1,17 @@
-﻿using System;
+﻿using Prism.Mvvm;
+using System;
 using System.ComponentModel;
 
 namespace MinimalEmailClient.Models
 {
-    class Message : CommonBase
+    class Message : BindableBase
     {
         private int uid;
         #region public int Uid
         public int Uid
         {
             get { return this.uid; }
-            set
-            {
-                if (this.uid != value)
-                {
-                    this.uid = value;
-                    RaisePropertyChanged("Uid");
-                }
-            }
+            set { SetProperty(ref this.uid, value); }
         }
         #endregion
 
@@ -26,14 +20,7 @@ namespace MinimalEmailClient.Models
         public string Subject
         {
             get { return this.subject; }
-            set
-            {
-                if (this.subject != value)
-                {
-                    this.subject = value;
-                    RaisePropertyChanged("Subject");
-                }
-            }
+            set { SetProperty(ref this.subject, value); }
         }
         #endregion
 
@@ -42,14 +29,7 @@ namespace MinimalEmailClient.Models
         public string SenderName
         {
             get { return this.senderName; }
-            set
-            {
-                if (this.senderName != value)
-                {
-                    this.senderName = value;
-                    RaisePropertyChanged("SenderName");
-                }
-            }
+            set { SetProperty(ref this.senderName, value); }
         }
         #endregion
 
@@ -58,14 +38,7 @@ namespace MinimalEmailClient.Models
         public string SenderAddress
         {
             get { return this.senderAddress; }
-            set
-            {
-                if (this.senderAddress != value)
-                {
-                    this.senderAddress = value;
-                    RaisePropertyChanged("SenderAddress");
-                }
-            }
+            set { SetProperty(ref this.senderAddress, value); }
         }
         #endregion
 
@@ -74,14 +47,7 @@ namespace MinimalEmailClient.Models
         public string RecipientName
         {
             get { return this.recipientName; }
-            set
-            {
-                if (this.recipientName != value)
-                {
-                    this.recipientName = value;
-                    RaisePropertyChanged("RecipientName");
-                }
-            }
+            set { SetProperty(ref this.recipientName, value); }
         }
         #endregion
 
@@ -90,14 +56,7 @@ namespace MinimalEmailClient.Models
         public string RecipientAddress
         {
             get { return this.recipientAddress; }
-            set
-            {
-                if (this.recipientAddress != value)
-                {
-                    this.recipientAddress = value;
-                    RaisePropertyChanged("RecipientAddress");
-                }
-            }
+            set { SetProperty(ref this.recipientAddress, value); }
         }
         #endregion
 
@@ -106,14 +65,7 @@ namespace MinimalEmailClient.Models
         public DateTime Date
         {
             get { return this.date; }
-            set
-            {
-                if (this.date != value)
-                {
-                    this.date = value;
-                    RaisePropertyChanged("Date");
-                }
-            }
+            set { SetProperty(ref this.date, value); }
         }
         #endregion
 
@@ -122,17 +74,10 @@ namespace MinimalEmailClient.Models
         public bool IsSeen
         {
             get { return this.isSeen; }
-            set
-            {
-                if (this.isSeen != value)
-                {
-                    this.isSeen = value;
-                    RaisePropertyChanged("IsSeen");
-                }
-            }
+            set { SetProperty(ref this.isSeen, value); }
         }
         #endregion
-        
+
         public override string ToString()
         {
             return string.Format("Message UID={0}, Subject={1}, Sender={2}<{3}>, Date={4}, New?={5}",

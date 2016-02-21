@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
+using Prism.Mvvm;
 
 namespace MinimalEmailClient.ViewModels
 {
-    class MainWindowViewModel : CommonBase
+    class MainWindowViewModel : BindableBase
     {
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }
@@ -21,14 +22,7 @@ namespace MinimalEmailClient.ViewModels
         public string SelectedInboxName
         {
             get { return this.selectedInboxName; }
-            set
-            {
-                if (this.selectedInboxName != value)
-                {
-                    this.selectedInboxName = value;
-                    RaisePropertyChanged("SelectedInboxName");
-                }
-            }
+            set { SetProperty(ref this.selectedInboxName, value); }
         }
 
         public MainWindowViewModel()
