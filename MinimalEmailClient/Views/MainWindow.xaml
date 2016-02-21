@@ -10,11 +10,11 @@
     <DockPanel>
         <!-- Menu Bar -->
         <Menu DockPanel.Dock="Top" BorderThickness="0" Background="White" BorderBrush="AliceBlue">
-            <MenuItem Header="File" Style="{DynamicResource MenuItemStyle}">
-                <MenuItem Header="New Mail..." Style="{DynamicResource MenuItemStyle}" />
-                <MenuItem Header="Option..." Style="{DynamicResource MenuItemStyle}" />
+            <MenuItem Header="File">
+                <MenuItem Header="New Mail..." />
+                <MenuItem Header="Option..." />
                 <Separator />
-                <MenuItem Header="Exit" Style="{DynamicResource MenuItemStyle}" />
+                <MenuItem Header="Exit" />
             </MenuItem>
         </Menu>
 
@@ -86,11 +86,11 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="{Binding ElementName=col2, Path=ActualWidth}"/>
                 </Grid.ColumnDefinitions>
-                <Grid Grid.Column="1" x:Name="helperField"/>
+                <Grid Grid.Column="1" Name="helperField"/>
             </Grid>
 
             <!-- -->
-            <GridSplitter Grid.Column="2" x:Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
+            <GridSplitter Grid.Column="2" Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
         </Grid>
 
     </DockPanel>

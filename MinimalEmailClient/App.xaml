@@ -219,7 +219,7 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
-        <Style x:Key="MenuItemStyle" TargetType="{x:Type MenuItem}">
+        <Style TargetType="MenuItem">
             <Style.Triggers>
                 <Trigger Property="Role" Value="TopLevelItem">
                     <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
