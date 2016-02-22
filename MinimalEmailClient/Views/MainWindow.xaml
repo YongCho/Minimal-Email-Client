@@ -24,7 +24,7 @@
         <!-- Menu Bar -->
         <Menu DockPanel.Dock="Top" BorderThickness="0" Background="White" BorderBrush="AliceBlue">
             <MenuItem Header="File">
-                <MenuItem Header="New Mail..." />
+                <MenuItem Header="New Message..." Command="{Binding WriteNewMessageCommand}" />
                 <MenuItem Header="Option..." />
                 <Separator />
                 <MenuItem Header="Exit" />
