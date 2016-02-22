@@ -16,12 +16,6 @@ namespace MinimalEmailClient.ViewModels
         public Message SelectedMessage { get; set; }
         public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
         public ICommand WriteNewMessageCommand { get; set; }
-        private string selectedInboxName;
-        public string SelectedInboxName
-        {
-            get { return this.selectedInboxName; }
-            set { SetProperty(ref this.selectedInboxName, value); }
-        }
 
         public MainWindowViewModel()
         {

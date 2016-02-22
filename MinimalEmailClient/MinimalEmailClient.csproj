@@ -68,6 +68,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -90,10 +92,15 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
+    <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
     <Compile Include="Views\CreateMessageView.xaml.cs">
       <DependentUpon>CreateMessageView.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\CreateMessageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MailboxTreeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -109,6 +116,9 @@
     <Compile Include="Models\Downloader.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="Views\MailboxTreeView.xaml.cs">
+      <DependentUpon>MailboxTreeView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

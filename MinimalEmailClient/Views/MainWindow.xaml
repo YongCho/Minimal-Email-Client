@@ -66,20 +66,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- List of mailboxes in the connected account. -->
-            <TreeView Grid.Column="0" BorderThickness="0" Grid.ColumnSpan="2">
-                <TreeView.Background>
-                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#fffafafa" Offset="1"/>
-                        <GradientStop Color="White"/>
-                    </LinearGradientBrush>
-                </TreeView.Background>
-                <!-- These are dummies for now. -->
-                <TreeViewItem Header="test.racketscience@gmail.com" IsExpanded="True">
-                    <TreeViewItem Header="Inbox" Margin="0,0,0,2" />
-                    <TreeViewItem Header="Sent" Margin="0,0,0,2" />
-                    <TreeViewItem Header="Trash" Margin="0,0,0,2" />
-                </TreeViewItem>
-            </TreeView>
+            <views:MailboxTreeView Grid.Column="0" Grid.ColumnSpan="2" />
 
             <!-- List of messages in the selected mailbox. -->
             <ListView Grid.Column="2" Margin="10,0,0,0" BorderThickness="0" Name="lvMessages" ItemsSource="{Binding Messages}">
