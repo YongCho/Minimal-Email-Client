@@ -15,13 +15,17 @@ namespace MinimalEmailClient.ViewModels
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }
         public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
+        public InteractionRequest<INotification> AddNewAccountPopupRequest { get; set; }
         public ICommand WriteNewMessageCommand { get; set; }
+        public ICommand AddNewAccountCommand { get; set; }
 
         public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
             WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
+            AddNewAccountPopupRequest = new InteractionRequest<INotification>();
             WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest);
+            AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
 
             // Let's get some dummy messages to test the UI.
             Sync();
@@ -51,6 +55,11 @@ namespace MinimalEmailClient.ViewModels
             WriteNewMessageNotification notification = new WriteNewMessageNotification("Currently selected account info goes here");
             notification.Title = "New Message";
             WriteNewMessagePopupRequest.Raise(notification);
+        }
+
+        private void RaiseAddNewAccountPopupRequest()
+        {
+            AddNewAccountPopupRequest.Raise(new Notification{ Content = "", Title = "New Account"});
         }
     }
 }

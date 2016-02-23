@@ -18,6 +18,15 @@
                 </prism:PopupWindowAction.WindowContent>
             </prism:PopupWindowAction>
         </prism:InteractionRequestTrigger>
+
+        <!-- Popup for adding an account -->
+        <prism:InteractionRequestTrigger SourceObject="{Binding AddNewAccountPopupRequest, Mode=OneWay}">
+            <prism:PopupWindowAction>
+                <prism:PopupWindowAction.WindowContent>
+                    <views:AddAcountView />
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
     </i:Interaction.Triggers>
 
     <DockPanel>
@@ -25,6 +34,7 @@
         <Menu DockPanel.Dock="Top" BorderThickness="0" Background="White" BorderBrush="AliceBlue">
             <MenuItem Header="File">
                 <MenuItem Header="New Message..." Command="{Binding WriteNewMessageCommand}" />
+                <MenuItem Header="Add Account..." Command="{Binding AddNewAccountCommand}" />
                 <MenuItem Header="Option..." />
                 <Separator />
                 <MenuItem Header="Exit" />

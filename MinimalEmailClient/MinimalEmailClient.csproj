@@ -90,12 +90,23 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\AccountValidator.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
+    <Compile Include="ViewModels\AddAccountViewModel.cs" />
+    <Compile Include="ViewModels\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
+    <Compile Include="ViewModels\PasswordHelper.cs" />
+    <Compile Include="Views\AddAcountView.xaml.cs">
+      <DependentUpon>AddAcountView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\CreateMessageView.xaml.cs">
       <DependentUpon>CreateMessageView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Views\AddAcountView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\CreateMessageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -164,6 +175,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\attachment.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\validate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\no.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
