@@ -93,7 +93,7 @@
     <Compile Include="Models\AccountValidator.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
-    <Compile Include="ViewModels\BoolToVisibilityConverter.cs" />
+    <Compile Include="Views\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
     <Compile Include="ViewModels\PasswordHelper.cs" />
