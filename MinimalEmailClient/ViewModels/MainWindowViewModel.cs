@@ -28,7 +28,9 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
 
             // Let's get some dummy messages to test the UI.
-            Sync();
+            // Sync();
+
+            DatabaseManager dm = new DatabaseManager();
         }
 
         public async void Sync()

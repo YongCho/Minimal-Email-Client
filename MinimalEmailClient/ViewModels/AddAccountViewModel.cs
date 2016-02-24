@@ -5,11 +5,13 @@ using System.Windows.Input;
 using MinimalEmailClient.Models;
 using System;
 using System.Text.RegularExpressions;
+using Prism.Interactivity.InteractionRequest;
 
 namespace MinimalEmailClient.ViewModels
 {
-    class AddAccountViewModel : BindableBase
+    class AddAccountViewModel : BindableBase, IInteractionRequestAware
     {
+        #region AccountName
         private string accountName;
         public string AccountName
         {
@@ -27,7 +29,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.accountNameValidated; }
             set { SetProperty(ref this.accountNameValidated, value); }
         }
-
+        #endregion
+        #region UserName
         private string userName;
         public string UserName
         {
@@ -45,25 +48,27 @@ namespace MinimalEmailClient.ViewModels
             get { return this.userNameValidated; }
             set { SetProperty(ref this.userNameValidated, value); }
         }
-
-        private string userEmail;
-        public string UserEmail
+        #endregion
+        #region EmailAddress
+        private string emailAddress;
+        public string EmailAddress
         {
-            get { return this.userEmail; }
+            get { return this.emailAddress; }
             set
             {
-                SetProperty(ref this.userEmail, value);
-                UserEmailValidated = !String.IsNullOrWhiteSpace(UserEmail);
+                SetProperty(ref this.emailAddress, value);
+                EmailAddressValidated = !String.IsNullOrWhiteSpace(EmailAddress);
                 HandleInputChange();
             }
         }
-        private bool userEmailValidated = false;
-        public bool UserEmailValidated
+        private bool emailAddressValidated = false;
+        public bool EmailAddressValidated
         {
-            get { return this.userEmailValidated; }
-            set { SetProperty(ref this.userEmailValidated, value); }
+            get { return this.emailAddressValidated; }
+            set { SetProperty(ref this.emailAddressValidated, value); }
         }
-
+        #endregion
+        #region LoginName
         private string loginName;
         public string LoginName
         {
@@ -81,7 +86,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.loginNameValidated; }
             set { SetProperty(ref this.loginNameValidated, value); }
         }
-
+        #endregion
+        #region LoginPassword
         private string loginPassword;
         public string LoginPassword
         {
@@ -99,7 +105,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.loginPasswordValidated; }
             set { SetProperty(ref this.loginPasswordValidated, value); }
         }
-
+        #endregion
+        #region ImapServerName
         private string imapServerName;
         public string ImapServerName
         {
@@ -117,7 +124,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.imapServerNameValidated; }
             set { SetProperty(ref this.imapServerNameValidated, value); }
         }
-
+        #endregion
+        #region ImapPortString
         private string imapPortString;
         public string ImapPortString
         {
@@ -135,7 +143,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.imapPortStringValidated; }
             set { SetProperty(ref this.imapPortStringValidated, value); }
         }
-
+        #endregion
+        #region SmtpServerName
         private string smtpServerName;
         public string SmtpServerName
         {
@@ -153,7 +162,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.smtpServerValidated; }
             set { SetProperty(ref this.smtpServerValidated, value); }
         }
-
+        #endregion
+        #region SmtpPortString
         private string smtpPortString;
         public string SmtpPortString
         {
@@ -171,12 +181,13 @@ namespace MinimalEmailClient.ViewModels
             get { return this.smtpPortValidated; }
             set { SetProperty(ref this.smtpPortValidated, value); }
         }
+        #endregion
 
-        private bool validationComplted = false;
-        public bool ValidationCompleted
+        private bool accountValidated = false;
+        public bool AccountValidated
         {
-            get { return this.validationComplted; }
-            set { SetProperty(ref this.validationComplted, value); }
+            get { return this.accountValidated; }
+            set { SetProperty(ref this.accountValidated, value); }
         }
         private string message = string.Empty;
         public string Message
@@ -184,7 +195,6 @@ namespace MinimalEmailClient.ViewModels
             get { return this.message; }
             set { SetProperty(ref this.message, value); }
         }
-
         private bool isFormComplete = false;
         public bool IsFormComplete
         {
@@ -194,27 +204,69 @@ namespace MinimalEmailClient.ViewModels
 
         public ICommand SubmitCommand { get; set; }
         public ICommand ValidateCommand { get; set; }
+        public ICommand CancelCommand { get; set; }
+        public Action FinishInteraction { get; set; }
+        private Notification notification;
+        public INotification Notification
+        {
+            get
+            {
+                return this.notification;
+            }
+
+            set
+            {
+                this.notification = value as Notification;
+                OnPropertyChanged(() => Notification);
+            }
+        }
 
         private readonly string defaultImapPortString = "993";
         private readonly string defaultSmtpPortString = "587";
 
-
         public AddAccountViewModel()
         {
-            SubmitCommand = new DelegateCommand(Submit);
             ValidateCommand = new DelegateCommand(ValidateConnection);
+            SubmitCommand = new DelegateCommand(Submit);
+            CancelCommand = new DelegateCommand(Cancel);
             ImapPortString = this.defaultImapPortString;
             SmtpPortString = this.defaultSmtpPortString;
         }
 
+        private void Cancel()
+        {
+            FinishInteraction();
+            ResetForm();
+        }
+
         private void Submit()
         {
-            Debug.WriteLine("Submit");
-            if (ValidationCompleted)
+            if (AccountValidated)
             {
-                // Add account.
-                // Convert port numbers to int.
-                // Close view.
+                Account account = new Account();
+                account.AccountName = AccountName;
+                account.UserName = UserName;
+                account.EmailAddress = EmailAddress;
+                account.ImapLoginName = LoginName;
+                account.ImapLoginPassword = LoginPassword;
+                account.ImapServerName = ImapServerName;
+                account.ImapPortNumber = Convert.ToInt32(ImapPortString);
+                account.SmtpLoginName = LoginName;
+                account.SmtpLoginPassword = LoginPassword;
+                account.SmtpServerName = SmtpServerName;
+                account.SmtpPortNumber = Convert.ToInt32(SmtpPortString);
+
+                AccountManager accountManager = new AccountManager();
+                bool success = accountManager.AddAccount(account);
+                if (success)
+                {
+                    FinishInteraction();
+                    ResetForm();
+                }
+                else
+                {
+                    Message = accountManager.Error;
+                }
             }
         }
 
@@ -256,12 +308,12 @@ namespace MinimalEmailClient.ViewModels
 
                 if (validator.Validate())
                 {
-                    ValidationCompleted = true;
+                    AccountValidated = true;
                     Message = "Validated";
                 }
                 else
                 {
-                    ValidationCompleted = false;
+                    AccountValidated = false;
                     Message = validator.Errors[0];
                 }
             }
@@ -269,12 +321,12 @@ namespace MinimalEmailClient.ViewModels
 
         private void HandleInputChange()
         {
-            ValidationCompleted = false;
+            AccountValidated = false;
             Message = string.Empty;
 
             if ((bool)AccountNameValidated &&
                 (bool)UserNameValidated &&
-                (bool)UserEmailValidated &&
+                (bool)EmailAddressValidated &&
                 (bool)LoginNameValidated &&
                 (bool)LoginPasswordValidated &&
                 (bool)ImapServerNameValidated &&
@@ -294,13 +346,14 @@ namespace MinimalEmailClient.ViewModels
         {
             AccountName = string.Empty;
             UserName = string.Empty;
-            UserEmail = string.Empty;
+            EmailAddress = string.Empty;
             LoginName = string.Empty;
             LoginPassword = string.Empty;
             ImapServerName = string.Empty;
             ImapPortString = this.defaultImapPortString;
             SmtpServerName = string.Empty;
             SmtpPortString = this.defaultSmtpPortString;
+            Message = string.Empty;
         }
     }
 }

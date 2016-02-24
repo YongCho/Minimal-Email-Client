@@ -98,11 +98,11 @@
                         </Style>
                     </TextBox.Style>
                 </TextBox>
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding UserEmail, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding UserEmailValidated}" Value="False">
+                                <DataTrigger Binding="{Binding EmailAddressValidated}" Value="False">
                                     <Setter Property="BorderBrush" Value="#FFFF8080" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -229,7 +229,7 @@
 
         <!-- Error Message -->
         <StackPanel Name="MessagePanel" Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Source="/Images/validate.png" Width="30" Visibility="{Binding ValidationCompleted, Converter={StaticResource BoolToHiddenConverter}}" />
+            <Image Source="/Images/validate.png" Width="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
             <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
         </StackPanel>
 
@@ -244,8 +244,8 @@
             </Grid.ColumnDefinitions>
 
             <Button Grid.Column="2" Content="Validate" Command="{Binding ValidateCommand}" IsEnabled="{Binding IsFormComplete}" />
-            <Button Grid.Column="3" Content="OK" Command="{Binding SubmitCommand}" IsEnabled="{Binding ValidationCompleted}" />
-            <Button Grid.Column="4" Content="Cancel" Click="btnCancel_Click" />
+            <Button Grid.Column="3" Content="OK" Command="{Binding SubmitCommand}" IsEnabled="{Binding AccountValidated}" />
+            <Button Grid.Column="4" Content="Cancel" Command="{Binding CancelCommand}" />
         </Grid>
 
     </Grid>
