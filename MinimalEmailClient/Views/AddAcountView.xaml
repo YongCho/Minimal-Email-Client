@@ -136,7 +136,7 @@
                         </Style>
                     </TextBox.Style>
                 </TextBox>
-                <PasswordBox Grid.Column="1" Grid.Row="1" viewModels:PasswordHelper.Attach="True" viewModels:PasswordHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
+                <PasswordBox Grid.Column="1" Grid.Row="1" viewModels:PasswordBindingHelper.Attach="True" viewModels:PasswordBindingHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
                     <PasswordBox.Style>
                         <Style BasedOn="{StaticResource PasswordBoxStyle}" TargetType="{x:Type PasswordBox}">
                             <Style.Triggers>

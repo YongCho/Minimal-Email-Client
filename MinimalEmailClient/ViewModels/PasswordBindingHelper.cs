@@ -5,20 +5,20 @@ namespace MinimalEmailClient.ViewModels
 {
     // Helper to enable binding to a PasswordBox.
     // Source: http://www.wpftutorial.net/PasswordBox.html
-    public static class PasswordHelper
+    public static class PasswordBindingHelper
     {
         public static readonly DependencyProperty PasswordProperty =
             DependencyProperty.RegisterAttached("Password",
-            typeof(string), typeof(PasswordHelper),
+            typeof(string), typeof(PasswordBindingHelper),
             new FrameworkPropertyMetadata(string.Empty, OnPasswordPropertyChanged));
 
         public static readonly DependencyProperty AttachProperty =
             DependencyProperty.RegisterAttached("Attach",
-            typeof(bool), typeof(PasswordHelper), new PropertyMetadata(false, Attach));
+            typeof(bool), typeof(PasswordBindingHelper), new PropertyMetadata(false, Attach));
 
         private static readonly DependencyProperty IsUpdatingProperty =
            DependencyProperty.RegisterAttached("IsUpdating", typeof(bool),
-           typeof(PasswordHelper));
+           typeof(PasswordBindingHelper));
 
 
         public static void SetAttach(DependencyObject dp, bool value)
