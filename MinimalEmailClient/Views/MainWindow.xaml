@@ -21,7 +21,7 @@
 
         <!-- Popup for adding an account -->
         <prism:InteractionRequestTrigger SourceObject="{Binding AddNewAccountPopupRequest, Mode=OneWay}">
-            <prism:PopupWindowAction>
+            <prism:PopupWindowAction IsModal="True" CenterOverAssociatedObject="True">
                 <prism:PopupWindowAction.WindowContent>
                     <views:AddAcountView />
                 </prism:PopupWindowAction.WindowContent>

@@ -20,13 +20,13 @@
             <Setter Property="Margin" Value="2,0,20,3" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
-        <Style TargetType="TextBox">
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
             <Setter Property="Margin" Value="2" />
             <Setter Property="Height" Value="23" />
             <Setter Property="BorderBrush" Value="Black" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
-        <Style TargetType="PasswordBox">
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
             <Setter Property="Margin" Value="2" />
             <Setter Property="Height" Value="23" />
             <Setter Property="BorderBrush" Value="Black" />
@@ -61,7 +61,17 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="Account Name:" />
-            <TextBox Grid.Column="1" Text="{Binding AccountName, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Grid.Column="1" Text="{Binding AccountName, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox.Style>
+                    <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AccountNameValidated}" Value="False">
+                                <Setter Property="BorderBrush" Value="#FFFF8080" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
         </Grid>
 
             <!-- User Information -->
@@ -77,8 +87,28 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Name:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Email:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding UserEmail, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding UserNameValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding UserEmail, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding UserEmailValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
             </Grid>
         </GroupBox>
 
@@ -95,8 +125,28 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Login name:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Password:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding LoginName, UpdateSourceTrigger=PropertyChanged}" />
-                <PasswordBox Grid.Column="1" Grid.Row="1" viewModels:PasswordHelper.Attach="True" viewModels:PasswordHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding LoginName, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding LoginNameValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <PasswordBox Grid.Column="1" Grid.Row="1" viewModels:PasswordHelper.Attach="True" viewModels:PasswordHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
+                    <PasswordBox.Style>
+                        <Style BasedOn="{StaticResource PasswordBoxStyle}" TargetType="{x:Type PasswordBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding LoginPasswordValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </PasswordBox.Style>
+                </PasswordBox>
                 <TextBlock Grid.Column="1" Grid.Row="1" x:Name="plain" Visibility="Collapsed" Text="{Binding LoginPassword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
             </Grid>
         </GroupBox>
@@ -114,8 +164,28 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Host:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Port:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding ImapServerName, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding ImapPortString, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding ImapServerName, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ImapServerNameValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding ImapPortString, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ImapPortStringValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
             </Grid>
         </GroupBox>
 
@@ -132,8 +202,28 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Host:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Port:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding SmtpServerName, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding SmtpPortString, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding SmtpServerName, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SmtpServerNameValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding SmtpPortString, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.Style>
+                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SmtpPortStringValidated}" Value="False">
+                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
             </Grid>
         </GroupBox>
 
@@ -153,7 +243,7 @@
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="2" Content="Validate" Command="{Binding ValidateCommand}" />
+            <Button Grid.Column="2" Content="Validate" Command="{Binding ValidateCommand}" IsEnabled="{Binding IsFormComplete}" />
             <Button Grid.Column="3" Content="OK" Command="{Binding SubmitCommand}" IsEnabled="{Binding ValidationCompleted}" />
             <Button Grid.Column="4" Content="Cancel" Click="btnCancel_Click" />
         </Grid>
