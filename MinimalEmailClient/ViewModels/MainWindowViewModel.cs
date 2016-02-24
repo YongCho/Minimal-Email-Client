@@ -29,8 +29,6 @@ namespace MinimalEmailClient.ViewModels
 
             // Let's get some dummy messages to test the UI.
             // Sync();
-
-            DatabaseManager dm = new DatabaseManager();
         }
 
         public async void Sync()

@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace MinimalEmailClient.Models
 {
@@ -13,6 +14,7 @@ namespace MinimalEmailClient.Models
         public AccountManager()
         {
             Accounts = new ObservableCollection<Account>();
+            LoadAccounts();
         }
 
         // Loads all accounts from database.
@@ -25,6 +27,7 @@ namespace MinimalEmailClient.Models
             foreach (Account account in accounts)
             {
                 Accounts.Add(account);
+                Debug.WriteLine(account.ToString());
             }
         }
 

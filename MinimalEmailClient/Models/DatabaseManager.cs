@@ -36,10 +36,10 @@ namespace MinimalEmailClient.Models
                     cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, UserName TEXT, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
                     cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, MailboxName TEXT, PRIMARY KEY (AccountName, MailboxName), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
+                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, MailboxName TEXT, FlagString TEXT, PRIMARY KEY (AccountName, MailboxName), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
                     cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxName TEXT, Uid INT, Subject TEXT, Date TEXT, SenderName TEXT, SenderAddress TEXT, RecipientName TEXT, RecipientAddress TEXT, Flags TEXT, PRIMARY KEY (AccountName, MailboxName, Uid), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName), FOREIGN KEY (MailboxName) REFERENCES Mailboxes(MailboxName));";
+                    cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxName TEXT, Uid INT, Subject TEXT, Date TEXT, SenderName TEXT, SenderAddress TEXT, RecipientName TEXT, RecipientAddress TEXT, FlagString TEXT, PRIMARY KEY (AccountName, MailboxName, Uid), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName), FOREIGN KEY (MailboxName) REFERENCES Mailboxes(MailboxName));";
                     cmd.ExecuteNonQuery();
                 }
 
@@ -57,7 +57,34 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-
+                using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+                    string cmdString = @"SELECT * FROM Accounts;";
+                    using (SQLiteCommand cmd = new SQLiteCommand(cmdString, dbConnection))
+                    {
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Account account = new Account();
+                                account.AccountName = (string)reader["AccountName"];
+                                account.UserName = (string)reader["UserName"];
+                                account.EmailAddress = (string)reader["EmailAddress"];
+                                account.ImapLoginName = (string)reader["ImapLoginName"];
+                                account.ImapLoginPassword = (string)reader["ImapLoginPassword"];
+                                account.ImapServerName = (string)reader["ImapServerName"];
+                                account.ImapPortNumber = (int)reader["ImapPortNumber"];
+                                account.SmtpLoginName = (string)reader["SmtpLoginName"];
+                                account.SmtpLoginPassword = (string)reader["SmtpLoginPassword"];
+                                account.SmtpServerName = (string)reader["SmtpServerName"];
+                                account.SmtpPortNumber = (int)reader["SmtpPortNumber"];
+                                accounts.Add(account);
+                            }
+                        }
+                    }
+                    dbConnection.Close();
+                }
             }
 
             return accounts;
