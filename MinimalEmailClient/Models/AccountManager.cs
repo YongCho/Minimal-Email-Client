@@ -40,6 +40,12 @@ namespace MinimalEmailClient.Models
                     // Check if the mailbox a child of another mailbox.
                     // If so, add it to the parent mailbox's Subdirectories.
                     // Otherwise, treat it as a root mailbox and add it directly to the account's mailbox list.
+                    // Note: This method of searching the parent mailbox relies on that the
+                    // parent mailbox comes before the children mailbox within the 'mailboxes' list.
+                    // This is in turn under the assumption that the server will return the parent
+                    // mailbox name before its children on the LIST command. If for some reason the server
+                    // returns a child mailbox before the parent, the child mailbox will show up in the
+                    // root of the tree instead of under the parent.
                     if (mailbox.FullPath.Contains(mailbox.PathSeparator))
                     {
                         // Matches "pp/qq/rr" from "pp/qq/rr/ss".
