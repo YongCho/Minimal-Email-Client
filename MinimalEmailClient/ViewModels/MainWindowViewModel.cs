@@ -28,15 +28,20 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
 
             // Let's get some dummy messages to test the UI.
-            // Sync();
+            Account account1 = new Account();
+            account1.ImapServerName = "imap.gmail.com";
+            account1.ImapPortNumber = 993;
+            account1.ImapLoginName = "test.racketscience";
+            account1.ImapLoginPassword = "12#$zxCV";
+            // Sync(account1);
         }
 
-        public async void Sync()
+        public async void Sync(Account account)
         {
             List<Message> msgs = await Task.Run<List<Message>>(() =>
             {
-                Downloader downloader = new Downloader("imap.gmail.com", 993, "test.racketscience", "12#$zxCV");
-                return downloader.getDummyMessages();
+                Downloader downloader = new Downloader(account);
+                return downloader.GetDummyMessages();
             });
 
             foreach (Message m in msgs)

@@ -36,7 +36,7 @@ namespace MinimalEmailClient.Models
                     cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, UserName TEXT, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
                     cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, MailboxName TEXT, FlagString TEXT, PRIMARY KEY (AccountName, MailboxName), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
+                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, MailboxName TEXT, Separator TEXT, FlagString TEXT, PRIMARY KEY (AccountName, MailboxName), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
                     cmd.ExecuteNonQuery();
 
                     cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxName TEXT, Uid INT, Subject TEXT, Date TEXT, SenderName TEXT, SenderAddress TEXT, RecipientName TEXT, RecipientAddress TEXT, FlagString TEXT, PRIMARY KEY (AccountName, MailboxName, Uid), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName), FOREIGN KEY (MailboxName) REFERENCES Mailboxes(MailboxName));";
@@ -132,8 +132,14 @@ namespace MinimalEmailClient.Models
                 dbConnection.Close();
             }
 
-
             return numRowsInserted == 1 ? true : false;
+        }
+
+        public void UpdateMailboxes(string accountName, List<Mailbox> mailboxes)
+        {
+            // Delete from Mailboxes where accountname = accountname
+            // for each mailbox in mailboxes
+            //     insert to Mailboxes values (accountname, mailboxname, ...)
         }
     }
 }

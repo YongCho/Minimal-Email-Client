@@ -5,24 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MinimalEmailClient.Views"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
+             xmlns:models="clr-namespace:MinimalEmailClient.Models"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="200">
     <UserControl.DataContext>
         <viewModels:MailboxTreeViewModel />
     </UserControl.DataContext>
 
-    <TreeView BorderThickness="0">
+    <TreeView BorderThickness="0" ItemsSource="{Binding Accounts}">
         <TreeView.Background>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#fffafafa" Offset="1"/>
                 <GradientStop Color="White"/>
             </LinearGradientBrush>
         </TreeView.Background>
-        <!-- These are dummies for now. -->
-        <TreeViewItem Header="test.racketscience@gmail.com" IsExpanded="True">
-            <TreeViewItem Header="Inbox" Margin="0,0,0,2" />
-            <TreeViewItem Header="Sent" Margin="0,0,0,2" />
-            <TreeViewItem Header="Trash" Margin="0,0,0,2" />
-        </TreeViewItem>
+        <TreeView.Resources>
+            <HierarchicalDataTemplate DataType="{x:Type models:Account}" ItemsSource="{Binding Mailboxes}">
+                <TextBlock Text="{Binding EmailAddress}" />
+            </HierarchicalDataTemplate>
+            <HierarchicalDataTemplate DataType="{x:Type models:Mailbox}" ItemsSource="{Binding Subdirectories}">
+                <TextBlock Text="{Binding DisplayName}" />
+            </HierarchicalDataTemplate>
+        </TreeView.Resources>
     </TreeView>
 </UserControl>

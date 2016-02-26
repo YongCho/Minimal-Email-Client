@@ -12,27 +12,19 @@ namespace MinimalEmailClient.Models
 {
     class Downloader
     {
-        public string ServerName { get; set; }
-        public int Port { get; set; }
-        public string User { get; set; }
-        public string Password { get; set; }
-
+        private readonly Account account;
         private byte[] buffer = new byte[65536];
         private int nextTagSequence = 0;
-        private string response;
 
         TcpClient tcpClient;
         SslStream sslStream;
 
 
-        public Downloader(string serverName, int port, string user, string password)
+        public Downloader(Account account)
         {
-            ServerName = serverName;
-            Port = port;
-            User = user;
-            Password = password;
-
-            this.tcpClient = new TcpClient(ServerName, Port);
+            this.account = account;
+            // TODO: Check for exception.
+            this.tcpClient = new TcpClient(account.ImapServerName, account.ImapPortNumber);
             this.sslStream = new SslStream(this.tcpClient.GetStream(), false);
         }
 
@@ -43,7 +35,7 @@ namespace MinimalEmailClient.Models
 
         // Working with dummy messages for now to test the rest of the program.
         // TODO: Change this to real IMAP logic.
-        public List<Message> getDummyMessages()
+        public List<Message> GetDummyMessages()
         {
             List<Message> msgs = new List<Message>(20);
 
@@ -68,13 +60,46 @@ namespace MinimalEmailClient.Models
             //    msgs.Add(msg);
             //}
 
-            getMessagesRegex(10, 20, "Inbox");
+            GetMessagesRegex(10, 20, "Inbox");
 
 
             return msgs;
         }
 
-        public List<Message> getMessagesRegex(int startUid, int endUid, string mailBox)
+        public List<Mailbox> GetMailboxes()
+        {
+            Login();
+
+            string tag = NextTag();
+            SendCommand(tag + " LIST \"\" *");
+
+            string response;
+            List<Mailbox> mailboxes = new List<Mailbox>();
+            if (ReadResponse(tag, out response))
+            {
+                // Matches
+                // * LIST (\HasChildren \Noselect) "/" "INBOX"
+                // * LIST (\HasNoChildren) "\" INBOX/test1/test2/test3
+                string untaggedResponsePattern = "^\\* LIST \\((?<attributes>.*)\\) \"(?<separator>.+)\" \"?(?<mailboxName>[^\"]+)\"?\r\n";
+                Regex regex = new Regex(untaggedResponsePattern, RegexOptions.Multiline);
+                MatchCollection matches = regex.Matches(response);
+                foreach (Match m in matches)
+                {
+                    Mailbox mailbox = new Mailbox()
+                    {
+                        AccountName = account.AccountName,
+                        FullPath = m.Groups["mailboxName"].ToString(),
+                        PathSeparator = m.Groups["separator"].ToString(),
+                        Attributes = new List<string>(m.Groups["attributes"].ToString().Split(' ')),
+                    };
+                    mailboxes.Add(mailbox);
+                }
+            }
+
+            return mailboxes;
+        }
+
+        public List<Message> GetMessagesRegex(int startUid, int endUid, string mailBox)
         {
             Login();
 
@@ -173,16 +198,14 @@ namespace MinimalEmailClient.Models
         {
             if (!this.sslStream.IsAuthenticated)
             {
-                Debug.WriteLine("Logging in");
-                this.sslStream.AuthenticateAsClient(ServerName);
+                this.sslStream.AuthenticateAsClient(account.ImapServerName);
                 // We are greeted by the server at this point.
                 this.sslStream.ReadTimeout = 5000;  // For synchronous read calls.
             }
 
             // Attempt to log in.
-            this.response = "";
             string tag = NextTag();
-            SendCommand(tag + " LOGIN " + User + " " + Password);
+            SendCommand(tag + " LOGIN " + account.ImapLoginName + " " + account.ImapLoginPassword);
             if (!ReadResponse(tag))
             {
                 Logout();
@@ -224,10 +247,11 @@ namespace MinimalEmailClient.Models
             return retVal;
         }
 
-        // Reads the entire response string into _response.
-        private bool ReadResponse(string tag)
+        // Reads all incoming strings up to the line containing the specified tag.
+        private bool ReadResponse(string tag, out string response)
         {
             int byteCount;
+            response = string.Empty;
             bool? tagOk = null;
 
             while (!tagOk.HasValue)
@@ -235,9 +259,9 @@ namespace MinimalEmailClient.Models
                 byteCount = ReadItemIntoBuffer(0);
                 byte[] data = new byte[byteCount];
                 Array.Copy(this.buffer, data, byteCount);
-                this.response += Encoding.ASCII.GetString(data);
+                response += Encoding.ASCII.GetString(data);
                 string pattern = "(^|\r\n)" + tag + " (\\w+) ";
-                Match match = Regex.Match(this.response, pattern);
+                Match match = Regex.Match(response, pattern);
                 if (match.Success)
                 {
                     if (match.Groups[2].ToString() == "OK")
@@ -249,43 +273,46 @@ namespace MinimalEmailClient.Models
                         tagOk = false;
                     }
                 }
-                else
-                {
-                    // Process the item.
-                }
-
-                Debug.Write(this.response);
             }
 
+            // Debug.Write("Response:\n" + response);
             return (bool)tagOk;
+        }
+
+        private bool ReadResponse(string tag)
+        {
+            string response;
+            return ReadResponse(tag, out response);
         }
 
         // Call only when logged in.
         private int ReadItemIntoBuffer(int offset)
         {
-            int byteCount = 0;
+            int totalBytes = 0;
             bool done = false;
 
             while (!done)
             {
+                int bytesRead = 0;
                 try
                 {
                     // Offset always points to the next available slot.
-                    byteCount += this.sslStream.Read(this.buffer, offset, this.buffer.Length - offset);
+                    bytesRead = this.sslStream.Read(this.buffer, offset, this.buffer.Length - offset);
+                    totalBytes += bytesRead;
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show("Exception in ReadItemIntoBuffer", e.Message);
-                    return byteCount;
+                    return totalBytes;
                 }
 
-                offset += byteCount;
+                offset += bytesRead;
                 if (this.buffer[offset - 2] == '\r' && this.buffer[offset - 1] == '\n')
                 {
                     done = true;
                 }
             }
-            return byteCount;
+            return totalBytes;
         }
 
         private void CleanUpConnection()

@@ -1,10 +1,14 @@
 ﻿using Prism.Mvvm;
+using System.Collections.Generic;
 using System.Diagnostics;
+using MinimalEmailClient.Models;
+using System.Collections.ObjectModel;
 
 namespace MinimalEmailClient.ViewModels
 {
     class MailboxTreeViewModel : BindableBase
     {
+        public ObservableCollection<Account> Accounts { get; set; }
         private string selectedMailboxName;
         public string SelectedMailboxName
         {
@@ -14,7 +18,8 @@ namespace MinimalEmailClient.ViewModels
 
         public MailboxTreeViewModel()
         {
-
+            AccountManager am = new AccountManager();
+            Accounts = am.Accounts;
         }
     }
 }
