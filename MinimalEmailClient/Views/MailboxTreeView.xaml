@@ -24,7 +24,7 @@
                 <TextBlock Text="{Binding EmailAddress}" />
             </HierarchicalDataTemplate>
             <HierarchicalDataTemplate DataType="{x:Type models:Mailbox}" ItemsSource="{Binding Subdirectories}">
-                <TextBlock Text="{Binding DisplayName}" />
+                <TextBlock Text="{Binding MailboxName}" />
             </HierarchicalDataTemplate>
         </TreeView.Resources>
     </TreeView>

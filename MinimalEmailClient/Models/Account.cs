@@ -1,4 +1,5 @@
 ﻿using Prism.Mvvm;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace MinimalEmailClient.Models
@@ -74,11 +75,11 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.smtpPortNumber, value); }
         }
 
-        public ObservableCollection<Mailbox> Mailboxes { get; set; }
+        public List<Mailbox> Mailboxes { get; set; }
 
         public Account()
         {
-            Mailboxes = new ObservableCollection<Mailbox>();
+            Mailboxes = new List<Mailbox>();
         }
 
         public override string ToString()

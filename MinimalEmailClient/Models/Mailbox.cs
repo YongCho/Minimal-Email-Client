@@ -13,11 +13,11 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.accountName, value); }
         }
 
-        private string displayName;
-        public string DisplayName
+        private string mailboxName;
+        public string MailboxName
         {
-            get { return this.displayName; }
-            set { SetProperty(ref this.displayName, value); }
+            get { return this.mailboxName; }
+            set { SetProperty(ref this.mailboxName, value); }
         }
 
         private string fullPath;
@@ -35,17 +35,17 @@ namespace MinimalEmailClient.Models
         }
 
         public List<string> Attributes { get; set; }
-        public ObservableCollection<Mailbox> Subdirectories { get; set; }
+        public List<Mailbox> Subdirectories { get; set; }
 
         public Mailbox()
         {
             Attributes = new List<string>();
-            Subdirectories = new ObservableCollection<Mailbox>();
+            Subdirectories = new List<Mailbox>();
         }
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nDisplayName: {1}\nFullPath: {2}\nPathSeparator: {3}\nAttributes: ", AccountName, DisplayName, FullPath, PathSeparator);
+            string str = string.Format("AccountName: {0}\nDisplayName: {1}\nFullPath: {2}\nPathSeparator: {3}\nAttributes: ", AccountName, MailboxName, FullPath, PathSeparator);
             foreach (string attribute in Attributes)
             {
                 str += attribute;
