@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using MinimalEmailClient.Models;
 using System.Collections.ObjectModel;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
-    class MailboxTreeViewModel : BindableBase
+    public class MailboxTreeViewModel : BindableBase
     {
         public ObservableCollection<Account> Accounts { get; set; }
         private string selectedMailboxName;

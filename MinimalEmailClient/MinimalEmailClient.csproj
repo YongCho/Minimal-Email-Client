@@ -112,6 +112,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Events\UpdateEvent.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AccountValidator.cs" />
