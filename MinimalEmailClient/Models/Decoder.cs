@@ -38,6 +38,11 @@ namespace MinimalEmailClient.Models
                     decodedString = encodedString;
                 }
             }
+            else
+            {
+                // Plain ascii string; decoding is not necessary.
+                decodedString = encodedString;
+            }
 
             return decodedString;
         }

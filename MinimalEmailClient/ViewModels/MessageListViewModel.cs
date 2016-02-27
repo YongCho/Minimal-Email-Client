@@ -24,25 +24,24 @@ namespace MinimalEmailClient.ViewModels
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
         {
-            Debug.WriteLine("Selected Mailbox:\n" + selectedMailbox.ToString());
+            Account selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
+            Sync(selectedAccount, selectedMailbox.FullPath);
         }
 
-        public async void Sync(Account account)
+        public async void Sync(Account account, string mailboxPath)
         {
             List<Message> msgs = await Task.Run<List<Message>>(() =>
             {
                 Downloader downloader = new Downloader(account);
-                return downloader.GetDummyMessages();
+                downloader.Connect();
+                return downloader.GetMsgHeaders(mailboxPath, 1, 15);
             });
 
+            // TODO: Check for download error.
+            Messages.Clear();
             foreach (Message m in msgs)
             {
                 Messages.Add(m);
-            }
-
-            foreach (Message m in Messages)
-            {
-                Debug.WriteLine(m.ToString());
             }
         }
 

@@ -7,30 +7,81 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Threading;
+using System.Globalization;
 
 namespace MinimalEmailClient.Models
 {
     public class Downloader
     {
-        private readonly Account account;
+        private Account account;
+        public Account Account
+        {
+            get { return this.account; }
+            set
+            {
+                if (this.account != value)
+                {
+                    this.account = value;
+                }
+            }
+        }
+        public string Error = string.Empty;
         private byte[] buffer = new byte[65536];
         private int nextTagSequence = 0;
 
-        TcpClient tcpClient;
         SslStream sslStream;
-
 
         public Downloader(Account account)
         {
-            this.account = account;
-            // TODO: Check for exception.
-            this.tcpClient = new TcpClient(account.ImapServerName, account.ImapPortNumber);
-            this.sslStream = new SslStream(this.tcpClient.GetStream(), false);
+            Account = account;
         }
 
-        ~Downloader()
+        public bool Connect()
         {
-            CleanUpConnection();
+            TcpClient newTcpClient = new TcpClient();
+            try
+            {
+                newTcpClient.Connect(account.ImapServerName, account.ImapPortNumber);
+            }
+            catch (Exception e)
+            {
+                Error = e.Message;
+                return false;
+            }
+
+            try
+            {
+                SslStream newSslStream = new SslStream(newTcpClient.GetStream(), false);
+                newSslStream.AuthenticateAsClient(account.ImapServerName);
+                newSslStream.ReadTimeout = 5000;  // For synchronous read calls.
+
+                if (TryLogin(newSslStream))
+                {
+                    this.sslStream = newSslStream;
+                }
+                else
+                {
+                    Error = "Could not log in to server. Check credentials.";
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Error = e.Message;
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryLogin(SslStream stream)
+        {
+            string tag = NextTag();
+            string command = tag + " LOGIN " + account.ImapLoginName + " " + account.ImapLoginPassword + "\r\n";
+            stream.Write(Encoding.ASCII.GetBytes(command));
+
+            string response = string.Empty;
+            return ReadResponse(tag, out response, stream);
         }
 
         // Working with dummy messages for now to test the rest of the program.
@@ -39,39 +90,31 @@ namespace MinimalEmailClient.Models
         {
             List<Message> msgs = new List<Message>(20);
 
-            //for (int i = 0; i < 20; ++i)
-            //{
-            //    for (int j = 1; j < 999; ++j)
-            //    {
-            //        Debug.WriteLine("Downloading message " + i);
-            //    }
-            //    Message msg = new Message()
-            //    {
-            //        Uid = i,
-            //        Subject = string.Format("Subject of message {0}", i),
-            //        SenderAddress = string.Format("Sender{0}@gmail.com", i),
-            //        SenderName = string.Format("Sender Name {0}", i),
-            //        RecipientAddress = string.Format("Recipient{0}@gmail.com", i),
-            //        RecipientName = string.Format("Recipient Name {0}", i),
-            //        Date = DateTime.Now,
-            //        IsSeen = (new Random().Next(2) == 0) ? false : true,
-            //    };
+            for (int i = 0; i < 20; ++i)
+            {
+                Debug.WriteLine("Downloading message " + i);
+                Message msg = new Message()
+                {
+                    Uid = i,
+                    Subject = string.Format("Subject of message {0}", i),
+                    SenderAddress = string.Format("Sender{0}@gmail.com", i),
+                    SenderName = string.Format("Sender Name {0}", i),
+                    RecipientAddress = string.Format("Recipient{0}@gmail.com", i),
+                    RecipientName = string.Format("Recipient Name {0}", i),
+                    Date = DateTime.Now,
+                    IsSeen = (new Random().Next(2) == 0) ? false : true,
+                };
 
-            //    msgs.Add(msg);
-            //}
-
-            GetMessagesRegex(10, 20, "Inbox");
-
+                msgs.Add(msg);
+            }
 
             return msgs;
         }
 
         public List<Mailbox> GetMailboxes()
         {
-            Login();
-
             string tag = NextTag();
-            SendCommand(tag + " LIST \"\" *");
+            SendString(tag + " LIST \"\" *");
 
             string response;
             List<Mailbox> mailboxes = new List<Mailbox>();
@@ -99,23 +142,19 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        public List<Message> GetMessagesRegex(int startUid, int endUid, string mailBox)
+        public List<Message> GetMsgHeaders(string mailboxPath, int startUid, int endUid)
         {
-            Login();
-
             string tag = NextTag();
-            SendCommand(tag + " EXAMINE " + mailBox);
+            SendString(tag + " EXAMINE " + mailboxPath);
             ReadResponse(tag);
 
             // a1 UID FETCH 1:2 (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)
             tag = NextTag();
-            SendCommand(string.Format("{0} UID FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startUid, endUid));
+            SendString(string.Format("{0} UID FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startUid, endUid));
 
             var messages = new List<Message>(endUid - startUid + 1);
             int bytesInBuffer = 0;
             bool doneFetching = false;
-            string unTaggedResponsePattern = "(^|\r\n)(\\* (.*\r\n)*?)(\\*|" + tag + ") ";
-            string taggedResponsePattern = "^" + tag + " .*\r\n";
 
             while (!doneFetching)
             {
@@ -128,41 +167,26 @@ namespace MinimalEmailClient.Models
                 bool doneMatching = false;
                 while (!doneMatching)
                 {
+                    string unTaggedResponsePattern = "(^|\r\n)(\\* (.*\r\n)*?)(\\*|" + tag + ") ";
                     match = Regex.Match(remainder, unTaggedResponsePattern);
                     if (match.Success)
                     {
-                        string responseItem = match.Groups[2].ToString();
-                        Debug.WriteLine(responseItem);
+                        string untaggedResponse = match.Groups[2].ToString();
+                        Debug.WriteLine(untaggedResponse);
 
-                        string itemHeaderPattern = "^(.*)\r\n";
-                        string itemHeader = Regex.Match(responseItem, itemHeaderPattern).Groups[1].ToString();
-                        Debug.WriteLine("Item Header: " + itemHeader);
+                        Message message = ParseFetchResponse(untaggedResponse);
 
-                        string subjectPattern = "\r\nSubject: (.*)\r\n";
-                        string subject = Regex.Match(responseItem, subjectPattern).Groups[1].ToString();
-                        subject = Decoder.DecodeHeaderElement(subject);
-                        Debug.WriteLine("Subject: " + subject);
-
-                        string datePattern = "\r\nDate: (.*)\r\n";
-                        string date = Regex.Match(responseItem, datePattern).Groups[1].ToString();
-                        Debug.WriteLine("Date: " + date);
-
-                        string senderPattern = "\r\nFrom: (.*)<(\\S*)>\r\n";
-                        Match m = Regex.Match(responseItem, senderPattern);
-                        string senderName = Decoder.DecodeHeaderElement(m.Groups[1].ToString());
-                        string senderAddress = m.Groups[2].ToString();
-                        if (senderName.Trim() == string.Empty)
+                        if (message != null)
                         {
-                            senderName = senderAddress;
+                            messages.Add(message);
                         }
-                        Debug.WriteLine("Sender Name: " + senderName);
-                        Debug.WriteLine("Sender Address: " + senderAddress);
 
                         remainder = remainder.Substring(match.Groups[2].ToString().Length);
                     }
                     else
                     {
                         // Did not find an untagged response. Check if it is a tagged response.
+                        string taggedResponsePattern = "^" + tag + " .*\r\n";
                         match = Regex.Match(remainder, taggedResponsePattern);
                         if (match.Success)
                         {
@@ -194,28 +218,46 @@ namespace MinimalEmailClient.Models
             return messages;
         }
 
-        public void Login()
+        // Constructs a Message object from a response string returned by a FETCH command.
+        Message ParseFetchResponse(string untaggedResponse)
         {
-            if (!this.sslStream.IsAuthenticated)
-            {
-                this.sslStream.AuthenticateAsClient(account.ImapServerName);
-                // We are greeted by the server at this point.
-                this.sslStream.ReadTimeout = 5000;  // For synchronous read calls.
-            }
+            Message message = new Message();
 
-            // Attempt to log in.
-            string tag = NextTag();
-            SendCommand(tag + " LOGIN " + account.ImapLoginName + " " + account.ImapLoginPassword);
-            if (!ReadResponse(tag))
+            string itemHeaderPattern = "^(.*)\r\n";
+            string itemHeader = Regex.Match(untaggedResponse, itemHeaderPattern).Groups[1].ToString();
+            Debug.WriteLine("Item Header: " + itemHeader);
+
+            string subjectPattern = "\r\nSubject: (.*)\r\n";
+            string subject = Regex.Match(untaggedResponse, subjectPattern).Groups[1].ToString();
+            subject = Decoder.DecodeHeaderElement(subject);
+            Debug.WriteLine("Subject: " + subject);
+            message.Subject = subject;
+
+            string datePattern = "\r\nDate: (\\w+, \\d+ \\w+ \\d+ \\d+:\\d+:\\d+ [\\+\\-\\d]+)";
+            string dt = Regex.Match(untaggedResponse, datePattern).Groups[1].ToString();
+            Debug.WriteLine("Date: " + dt);
+            message.Date = DateTime.ParseExact(dt, "ddd, d MMM yyyy HH:mm:ss zzz", new CultureInfo("en-US"));
+
+            string senderPattern = "\r\nFrom: (.*)<(.*)>\r\n";
+            Match m = Regex.Match(untaggedResponse, senderPattern);
+            string senderName = Decoder.DecodeHeaderElement(m.Groups[1].ToString());
+            string senderAddress = m.Groups[2].ToString();
+            if (senderName.Trim() == string.Empty)
             {
-                Logout();
+                senderName = senderAddress;
             }
+            Debug.WriteLine("Sender Name: " + senderName);
+            Debug.WriteLine("Sender Address: " + senderAddress);
+            message.SenderAddress = senderAddress;
+            message.SenderName = senderName;
+
+            return message;
         }
 
         private void Logout()
         {
             string tag = NextTag();
-            SendCommand(tag + " LOGOUT");
+            SendString(tag + " LOGOUT");
             ReadResponse(tag);
         }
 
@@ -224,9 +266,14 @@ namespace MinimalEmailClient.Models
             return "A" + (++this.nextTagSequence);
         }
 
-        private void SendCommand(string command)
+        private void SendString(string str, SslStream stream)
         {
-            this.sslStream.Write(Encoding.ASCII.GetBytes(command + "\r\n"));
+            stream.Write(Encoding.ASCII.GetBytes(str + "\r\n"));
+        }
+
+        private void SendString(string str)
+        {
+            SendString(str, this.sslStream);
         }
 
         private bool hasTagAtBeginning(string responseLine, string tag, out bool tagOk)
@@ -247,8 +294,13 @@ namespace MinimalEmailClient.Models
             return retVal;
         }
 
-        // Reads all incoming strings up to the line containing the specified tag.
         private bool ReadResponse(string tag, out string response)
+        {
+            return ReadResponse(tag, out response, this.sslStream);
+        }
+
+        // Reads all incoming strings up to the line containing the specified tag.
+        private bool ReadResponse(string tag, out string response, SslStream stream)
         {
             int byteCount;
             response = string.Empty;
@@ -256,7 +308,7 @@ namespace MinimalEmailClient.Models
 
             while (!tagOk.HasValue)
             {
-                byteCount = ReadItemIntoBuffer(0);
+                byteCount = ReadItemIntoBuffer(stream, 0);
                 byte[] data = new byte[byteCount];
                 Array.Copy(this.buffer, data, byteCount);
                 response += Encoding.ASCII.GetString(data);
@@ -285,8 +337,7 @@ namespace MinimalEmailClient.Models
             return ReadResponse(tag, out response);
         }
 
-        // Call only when logged in.
-        private int ReadItemIntoBuffer(int offset)
+        private int ReadItemIntoBuffer(SslStream stream, int offset)
         {
             int totalBytes = 0;
             bool done = false;
@@ -297,12 +348,12 @@ namespace MinimalEmailClient.Models
                 try
                 {
                     // Offset always points to the next available slot.
-                    bytesRead = this.sslStream.Read(this.buffer, offset, this.buffer.Length - offset);
+                    bytesRead = stream.Read(this.buffer, offset, this.buffer.Length - offset);
                     totalBytes += bytesRead;
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Exception in ReadItemIntoBuffer", e.Message);
+                    MessageBox.Show("ReadItemIntoBuffer: ", e.Message);
                     return totalBytes;
                 }
 
@@ -320,7 +371,6 @@ namespace MinimalEmailClient.Models
             try
             {
                 this.sslStream.Close();
-                this.tcpClient.Close();
             }
             catch
             {

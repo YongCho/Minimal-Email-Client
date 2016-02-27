@@ -49,7 +49,12 @@ namespace MinimalEmailClient.Models
         private void PopulateMailboxes(Account account)
         {
             Downloader downloader = new Downloader(account);
-            List<Mailbox> mailboxes = downloader.GetMailboxes();
+            List<Mailbox> mailboxes;
+            if (!downloader.Connect())
+            {
+                return;
+            }
+            mailboxes = downloader.GetMailboxes();
             foreach (Mailbox mailbox in mailboxes)
             {
                 // DisplayName is the directory name without its path string.
@@ -150,6 +155,19 @@ namespace MinimalEmailClient.Models
             }
 
             return success;
+        }
+
+        public Account GetAccountByName(string accountName)
+        {
+            foreach (Account account in Accounts)
+            {
+                if (account.AccountName == accountName)
+                {
+                    return account;
+                }
+            }
+
+            return null;
         }
 
         public List<Mailbox> GetMailboxes(string accountName)
