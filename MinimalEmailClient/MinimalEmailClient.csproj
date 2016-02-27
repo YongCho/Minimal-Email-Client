@@ -113,6 +113,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Common\Globals.cs" />
     <Compile Include="Events\GlobalEventAggregator.cs" />
     <Compile Include="Events\MailboxSelectionEvent.cs" />
     <Compile Include="Events\NewAccountAddedEvent.cs" />

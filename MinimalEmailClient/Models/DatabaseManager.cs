@@ -2,14 +2,17 @@
 using System.IO;
 using System.Data.SQLite;
 using System;
+using MinimalEmailClient.Common;
 
 namespace MinimalEmailClient.Models
 {
     public class DatabaseManager
     {
         public string Error = string.Empty;
-        private string connectionString = "Data Source=ec.db; Version=3; UTF16Encoding=True";
-        private string databaseFileName = "ec.db";
+        public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
+        public static readonly string DatabaseFileName = "ec.db";
+        public static readonly string DatabasePath = DatabaseFolder + "\\" + DatabaseFileName;
+        private string connectionString = string.Format("Data Source={0}; Version=3; UTF16Encoding=True", DatabasePath);
 
         public DatabaseManager()
         {
@@ -21,12 +24,13 @@ namespace MinimalEmailClient.Models
 
         private bool DatabaseExists()
         {
-            return File.Exists(databaseFileName);
+            return File.Exists(DatabasePath);
         }
 
         private void CreateDatabase()
         {
-            SQLiteConnection.CreateFile(databaseFileName);
+            Directory.CreateDirectory(DatabaseFolder);
+            SQLiteConnection.CreateFile(DatabasePath);
             using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
             {
                 dbConnection.Open();
