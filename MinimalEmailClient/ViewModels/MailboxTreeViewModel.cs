@@ -20,7 +20,26 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.selectedMailbox, value);
-                this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(this.selectedMailbox);
+                if (!value.Attributes.Contains(@"\Noselect"))
+                {
+                    this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(this.selectedMailbox);
+                }
+            }
+        }
+
+        // This could be a Mailbox or an Account.
+        private object selectedTreeViewItem;
+        public object SelectedTreeViewItem
+        {
+            get { return this.selectedTreeViewItem; }
+            set
+            {
+                SetProperty(ref this.selectedTreeViewItem, value);
+                var selectedObject = value as Mailbox;
+                if (selectedObject != null)
+                {
+                    SelectedMailbox = selectedObject;
+                }
             }
         }
 

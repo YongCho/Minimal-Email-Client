@@ -18,7 +18,7 @@ namespace MinimalEmailClient.Views
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             MailboxTreeViewModel viewModel = (MailboxTreeViewModel)this.DataContext;
-            viewModel.SelectedMailbox = (Mailbox)e.NewValue;
+            viewModel.SelectedTreeViewItem = e.NewValue;
         }
     }
 }

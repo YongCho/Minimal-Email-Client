@@ -37,7 +37,7 @@ namespace MinimalEmailClient.ViewModels
         {
             Debug.WriteLine("Selected Mailbox:\n" + selectedMailbox.ToString());
         }
-        
+
         public async void Sync(Account account)
         {
             List<Message> msgs = await Task.Run<List<Message>>(() =>
