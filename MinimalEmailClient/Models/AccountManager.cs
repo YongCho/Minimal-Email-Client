@@ -96,7 +96,9 @@ namespace MinimalEmailClient.Models
             // Check if root directory is in the mailboxes.
             foreach (Mailbox m in mailboxes)
             {
-                if (m.MailboxName == root)
+                // ToLower() is needed because the server sometimes returns the same mailbox name
+                // with different capitalization. For example, "INBOX/test1" vs "Inbox/test1/test2".
+                if (m.MailboxName.ToLower() == root.ToLower())
                 {
                     if (hasChild)
                     {
