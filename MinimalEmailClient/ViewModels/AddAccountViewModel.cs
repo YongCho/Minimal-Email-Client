@@ -6,10 +6,11 @@ using MinimalEmailClient.Models;
 using System;
 using System.Text.RegularExpressions;
 using Prism.Interactivity.InteractionRequest;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
-    class AddAccountViewModel : BindableBase, IInteractionRequestAware
+    public class AddAccountViewModel : BindableBase, IInteractionRequestAware
     {
         #region AccountName
         private string accountName;
@@ -256,7 +257,7 @@ namespace MinimalEmailClient.ViewModels
                 account.SmtpServerName = SmtpServerName;
                 account.SmtpPortNumber = Convert.ToInt32(SmtpPortString);
 
-                AccountManager accountManager = new AccountManager();
+                AccountManager accountManager = AccountManager.Instance();
                 bool success = accountManager.AddAccount(account);
                 if (success)
                 {

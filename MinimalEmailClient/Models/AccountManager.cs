@@ -1,21 +1,34 @@
 ﻿using Prism.Mvvm;
+using Prism.Events;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using MinimalEmailClient.Events;
 
 namespace MinimalEmailClient.Models
 {
-    class AccountManager : BindableBase
+    public class AccountManager : BindableBase
     {
         public ObservableCollection<Account> Accounts;
         public string Error = string.Empty;
         public readonly int MaxAccountNameLength = 30;
+        private IEventAggregator eventAggregator;
 
-        public AccountManager()
+        private static AccountManager instance;
+        protected AccountManager()
         {
             Accounts = new ObservableCollection<Account>();
+            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             LoadAccounts();
+        }
+        public static AccountManager Instance()
+        {
+            if (instance == null)
+            {
+                instance = new AccountManager();
+            }
+            return instance;
         }
 
         // Loads all accounts from database.
@@ -27,50 +40,56 @@ namespace MinimalEmailClient.Models
             Accounts.Clear();
             foreach (Account account in accounts)
             {
-                Downloader downloader = new Downloader(account);
-                List<Mailbox> mailboxes = downloader.GetMailboxes();
-                foreach (Mailbox mailbox in mailboxes)
+                PopulateMailboxes(account);
+                Accounts.Add(account);
+                this.eventAggregator.GetEvent<NewAccountAddedEvent>().Publish(account);
+            }
+        }
+
+        private void PopulateMailboxes(Account account)
+        {
+            Downloader downloader = new Downloader(account);
+            List<Mailbox> mailboxes = downloader.GetMailboxes();
+            foreach (Mailbox mailbox in mailboxes)
+            {
+                // DisplayName is the directory name without its path string.
+                string pattern = "[^" + mailbox.PathSeparator + "]+$";
+                Regex regx = new Regex(pattern);
+                Match match = regx.Match(mailbox.FullPath);
+                mailbox.MailboxName = match.Value.ToString();
+
+                // Check if the mailbox a child of another mailbox.
+                // If so, add it to the parent mailbox's Subdirectories.
+                // Otherwise, treat it as a root mailbox and add it directly to the account's mailbox list.
+                // Note: This method of searching the parent mailbox relies on that the
+                // parent mailbox comes before the children mailbox within the 'mailboxes' list.
+                // This is in turn under the assumption that the server will return the parent
+                // mailbox name before its children on the LIST command. If for some reason the server
+                // returns a child mailbox before the parent, the child mailbox will show up in the
+                // root of the tree instead of under the parent.
+                if (mailbox.FullPath.Contains(mailbox.PathSeparator))
                 {
-                    // DisplayName is the directory name without its path string.
-                    string pattern = "[^" + mailbox.PathSeparator + "]+$";
-                    Regex regx = new Regex(pattern);
-                    Match match = regx.Match(mailbox.FullPath);
-                    mailbox.MailboxName = match.Value.ToString();
+                    // Matches "pp/qq/rr" from "pp/qq/rr/ss".
+                    string parentPathPattern = "^(.*)" + mailbox.PathSeparator + "[^" + mailbox.PathSeparator + "]+$";
+                    Regex regex = new Regex(parentPathPattern);
+                    Match m = regex.Match(mailbox.FullPath);
+                    string parentPath = m.Groups[1].ToString();
 
-                    // Check if the mailbox a child of another mailbox.
-                    // If so, add it to the parent mailbox's Subdirectories.
-                    // Otherwise, treat it as a root mailbox and add it directly to the account's mailbox list.
-                    // Note: This method of searching the parent mailbox relies on that the
-                    // parent mailbox comes before the children mailbox within the 'mailboxes' list.
-                    // This is in turn under the assumption that the server will return the parent
-                    // mailbox name before its children on the LIST command. If for some reason the server
-                    // returns a child mailbox before the parent, the child mailbox will show up in the
-                    // root of the tree instead of under the parent.
-                    if (mailbox.FullPath.Contains(mailbox.PathSeparator))
+                    // Find the parent mailbox.
+                    Mailbox parent = FindMailboxRecursive(parentPath, mailbox.PathSeparator, account.Mailboxes);
+                    if (parent != null)
                     {
-                        // Matches "pp/qq/rr" from "pp/qq/rr/ss".
-                        string parentPathPattern = "^(.*)" + mailbox.PathSeparator + "[^" + mailbox.PathSeparator + "]+$";
-                        Regex regex = new Regex(parentPathPattern);
-                        Match m = regex.Match(mailbox.FullPath);
-                        string parentPath = m.Groups[1].ToString();
-
-                        // Find the parent mailbox.
-                        Mailbox parent = FindMailboxRecursive(parentPath, mailbox.PathSeparator, account.Mailboxes);
-                        if (parent != null)
-                        {
-                            parent.Subdirectories.Add(mailbox);
-                        }
-                        else
-                        {
-                            account.Mailboxes.Add(mailbox);
-                        }
+                        parent.Subdirectories.Add(mailbox);
                     }
                     else
                     {
                         account.Mailboxes.Add(mailbox);
                     }
                 }
-                Accounts.Add(account);
+                else
+                {
+                    account.Mailboxes.Add(mailbox);
+                }
             }
         }
 
@@ -121,7 +140,9 @@ namespace MinimalEmailClient.Models
             bool success = dm.AddAccount(account);
             if (success)
             {
+                PopulateMailboxes(account);
                 Accounts.Add(account);
+                this.eventAggregator.GetEvent<NewAccountAddedEvent>().Publish(account);
             }
             else
             {

@@ -43,12 +43,16 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        public MailboxTreeViewModel(IEventAggregator eventAggregator)
+        public MailboxTreeViewModel()
         {
-            AccountManager am = new AccountManager();
-            Accounts = am.Accounts;
+            Accounts = AccountManager.Instance().Accounts;
+            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
+            this.eventAggregator.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
+        }
 
-            this.eventAggregator = eventAggregator;
+        private void HandleNewAccountAddedEvent(Account newAccount)
+        {
+            Accounts = AccountManager.Instance().Accounts;
         }
     }
 }

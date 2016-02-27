@@ -22,14 +22,14 @@ namespace MinimalEmailClient.ViewModels
         public ICommand AddNewAccountCommand { get; set; }
         private IEventAggregator eventAggregator;
 
-        public MainWindowViewModel(IEventAggregator eventAggregator)
+        public MainWindowViewModel()
         {
             Messages = new ObservableCollection<Message>();
             WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
             AddNewAccountPopupRequest = new InteractionRequest<INotification>();
             WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest);
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
-            this.eventAggregator = eventAggregator;
+            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
         }
 
