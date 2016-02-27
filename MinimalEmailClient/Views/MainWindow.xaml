@@ -84,25 +84,7 @@
             <views:MailboxTreeView Grid.Column="0" Grid.ColumnSpan="2" />
 
             <!-- List of messages in the selected mailbox. -->
-            <ListView Grid.Column="2" Margin="10,0,0,0" BorderThickness="0" Name="lvMessages" ItemsSource="{Binding Messages}">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn x:Name="col0"  Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
-                        <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}" DisplayMemberBinding="{Binding Subject}" />
-                        <GridViewColumn x:Name="col2" Header="Date" DisplayMemberBinding="{Binding Date}" Width="200" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-
-            <!-- This is the helper to resize the above ListView columns. -->
-            <Grid Grid.Column="2" Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding ElementName=col0, Path=ActualWidth}"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="{Binding ElementName=col2, Path=ActualWidth}"/>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="1" Name="helperField"/>
-            </Grid>
+            <views:MessageListView Grid.Column="2" Margin="10,0,0,0" BorderThickness="0" />
 
             <GridSplitter Grid.Column="2" Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
         </Grid>
