@@ -1,4 +1,5 @@
 ﻿using MinimalEmailClient.Models;
+using MinimalEmailClient.Events;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Windows.Input;
 using Prism.Mvvm;
 using Prism.Commands;
 using Prism.Interactivity.InteractionRequest;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -18,24 +20,24 @@ namespace MinimalEmailClient.ViewModels
         public InteractionRequest<INotification> AddNewAccountPopupRequest { get; set; }
         public ICommand WriteNewMessageCommand { get; set; }
         public ICommand AddNewAccountCommand { get; set; }
+        private IEventAggregator eventAggregator;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(IEventAggregator eventAggregator)
         {
             Messages = new ObservableCollection<Message>();
             WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
             AddNewAccountPopupRequest = new InteractionRequest<INotification>();
             WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest);
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
-
-            // Let's get some dummy messages to test the UI.
-            Account account1 = new Account();
-            account1.ImapServerName = "imap.gmail.com";
-            account1.ImapPortNumber = 993;
-            account1.ImapLoginName = "test.racketscience";
-            account1.ImapLoginPassword = "12#$zxCV";
-            // Sync(account1);
+            this.eventAggregator = eventAggregator;
+            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
         }
 
+        private void HandleMailboxSelection(Mailbox selectedMailbox)
+        {
+            Debug.WriteLine("Selected Mailbox:\n" + selectedMailbox.ToString());
+        }
+        
         public async void Sync(Account account)
         {
             List<Message> msgs = await Task.Run<List<Message>>(() =>

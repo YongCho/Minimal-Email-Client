@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using MinimalEmailClient.ViewModels;
 
 namespace MinimalEmailClient.Views
 {
@@ -8,7 +7,6 @@ namespace MinimalEmailClient.Views
         public MainWindow()
         {
             InitializeComponent();
-            this.DataContext = new MainWindowViewModel();
         }
     }
 }

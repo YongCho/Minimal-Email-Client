@@ -1,4 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using MinimalEmailClient.ViewModels;
+using MinimalEmailClient.Models;
 
 namespace MinimalEmailClient.Views
 {
@@ -10,6 +13,12 @@ namespace MinimalEmailClient.Views
         public MailboxTreeView()
         {
             InitializeComponent();
+        }
+
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            MailboxTreeViewModel viewModel = (MailboxTreeViewModel)this.DataContext;
+            viewModel.SelectedMailbox = (Mailbox)e.NewValue;
         }
     }
 }

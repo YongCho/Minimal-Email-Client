@@ -11,7 +11,7 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="200">
     
-    <TreeView BorderThickness="0" ItemsSource="{Binding Accounts}">
+    <TreeView BorderThickness="0" ItemsSource="{Binding Accounts}" SelectedItemChanged="TreeView_SelectedItemChanged">
         <TreeView.Background>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#fffafafa" Offset="1"/>
