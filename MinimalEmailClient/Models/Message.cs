@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace MinimalEmailClient.Models
 {
-    class Message : BindableBase
+    public class Message : BindableBase
     {
         private int uid;
         #region public int Uid

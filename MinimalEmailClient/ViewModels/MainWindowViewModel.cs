@@ -12,7 +12,7 @@ using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
-    class MainWindowViewModel : BindableBase
+    public class MainWindowViewModel : BindableBase
     {
         public ObservableCollection<Message> Messages { get; set; }
         public Message SelectedMessage { get; set; }

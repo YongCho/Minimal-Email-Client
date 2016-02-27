@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.Models
 {
-    class Decoder
+    public class Decoder
     {
         public static string DecodeHeaderElement(string encodedString)
         {

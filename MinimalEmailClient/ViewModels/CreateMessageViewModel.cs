@@ -5,7 +5,7 @@ using System;
 
 namespace MinimalEmailClient.ViewModels
 {
-    class CreateMessageViewModel : BindableBase, IInteractionRequestAware
+    public class CreateMessageViewModel : BindableBase, IInteractionRequestAware
     {
         private WriteNewMessageNotification notification;
         public Action FinishInteraction { get; set; }

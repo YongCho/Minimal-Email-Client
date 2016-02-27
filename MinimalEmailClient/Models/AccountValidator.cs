@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace MinimalEmailClient.Models
 {
-    class AccountValidator
+    public class AccountValidator
     {
         public string ImapServerName { get; set; }
         public int ImapPort { get; set; }

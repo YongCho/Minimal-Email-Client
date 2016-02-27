@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace MinimalEmailClient.Models
 {
-    class Downloader
+    public class Downloader
     {
         private readonly Account account;
         private byte[] buffer = new byte[65536];
