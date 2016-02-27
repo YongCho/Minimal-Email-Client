@@ -150,17 +150,16 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        public List<Message> GetMsgHeaders(string mailboxPath, int startUid, int endUid)
+        public List<Message> GetMsgHeaders(string mailboxPath, int startSeqNum, int endSeqNum)
         {
             string tag = NextTag();
             SendString(tag + " EXAMINE " + mailboxPath);
             ReadResponse(tag);
 
-            // a1 UID FETCH 1:2 (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)
             tag = NextTag();
-            SendString(string.Format("{0} UID FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startUid, endUid));
+            SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startSeqNum, endSeqNum));
 
-            var messages = new List<Message>(endUid - startUid + 1);
+            var messages = new List<Message>(endSeqNum - startSeqNum + 1);
             int bytesInBuffer = 0;
             bool doneFetching = false;
 
