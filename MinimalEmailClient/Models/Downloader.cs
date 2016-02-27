@@ -74,6 +74,14 @@ namespace MinimalEmailClient.Models
             return true;
         }
 
+        public void Disconnect()
+        {
+            if (this.sslStream != null)
+            {
+                this.sslStream.Dispose();
+            }
+        }
+
         private bool TryLogin(SslStream stream)
         {
             string tag = NextTag();
@@ -364,18 +372,6 @@ namespace MinimalEmailClient.Models
                 }
             }
             return totalBytes;
-        }
-
-        private void CleanUpConnection()
-        {
-            try
-            {
-                this.sslStream.Close();
-            }
-            catch
-            {
-                // Do nothing. Maybe they are already closed.
-            }
         }
     }
 }
