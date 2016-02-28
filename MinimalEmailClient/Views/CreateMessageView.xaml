@@ -43,19 +43,19 @@
                             <TextBlock Text="From" VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="From" Height="17" TextWrapping="Wrap" Width="742"/>
+                    <TextBox x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
                     <Button>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="To..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="To" Height="17" TextWrapping="Wrap" Width="742"/>
+                    <TextBox x:Name="To" Height="19" TextWrapping="Wrap" Width="742"/>
                     <Button>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Cc..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="Cc" Height="17" TextWrapping="Wrap" Width="742"/>
+                    <TextBox x:Name="Cc" Height="20" TextWrapping="Wrap" Width="742"/>
                     <TextBlock x:Name="Subject" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Subject" Width="58"/>
                     <TextBox x:Name="SubjectTextBox" Height="17" TextWrapping="Wrap" Width="742"/>
                     <!-- Message Body -->
