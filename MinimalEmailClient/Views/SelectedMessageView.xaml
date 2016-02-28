@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="MinimalEmailClient.Views.SelectedMessageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300" Background="White" Padding="8" Loaded="UserControl_Loaded">
+
+    <UserControl.DataContext>
+        <viewModels:SelectedMessageViewModel />
+    </UserControl.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Subject -->
+        <TextBlock Grid.Row ="0" Margin="0,0,0,5" Text="Subject goes here." FontSize="18" />
+
+        <Border Grid.Row="1" Margin="5,0,5,10">
+            <StackPanel>
+                <!-- From -->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="From" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
+                    <TextBlock Text="Yong_Cho@student.uml.edu" FontSize="14" />
+                </StackPanel>
+                <!-- To -->
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="to" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
+                    <TextBlock Text="Yong_Cho@student.uml.edu" FontSize="14" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2">
+            <WrapPanel>
+                <!-- Attachments -->
+            </WrapPanel>
+        </Border>
+
+        <!-- Message body -->
+        <Border Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
+            <TextBox BorderThickness="0" Text="Message body goes here." FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+        </Border>
+
+    </Grid>
+</UserControl>
