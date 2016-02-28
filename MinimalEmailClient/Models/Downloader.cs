@@ -177,6 +177,7 @@ namespace MinimalEmailClient.Models
                 bool doneMatching = false;
                 while (!doneMatching)
                 {
+                    // Each untagged response item represents one message.
                     string unTaggedResponsePattern = "(^|\r\n)(\\* (.*\r\n)*?)(\\*|" + tag + ") ";
                     match = Regex.Match(remainder, unTaggedResponsePattern);
                     if (match.Success)
