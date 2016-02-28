@@ -182,8 +182,6 @@ namespace MinimalEmailClient.Models
                     if (match.Success)
                     {
                         string untaggedResponse = match.Groups[2].ToString();
-                        Debug.WriteLine(untaggedResponse);
-
                         Message message = FetchParser.CreateHeader(untaggedResponse);
 
                         if (message != null)
