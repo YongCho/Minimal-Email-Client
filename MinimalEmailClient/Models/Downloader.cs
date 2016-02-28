@@ -241,10 +241,16 @@ namespace MinimalEmailClient.Models
             Debug.WriteLine("Subject: " + subject);
             message.Subject = subject;
 
-            string datePattern = "\r\nDate: (\\w+, \\d+ \\w+ \\d+ \\d+:\\d+:\\d+) ";
-            string dt = Regex.Match(untaggedResponse, datePattern).Groups[1].ToString();
-            Debug.WriteLine("Date: " + dt);
-            message.DateString = dt;
+            string datePattern = "\r\nDate: (.*)\r\n";
+            string dtString = Regex.Match(untaggedResponse, datePattern, RegexOptions.IgnoreCase).Groups[1].ToString();
+            Debug.WriteLine("Date: " + dtString);
+            DateTime dt;
+            if (!DateTime.TryParse(dtString, out dt))
+            {
+                dt = DateTimeParser.Parse(dtString);
+            }
+            message.DateString = dtString;
+            message.Date = dt;
 
             string senderPattern = "\r\nFrom: (.*)<(.*)>\r\n";
             Match m = Regex.Match(untaggedResponse, senderPattern);
