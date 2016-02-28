@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Windows.Data;
+using System.ComponentModel;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -18,6 +20,8 @@ namespace MinimalEmailClient.ViewModels
         public MessageListViewModel()
         {
             Messages = new ObservableCollection<Message>();
+            CollectionView cv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
+            cv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
         }
