@@ -12,7 +12,7 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
+        <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Collapsed" />
         <Style TargetType="GroupBox">
             <Setter Property="Padding" Value="5" />
         </Style>
@@ -228,8 +228,9 @@
         </GroupBox>
 
         <!-- Error Message -->
-        <StackPanel Name="MessagePanel" Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Name="MessagePanel" Grid.Row="5" MinHeight="30" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image Source="/Images/validate.png" Width="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
+            <Image Source="/Images/no.png" Margin="10,0,3,0" Width="22" Visibility="{Binding ValidationFailed, Converter={StaticResource BoolToHiddenConverter}}" />
             <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
         </StackPanel>
 

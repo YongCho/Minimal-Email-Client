@@ -188,7 +188,17 @@ namespace MinimalEmailClient.ViewModels
         public bool AccountValidated
         {
             get { return this.accountValidated; }
-            set { SetProperty(ref this.accountValidated, value); }
+            set
+            {
+                SetProperty(ref this.accountValidated, value);
+                ValidationFailed = false;
+            }
+        }
+        private bool validationFailed = false;
+        public bool ValidationFailed
+        {
+            get { return this.validationFailed; }
+            set { SetProperty(ref this.validationFailed, value); }
         }
         private string message = string.Empty;
         public string Message
@@ -319,6 +329,7 @@ namespace MinimalEmailClient.ViewModels
                 else
                 {
                     AccountValidated = false;
+                    ValidationFailed = true;
                     Message = validator.Error;
                 }
             }
@@ -327,6 +338,7 @@ namespace MinimalEmailClient.ViewModels
         private void HandleInputChange()
         {
             AccountValidated = false;
+            ValidationFailed = false;
             Message = string.Empty;
 
             if ((bool)AccountNameValidated &&
