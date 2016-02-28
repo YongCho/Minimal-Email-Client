@@ -123,6 +123,7 @@
     <Compile Include="Models\AccountValidator.cs" />
     <Compile Include="Models\DatabaseManager.cs" />
     <Compile Include="Models\DateTimeParser.cs" />
+    <Compile Include="Models\FetchParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
