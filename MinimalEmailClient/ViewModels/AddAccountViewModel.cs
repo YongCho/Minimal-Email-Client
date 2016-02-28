@@ -297,15 +297,19 @@ namespace MinimalEmailClient.ViewModels
 
             if (IsFormComplete)
             {
-                AccountValidator validator = new AccountValidator();
-                validator.ImapServerName = ImapServerName;
-                validator.ImapPort = imapPortNumber;
-                validator.ImapLoginName = LoginName;
-                validator.ImapPassword = LoginPassword;
-                validator.SmtpServerName = SmtpServerName;
-                validator.SmtpPort = smtpPortNumber;
-                validator.SmtpLoginName = LoginName;
-                validator.SmtpLoginPassword = LoginPassword;
+                Account tempAccount = new Account()
+                {
+                    ImapServerName = ImapServerName,
+                    ImapPortNumber = imapPortNumber,
+                    ImapLoginName = LoginName,
+                    ImapLoginPassword = LoginPassword,
+                    SmtpServerName = SmtpServerName,
+                    SmtpPortNumber = smtpPortNumber,
+                    SmtpLoginName = LoginName,
+                    SmtpLoginPassword = LoginPassword
+                };
+
+                NewAccountValidator validator = new NewAccountValidator(tempAccount);
 
                 if (validator.Validate())
                 {
@@ -315,7 +319,7 @@ namespace MinimalEmailClient.ViewModels
                 else
                 {
                     AccountValidated = false;
-                    Message = validator.Errors[0];
+                    Message = validator.Error;
                 }
             }
         }
