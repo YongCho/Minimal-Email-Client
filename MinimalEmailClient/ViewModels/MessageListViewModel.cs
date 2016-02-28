@@ -14,7 +14,12 @@ namespace MinimalEmailClient.ViewModels
     public class MessageListViewModel : BindableBase
     {
         public ObservableCollection<Message> Messages { get; set; }
-        public Message SelectedMessage { get; set; }
+        private Message selectedMessage;  // This could be null
+        public Message SelectedMessage
+        {
+            get { return this.selectedMessage; }
+            set { SetProperty(ref this.selectedMessage, value); }
+        }
         private IEventAggregator eventAggregator;
 
         public MessageListViewModel()

@@ -14,7 +14,7 @@
     </UserControl.DataContext>
 
     <Grid>
-        <ListView BorderThickness="0" ItemsSource="{Binding Messages}">
+        <ListView BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Single" SelectedItem="{Binding SelectedMessage}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn x:Name="col0"  Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
