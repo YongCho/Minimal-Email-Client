@@ -41,7 +41,13 @@ namespace MinimalEmailClient.Models
             TcpClient newTcpClient = new TcpClient();
             try
             {
-                newTcpClient.Connect(account.ImapServerName, account.ImapPortNumber);
+                var result = newTcpClient.BeginConnect(account.ImapServerName, account.ImapPortNumber, null, null);
+                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+                if (!success || !newTcpClient.Connected)
+                {
+                    Error = "Unable to connect to " + account.ImapServerName + ":" + account.ImapPortNumber;
+                    return false;
+                }
             }
             catch (Exception e)
             {
