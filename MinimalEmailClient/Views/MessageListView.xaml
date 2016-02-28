@@ -19,7 +19,7 @@
                 <GridView>
                     <GridViewColumn x:Name="col0"  Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
                     <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}" DisplayMemberBinding="{Binding Subject}" />
-                    <GridViewColumn x:Name="col2" Header="Date" DisplayMemberBinding="{Binding Date}" Width="200" />
+                    <GridViewColumn x:Name="col2" Header="Date" DisplayMemberBinding="{Binding DateString}" Width="200" />
                 </GridView>
             </ListView.View>
         </ListView>

@@ -60,6 +60,13 @@ namespace MinimalEmailClient.Models
         }
         #endregion
 
+        private string dateString;
+        public string DateString
+        {
+            get { return this.dateString; }
+            set { SetProperty(ref this.dateString, value); }
+        }
+
         private DateTime date;
         #region public DateTime Date
         public DateTime Date

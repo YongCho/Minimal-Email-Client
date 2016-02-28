@@ -31,19 +31,40 @@ namespace MinimalEmailClient.ViewModels
         public async void Sync(Account account, string mailboxPath)
         {
             Downloader downloader = new Downloader(account);
-            downloader.Connect();
-            List<Message> msgs = await Task.Run<List<Message>>(() =>
+            if (!downloader.Connect())
             {
-                return downloader.GetMsgHeaders(mailboxPath, 1, 15);
-            });
-            downloader.Disconnect();
-
-            // TODO: Check for download error.
-            Messages.Clear();
-            foreach (Message m in msgs)
-            {
-                Messages.Add(m);
+                return;
             }
+            if (!downloader.Examine(mailboxPath))
+            {
+                return;
+            }
+
+            bool done = false;
+            int startSeq = 1;
+            int count = 100;
+            Messages.Clear();
+            while (!done)
+            {
+                List<Message> msgs = await Task.Run<List<Message>>(() =>
+                {
+                    return downloader.GetMsgHeaders(mailboxPath, startSeq, count);
+                });
+                if (msgs.Count > 0)
+                {
+                    foreach (Message m in msgs)
+                    {
+                        Messages.Add(m);
+                    }
+                    startSeq += count;
+                }
+                else
+                {
+                    done = true;
+                }
+            }
+
+            downloader.Disconnect();
         }
 
     }

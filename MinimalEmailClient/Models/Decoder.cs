@@ -24,8 +24,15 @@ namespace MinimalEmailClient.Models
                 if (encoding.Equals("B"))
                 {
                     // Encoded value is Base-64.
-                    var bytes = Convert.FromBase64String(value);
-                    decodedString = Encoding.GetEncoding(charset).GetString(bytes);
+                    try {
+                        var bytes = Convert.FromBase64String(value);
+                        decodedString = Encoding.GetEncoding(charset).GetString(bytes);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.Message);
+                        decodedString = encodedString;
+                    }
                 }
                 else if (encoding.Equals("Q"))
                 {
@@ -82,7 +89,18 @@ namespace MinimalEmailClient.Models
                 encodedBytes.Add(b);
             }
 
-            return Encoding.GetEncoding(charset).GetString(encodedBytes.ToArray());
+            string decodedString;
+            try
+            {
+                decodedString = Encoding.GetEncoding(charset).GetString(encodedBytes.ToArray());
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+                decodedString = encodedString;
+            }
+
+            return decodedString;
         }
     }
 }

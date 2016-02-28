@@ -150,16 +150,19 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        public List<Message> GetMsgHeaders(string mailboxPath, int startSeqNum, int endSeqNum)
+        public bool Examine(string mailboxPath)
         {
             string tag = NextTag();
             SendString(tag + " EXAMINE " + mailboxPath);
-            ReadResponse(tag);
+            return ReadResponse(tag);
+        }
 
-            tag = NextTag();
-            SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startSeqNum, endSeqNum));
+        public List<Message> GetMsgHeaders(string mailboxPath, int startSeqNum, int count)
+        {
+            string tag = NextTag();
+            SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startSeqNum, startSeqNum + count - 1));
 
-            var messages = new List<Message>(endSeqNum - startSeqNum + 1);
+            var messages = new List<Message>(count);
             int bytesInBuffer = 0;
             bool doneFetching = false;
 
@@ -220,8 +223,6 @@ namespace MinimalEmailClient.Models
                 }
             }
 
-            Logout();
-
             return messages;
         }
 
@@ -240,10 +241,10 @@ namespace MinimalEmailClient.Models
             Debug.WriteLine("Subject: " + subject);
             message.Subject = subject;
 
-            string datePattern = "\r\nDate: (\\w+, \\d+ \\w+ \\d+ \\d+:\\d+:\\d+ [\\+\\-\\d]+)";
+            string datePattern = "\r\nDate: (\\w+, \\d+ \\w+ \\d+ \\d+:\\d+:\\d+) ";
             string dt = Regex.Match(untaggedResponse, datePattern).Groups[1].ToString();
             Debug.WriteLine("Date: " + dt);
-            message.Date = DateTime.ParseExact(dt, "ddd, d MMM yyyy HH:mm:ss zzz", new CultureInfo("en-US"));
+            message.DateString = dt;
 
             string senderPattern = "\r\nFrom: (.*)<(.*)>\r\n";
             Match m = Regex.Match(untaggedResponse, senderPattern);
