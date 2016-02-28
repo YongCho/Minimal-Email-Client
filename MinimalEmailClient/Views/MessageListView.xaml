@@ -3,9 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:MinimalEmailClient.Views"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:views="clr-namespace:MinimalEmailClient.Views"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
              xmlns:models="clr-namespace:MinimalEmailClient.Models"
+             xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
 
@@ -13,8 +15,24 @@
         <viewModels:MessageListViewModel />
     </UserControl.DataContext>
 
+    <i:Interaction.Triggers>
+        <!-- Popup for writing a new message -->
+        <prism:InteractionRequestTrigger SourceObject="{Binding OpenSelectedMessagePopupRequest, Mode=OneWay}">
+            <prism:PopupWindowAction>
+                <prism:PopupWindowAction.WindowContent>
+                    <views:SelectedMessageView />
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+
     <Grid>
         <ListView BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Single" SelectedItem="{Binding SelectedMessage}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding OpenSelectedMessageCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <ListView.View>
                 <GridView>
                     <GridViewColumn x:Name="col0"  Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />

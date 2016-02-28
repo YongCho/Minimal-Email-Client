@@ -125,9 +125,11 @@
     <Compile Include="Models\FetchParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
     <Compile Include="Models\NewAccountValidator.cs" />
+    <Compile Include="Models\SelectedMessageNotification.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageListViewModel.cs" />
+    <Compile Include="ViewModels\SelectedMessageViewModel.cs" />
     <Compile Include="Views\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
@@ -140,6 +142,9 @@
     </Compile>
     <Compile Include="Views\MessageListView.xaml.cs">
       <DependentUpon>MessageListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SelectedMessageView.xaml.cs">
+      <DependentUpon>SelectedMessageView.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AddAcountView.xaml">
       <SubType>Designer</SubType>
@@ -173,6 +178,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\MessageListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SelectedMessageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

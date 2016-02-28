@@ -8,6 +8,9 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.ComponentModel;
+using Prism.Interactivity.InteractionRequest;
+using System.Windows.Input;
+using Prism.Commands;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -21,14 +24,31 @@ namespace MinimalEmailClient.ViewModels
             set { SetProperty(ref this.selectedMessage, value); }
         }
         private IEventAggregator eventAggregator;
+        public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
+        public ICommand OpenSelectedMessageCommand { get; set; }
 
         public MessageListViewModel()
         {
             Messages = new ObservableCollection<Message>();
+
             CollectionView cv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
             cv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
+
+            OpenSelectedMessagePopupRequest = new InteractionRequest<SelectedMessageNotification>();
+            OpenSelectedMessageCommand = new DelegateCommand(RaiseOpenSelectedMessagePopupRequest);
+
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
+        }
+
+        private void RaiseOpenSelectedMessagePopupRequest()
+        {
+            if (SelectedMessage != null)
+            {
+                SelectedMessageNotification notification = new SelectedMessageNotification(SelectedMessage);
+                notification.Title = SelectedMessage.Subject;
+                OpenSelectedMessagePopupRequest.Raise(notification);
+            }
         }
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
