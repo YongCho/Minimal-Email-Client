@@ -137,7 +137,7 @@ namespace MinimalEmailClient.Models
                 // Matches
                 // * LIST (\HasChildren \Noselect) "/" "INBOX"
                 // * LIST (\HasNoChildren) "\" INBOX/test1/test2/test3
-                string untaggedResponsePattern = "^\\* LIST \\((?<attributes>.*)\\) \"(?<separator>.+)\" \"?(?<mailboxName>[^\"\r\n]+)\"?\r\n";
+                string untaggedResponsePattern = "^\\* LIST \\((?<attributes>.*)\\) \"(?<separator>.+)\" (?<mailboxName>[^\r\n]+)\r\n";
                 Regex regex = new Regex(untaggedResponsePattern, RegexOptions.Multiline);
                 MatchCollection matches = regex.Matches(response);
                 foreach (Match m in matches)
