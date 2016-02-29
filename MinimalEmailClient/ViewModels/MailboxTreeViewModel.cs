@@ -5,6 +5,7 @@ using MinimalEmailClient.Models;
 using MinimalEmailClient.Events;
 using System.Collections.ObjectModel;
 using Prism.Events;
+using System.Threading.Tasks;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -45,14 +46,26 @@ namespace MinimalEmailClient.ViewModels
 
         public MailboxTreeViewModel()
         {
-            Accounts = AccountManager.Instance().Accounts;
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
+            Accounts = new ObservableCollection<Account>();
+            LoadAccounts();
         }
 
         private void HandleNewAccountAddedEvent(Account newAccount)
         {
-            Accounts = AccountManager.Instance().Accounts;
+            Accounts.Add(newAccount);
+        }
+
+        public async void LoadAccounts()
+        {
+            List<Account> accounts = await Task.Run<List<Account>>(() => {
+                return AccountManager.Instance().Accounts;
+            });
+            foreach (Account acc in accounts)
+            {
+                Accounts.Add(acc);
+            }
         }
     }
 }

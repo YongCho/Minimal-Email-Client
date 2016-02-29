@@ -1,16 +1,14 @@
-﻿using Prism.Mvvm;
-using Prism.Events;
+﻿using Prism.Events;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using MinimalEmailClient.Events;
 
 namespace MinimalEmailClient.Models
 {
-    public class AccountManager : BindableBase
+    public class AccountManager
     {
-        public ObservableCollection<Account> Accounts;
+        public List<Account> Accounts;
         public string Error = string.Empty;
         public readonly int MaxAccountNameLength = 30;
         private IEventAggregator eventAggregator;
@@ -18,7 +16,7 @@ namespace MinimalEmailClient.Models
         private static AccountManager instance;
         protected AccountManager()
         {
-            Accounts = new ObservableCollection<Account>();
+            Accounts = new List<Account>();
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             LoadAccounts();
         }
@@ -42,7 +40,6 @@ namespace MinimalEmailClient.Models
             {
                 PopulateMailboxes(account);
                 Accounts.Add(account);
-                this.eventAggregator.GetEvent<NewAccountAddedEvent>().Publish(account);
             }
         }
 
