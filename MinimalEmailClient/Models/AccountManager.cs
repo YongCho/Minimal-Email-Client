@@ -52,13 +52,14 @@ namespace MinimalEmailClient.Models
                 return;
             }
             mailboxes = downloader.GetMailboxes();
+
             foreach (Mailbox mailbox in mailboxes)
             {
                 // DisplayName is the directory name without its path string.
                 string pattern = "[^" + mailbox.PathSeparator + "]+$";
                 Regex regx = new Regex(pattern);
                 Match match = regx.Match(mailbox.FullPath);
-                mailbox.MailboxName = match.Value.ToString();
+                mailbox.MailboxName = match.Value.ToString().Replace("\"", "");
 
                 // Check if the mailbox a child of another mailbox.
                 // If so, add it to the parent mailbox's Subdirectories.
@@ -119,7 +120,7 @@ namespace MinimalEmailClient.Models
             {
                 // ToLower() is needed because the server sometimes returns the same mailbox name
                 // with different capitalization. For example, "INBOX/test1" vs "Inbox/test1/test2".
-                if (m.MailboxName.ToLower() == root.ToLower())
+                if (m.MailboxName.ToLower() == root.ToLower().Replace("\"", ""))
                 {
                     if (hasChild)
                     {
