@@ -64,20 +64,27 @@ namespace MinimalEmailClient.ViewModels
             {
                 return;
             }
-            if (!downloader.Examine(mailboxPath))
+            Messages.Clear();
+
+            int messagesCount = downloader.Examine(mailboxPath);
+            if (messagesCount < 1)
             {
                 return;
             }
 
-            bool done = false;
-            int startSeq = 1;
-            int count = 100;
-            Messages.Clear();
-            while (!done)
+            int downloadChunk = 10;
+            int startSeq = messagesCount - downloadChunk + 1;
+            int endSeq = messagesCount;
+            while (endSeq > 0)
             {
                 List<Message> msgs = await Task.Run<List<Message>>(() =>
                 {
-                    return downloader.FetchHeaders(startSeq, count);
+                    // Message sequence number starts from 1.
+                    if (startSeq < 1)
+                    {
+                        startSeq = 1;
+                    }
+                    return downloader.FetchHeaders(startSeq, endSeq - startSeq + 1);
                 });
                 if (msgs.Count > 0)
                 {
@@ -85,12 +92,9 @@ namespace MinimalEmailClient.ViewModels
                     {
                         Messages.Add(m);
                     }
-                    startSeq += count;
                 }
-                else
-                {
-                    done = true;
-                }
+                endSeq = startSeq - 1;
+                startSeq = endSeq - downloadChunk + 1;
             }
 
             downloader.Disconnect();

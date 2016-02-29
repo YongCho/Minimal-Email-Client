@@ -156,19 +156,42 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        public bool Examine(string mailboxPath)
+        // Sends 'EXAMINE' command to the server with the specified mailbox.
+        // Returns the number of messages in the mailbox. This number is retrieved from
+        // the command response.
+        public int Examine(string mailboxPath)
         {
             string tag = NextTag();
             SendString(tag + " EXAMINE " + mailboxPath);
-            return ReadResponse(tag);
+
+            string response = string.Empty;
+            if (!ReadResponse(tag, out response))
+            {
+                return -1;
+            }
+
+            string msgCountPattern = "^\\* (\\d+) EXISTS\r\n";
+            Regex regex = new Regex(msgCountPattern, RegexOptions.Multiline);
+            Match m = regex.Match(response);
+            if (!m.Success)
+            {
+                return -1;
+            }
+            return Convert.ToInt32(m.Groups[1].ToString());
         }
 
         public List<Message> FetchHeaders(int startSeqNum, int count)
         {
+            var messages = new List<Message>(count);
+
+            if (startSeqNum < 1 || count < 1)
+            {
+                return messages;
+            }
+
             string tag = NextTag();
             SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startSeqNum, startSeqNum + count - 1));
 
-            var messages = new List<Message>(count);
             int bytesInBuffer = 0;
             bool doneFetching = false;
 
