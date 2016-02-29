@@ -77,7 +77,7 @@ namespace MinimalEmailClient.ViewModels
             {
                 List<Message> msgs = await Task.Run<List<Message>>(() =>
                 {
-                    return downloader.GetMsgHeaders(mailboxPath, startSeq, count);
+                    return downloader.FetchHeaders(startSeq, count);
                 });
                 if (msgs.Count > 0)
                 {

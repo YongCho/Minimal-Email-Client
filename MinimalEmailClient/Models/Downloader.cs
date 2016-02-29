@@ -163,7 +163,7 @@ namespace MinimalEmailClient.Models
             return ReadResponse(tag);
         }
 
-        public List<Message> GetMsgHeaders(string mailboxPath, int startSeqNum, int count)
+        public List<Message> FetchHeaders(int startSeqNum, int count)
         {
             string tag = NextTag();
             SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startSeqNum, startSeqNum + count - 1));
