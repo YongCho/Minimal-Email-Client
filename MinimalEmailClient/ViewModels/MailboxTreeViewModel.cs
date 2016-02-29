@@ -66,6 +66,12 @@ namespace MinimalEmailClient.ViewModels
             {
                 Accounts.Add(acc);
             }
+            foreach (Account acc in Accounts)
+            {
+                await Task.Run(() => {
+                    AccountManager.Instance().PopulateMailboxes(acc);
+                });
+            }
         }
     }
 }

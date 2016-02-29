@@ -35,12 +35,12 @@ namespace MinimalEmailClient.Models
         }
 
         public List<string> Attributes { get; set; }
-        public List<Mailbox> Subdirectories { get; set; }
+        public ObservableCollection<Mailbox> Subdirectories { get; set; }
 
         public Mailbox()
         {
             Attributes = new List<string>();
-            Subdirectories = new List<Mailbox>();
+            Subdirectories = new ObservableCollection<Mailbox>();
         }
 
         public override string ToString()

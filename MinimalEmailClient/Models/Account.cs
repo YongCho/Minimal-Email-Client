@@ -75,11 +75,11 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.smtpPortNumber, value); }
         }
 
-        public List<Mailbox> Mailboxes { get; set; }
+        public ObservableCollection<Mailbox> Mailboxes { get; set; }
 
         public Account()
         {
-            Mailboxes = new List<Mailbox>();
+            Mailboxes = new ObservableCollection<Mailbox>();
         }
 
         public override string ToString()

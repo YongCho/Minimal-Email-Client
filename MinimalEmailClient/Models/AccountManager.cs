@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using MinimalEmailClient.Events;
+using System.Collections.ObjectModel;
+using System.Windows.Threading;
+using System;
+using System.Windows;
 
 namespace MinimalEmailClient.Models
 {
@@ -38,12 +42,11 @@ namespace MinimalEmailClient.Models
             Accounts.Clear();
             foreach (Account account in accounts)
             {
-                PopulateMailboxes(account);
                 Accounts.Add(account);
             }
         }
 
-        private void PopulateMailboxes(Account account)
+        public void PopulateMailboxes(Account account)
         {
             Downloader downloader = new Downloader(account);
             List<Mailbox> mailboxes;
@@ -91,12 +94,12 @@ namespace MinimalEmailClient.Models
                 }
                 else
                 {
-                    account.Mailboxes.Add(mailbox);
+                    Application.Current.Dispatcher.Invoke(new Action(() => { account.Mailboxes.Add(mailbox); }));
                 }
             }
         }
 
-        Mailbox FindMailboxRecursive(string path, string separator, List<Mailbox> mailboxes)
+        private Mailbox FindMailboxRecursive(string path, string separator, ObservableCollection<Mailbox> mailboxes)
         {
             bool hasChild = path.Contains(separator);
             string root = string.Empty;
