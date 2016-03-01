@@ -48,6 +48,7 @@ namespace MinimalEmailClient.Models
             }
         }
 
+        // Populates the mailbox tree of the specified account.
         public void PopulateMailboxes(Account account)
         {
             DatabaseManager dbManager = new DatabaseManager();
@@ -56,6 +57,8 @@ namespace MinimalEmailClient.Models
             BeginSyncMailboxes(account);
         }
 
+        // Updates the mailbox tree in the specified account with ones from the server.
+        // Also updates the database to reflect the change.
         public void BeginSyncMailboxes(Account account)
         {
             Task.Factory.StartNew(() => {
