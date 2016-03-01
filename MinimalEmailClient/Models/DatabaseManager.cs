@@ -139,11 +139,113 @@ namespace MinimalEmailClient.Models
             return numRowsInserted == 1 ? true : false;
         }
 
-        public void UpdateMailboxes(string accountName, List<Mailbox> mailboxes)
+
+        public List<Mailbox> GetMailboxes(string accountName)
         {
-            // Delete from Mailboxes where accountname = accountname
-            // for each mailbox in mailboxes
-            //     insert to Mailboxes values (accountname, mailboxname, ...)
+            List<Mailbox> mailboxes = new List<Mailbox>();
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+                return mailboxes;
+            }
+            else
+            {
+                using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+                {
+                    dbConnection.Open();
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    {
+                        cmd.CommandText = @"SELECT * FROM Mailboxes WHERE AccountName = @AccountName;";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", accountName);
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Mailbox mailbox = new Mailbox();
+                                mailbox.AccountName = accountName;
+                                mailbox.FullPath = (string)reader["Path"];
+                                mailbox.PathSeparator = (string)reader["Separator"];
+
+                                string[] flags = (reader["FlagString"] as string).Split(' ');
+                                mailbox.Attributes.AddRange(flags);
+
+                                mailboxes.Add(mailbox);
+                            }
+                        }
+                    }
+                    dbConnection.Close();
+                }
+            }
+
+            return mailboxes;
+        }
+
+        // Removes all entries in the Mailboxes table that has the specified AccountName
+        // and inserts the given mailboxes in the table.
+        // Returns the number of mailboxes inserted.
+        public int UpdateMailboxes(string accountName, List<Mailbox> newMailboxes)
+        {
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+
+            int numRowsInserted = 0;
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+            {
+                dbConnection.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                {
+                    cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName;";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@AccountName", accountName);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Error = ex.Message;
+                        return numRowsInserted;
+                    }
+
+                    cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @FlagString);";
+
+                    foreach (Mailbox mailbox in newMailboxes)
+                    {
+                        cmd.Prepare();
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.AddWithValue("@AccountName", mailbox.AccountName);
+                        cmd.Parameters.AddWithValue("@Path", mailbox.FullPath);
+                        cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
+
+                        string flagString = string.Empty;
+                        foreach (string flag in mailbox.Attributes)
+                        {
+                            flagString += (flag + " ");
+                        }
+                        flagString = flagString.Substring(0, flagString.Length - 1);
+                        cmd.Parameters.AddWithValue("@FlagString", flagString);
+
+                        try
+                        {
+                            numRowsInserted += cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            Error = ex.Message;
+                        }
+                    }
+                }
+
+                dbConnection.Close();
+
+                return numRowsInserted;
+            }
         }
     }
 }

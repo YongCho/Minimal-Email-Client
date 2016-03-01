@@ -7,6 +7,8 @@ using System.Collections.ObjectModel;
 using System.Windows.Threading;
 using System;
 using System.Windows;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MinimalEmailClient.Models
 {
@@ -48,15 +50,43 @@ namespace MinimalEmailClient.Models
 
         public void PopulateMailboxes(Account account)
         {
-            Downloader downloader = new Downloader(account);
-            List<Mailbox> mailboxes;
-            if (!downloader.Connect())
-            {
-                return;
-            }
-            mailboxes = downloader.GetMailboxes();
+            DatabaseManager dbManager = new DatabaseManager();
+            List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
+            ConstructMailboxTree(account, localMailboxes);
+            BeginSyncMailboxes(account);
+        }
 
-            foreach (Mailbox mailbox in mailboxes)
+        public void BeginSyncMailboxes(Account account)
+        {
+            Task.Factory.StartNew(() => {
+                DatabaseManager dbManager = new DatabaseManager();
+                List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
+
+                Downloader downloader = new Downloader(account);
+                if (downloader.Connect())
+                {
+                    List<Mailbox> serverMailboxes = downloader.GetMailboxes();
+
+                    var comparer = new CompareMailbox();
+                    var localNotServer = localMailboxes.Except(serverMailboxes, comparer).ToList();
+                    var serverNotLocal = serverMailboxes.Except(localMailboxes, comparer).ToList();
+
+                    if (localNotServer.Count > 0 || serverNotLocal.Count > 0)
+                    {
+                        ConstructMailboxTree(account, serverMailboxes);
+                        dbManager.UpdateMailboxes(account.AccountName, serverMailboxes);
+                    }
+
+                    downloader.Disconnect();
+                }
+            });
+        }
+
+        private void ConstructMailboxTree(Account account, List<Mailbox> rawMailboxes)
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() => { account.Mailboxes.Clear(); }));
+
+            foreach (Mailbox mailbox in rawMailboxes)
             {
                 // DisplayName is the directory name without its path string.
                 string pattern = "[^" + mailbox.PathSeparator + "]+$";
@@ -89,7 +119,9 @@ namespace MinimalEmailClient.Models
                     }
                     else
                     {
-                        account.Mailboxes.Add(mailbox);
+                        // We shouldn't get here unless the server returned the child mailbox before any of its parents.
+                        // For now, we are treating this mailbox as one of the root mailboxes.
+                        Application.Current.Dispatcher.Invoke(new Action(() => { account.Mailboxes.Add(mailbox); }));
                     }
                 }
                 else
@@ -169,34 +201,6 @@ namespace MinimalEmailClient.Models
             }
 
             return null;
-        }
-
-        public List<Mailbox> GetMailboxes(string accountName)
-        {
-            List<Mailbox> mailboxes = new List<Mailbox>();
-
-            foreach (Account account in Accounts)
-            {
-                if (account.AccountName == accountName)
-                {
-                    Downloader downloader = new Downloader(account);
-                    mailboxes = downloader.GetMailboxes();
-                    foreach (Mailbox mailbox in mailboxes)
-                    {
-                        string pattern = "[^" + mailbox.PathSeparator + "]+$";
-                        Regex regx = new Regex(pattern);
-                        Match match = regx.Match(mailbox.FullPath);
-                        mailbox.MailboxName = match.Value.ToString();
-                    }
-                    break;
-                }
-            }
-
-            // Update the database with the newly downloaded data.
-            DatabaseManager dm = new DatabaseManager();
-            dm.UpdateMailboxes(accountName, mailboxes);
-
-            return mailboxes;
         }
     }
 }

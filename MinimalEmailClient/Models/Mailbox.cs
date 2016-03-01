@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System;
 
 namespace MinimalEmailClient.Models
 {
@@ -54,6 +55,23 @@ namespace MinimalEmailClient.Models
             str += "\n";
 
             return str;
+        }
+    }
+
+    public class CompareMailbox : IEqualityComparer<Mailbox>
+    {
+        public bool Equals(Mailbox x, Mailbox y)
+        {
+            if (x == null || y == null)
+            {
+                return false;
+            }
+            return (x.AccountName == y.AccountName) && (x.FullPath == y.FullPath);
+        }
+
+        public int GetHashCode(Mailbox obj)
+        {
+            return obj.AccountName.GetHashCode() ^ obj.FullPath.GetHashCode();
         }
     }
 }
