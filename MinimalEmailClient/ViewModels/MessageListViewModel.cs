@@ -66,35 +66,40 @@ namespace MinimalEmailClient.ViewModels
             }
             Messages.Clear();
 
-            int messagesCount = downloader.Examine(mailboxPath);
-            if (messagesCount < 1)
+            MailboxStatus status;
+            if (downloader.Examine(mailboxPath, out status))
             {
-                return;
-            }
+                int messagesCount = status.Exists;
 
-            int downloadChunk = 10;
-            int startSeq = messagesCount - downloadChunk + 1;
-            int endSeq = messagesCount;
-            while (endSeq > 0)
-            {
-                List<Message> msgs = await Task.Run<List<Message>>(() =>
+                if (messagesCount < 1)
                 {
-                    // Message sequence number starts from 1.
-                    if (startSeq < 1)
-                    {
-                        startSeq = 1;
-                    }
-                    return downloader.FetchHeaders(startSeq, endSeq - startSeq + 1);
-                });
-                if (msgs.Count > 0)
-                {
-                    foreach (Message m in msgs)
-                    {
-                        Messages.Add(m);
-                    }
+                    return;
                 }
-                endSeq = startSeq - 1;
-                startSeq = endSeq - downloadChunk + 1;
+
+                int downloadChunk = 10;
+                int startSeq = messagesCount - downloadChunk + 1;
+                int endSeq = messagesCount;
+                while (endSeq > 0)
+                {
+                    List<Message> msgs = await Task.Run<List<Message>>(() =>
+                    {
+                        // Message sequence number starts from 1.
+                        if (startSeq < 1)
+                        {
+                            startSeq = 1;
+                        }
+                        return downloader.FetchHeaders(startSeq, endSeq - startSeq + 1);
+                    });
+                    if (msgs.Count > 0)
+                    {
+                        foreach (Message m in msgs)
+                        {
+                            Messages.Add(m);
+                        }
+                    }
+                    endSeq = startSeq - 1;
+                    startSeq = endSeq - downloadChunk + 1;
+                }
             }
 
             downloader.Disconnect();

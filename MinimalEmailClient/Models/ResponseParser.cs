@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.Models
 {
-    public class FetchParser
+    public class ResponseParser
     {
         // Constructs a Message object from an untagged response string returned by a FETCH command.
         public static Message CreateHeader(string untaggedItem)
@@ -78,6 +79,62 @@ namespace MinimalEmailClient.Models
 
             Debug.WriteLine("\n\n==========================\n\n");
             return message;
+        }
+
+
+        public static MailboxStatus ParseExamine(string examineResponse)
+        {
+            MailboxStatus status = new MailboxStatus();
+            Regex regex;
+            Match m;
+
+            string existsPattern = "^\\* (\\d+) EXISTS\r\n";
+            regex = new Regex(existsPattern, RegexOptions.Multiline);
+            m = regex.Match(examineResponse);
+            status.Exists = Convert.ToInt32(m.Groups[1].ToString());
+
+            string recentPattern = "^\\* (\\d+) RECENT\r\n";
+            regex = new Regex(recentPattern, RegexOptions.Multiline);
+            m = regex.Match(examineResponse);
+            status.Recent = Convert.ToInt32(m.Groups[1].ToString());
+
+            string uidNextPattern = "^\\* (?<ok>\\w+) \\[UIDNEXT (?<value>\\d+)\\]";
+            regex = new Regex(uidNextPattern, RegexOptions.Multiline);
+            m = regex.Match(examineResponse);
+            status.UidNext = Convert.ToInt32(m.Groups["value"].ToString());
+
+            string uidValidityPattern = "^\\* (?<ok>\\w+) \\[UIDVALIDITY (?<value>\\d+)\\]";
+            regex = new Regex(uidValidityPattern, RegexOptions.Multiline);
+            m = regex.Match(examineResponse);
+            status.UidValidity = Convert.ToInt32(m.Groups["value"].ToString());
+
+            string flagsPattern = "^\\* FLAGS \\((.*)\\)\r\n";
+            regex = new Regex(flagsPattern, RegexOptions.Multiline);
+            m = regex.Match(examineResponse);
+            if (m.Success)
+            {
+                string flagsString = m.Groups[1].ToString();
+                if (!string.IsNullOrWhiteSpace(flagsString))
+                {
+                    string[] flags = flagsString.Split(' ');
+                    status.Flags = new List<string>(flags);
+                }
+            }
+
+            string permanentFlagsPattern = "^\\* (?<ok>\\w+) \\[PERMANENTFLAGS \\((?<value>.*)\\)\\]";
+            regex = new Regex(permanentFlagsPattern, RegexOptions.Multiline);
+            m = regex.Match(examineResponse);
+            if (m.Success)
+            {
+                string flagsString = m.Groups["value"].ToString();
+                if (!string.IsNullOrWhiteSpace(flagsString))
+                {
+                    string[] permFlags = flagsString.Split(' ');
+                    status.PermanemtFlags = new List<string>(permFlags);
+                }
+            }
+
+            return status;
         }
     }
 }

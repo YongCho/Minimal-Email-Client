@@ -11,6 +11,16 @@ using System.Globalization;
 
 namespace MinimalEmailClient.Models
 {
+    public struct MailboxStatus
+    {
+        public int Recent;
+        public int Exists;
+        public int UidValidity;
+        public int UidNext;
+        public List<string> PermanemtFlags;
+        public List<string> Flags;
+    }
+
     public class Downloader
     {
         private Account account;
@@ -157,27 +167,21 @@ namespace MinimalEmailClient.Models
         }
 
         // Sends 'EXAMINE' command to the server with the specified mailbox.
-        // Returns the number of messages in the mailbox. This number is retrieved from
-        // the command response.
-        public int Examine(string mailboxPath)
+        public bool Examine(string mailboxPath, out MailboxStatus status)
         {
+            status = new MailboxStatus();
+
             string tag = NextTag();
             SendString(tag + " EXAMINE " + mailboxPath);
 
             string response = string.Empty;
             if (!ReadResponse(tag, out response))
             {
-                return -1;
+                return false;
             }
 
-            string msgCountPattern = "^\\* (\\d+) EXISTS\r\n";
-            Regex regex = new Regex(msgCountPattern, RegexOptions.Multiline);
-            Match m = regex.Match(response);
-            if (!m.Success)
-            {
-                return -1;
-            }
-            return Convert.ToInt32(m.Groups[1].ToString());
+            status = ResponseParser.ParseExamine(response);
+            return true;
         }
 
         public List<Message> FetchHeaders(int startSeqNum, int count)
@@ -212,7 +216,7 @@ namespace MinimalEmailClient.Models
                     if (match.Success)
                     {
                         string untaggedResponse = match.Groups[2].ToString();
-                        Message message = FetchParser.CreateHeader(untaggedResponse);
+                        Message message = ResponseParser.CreateHeader(untaggedResponse);
 
                         if (message != null)
                         {

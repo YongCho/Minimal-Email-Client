@@ -122,7 +122,7 @@
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\DatabaseManager.cs" />
     <Compile Include="Models\DateTimeParser.cs" />
-    <Compile Include="Models\FetchParser.cs" />
+    <Compile Include="Models\ResponseParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
     <Compile Include="Models\NewAccountValidator.cs" />
     <Compile Include="Models\SelectedMessageNotification.cs" />
