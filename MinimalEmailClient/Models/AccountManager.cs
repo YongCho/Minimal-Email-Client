@@ -22,7 +22,6 @@ namespace MinimalEmailClient.Models
         private static AccountManager instance;
         protected AccountManager()
         {
-            Accounts = new List<Account>();
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             LoadAccounts();
         }
@@ -39,12 +38,10 @@ namespace MinimalEmailClient.Models
         public void LoadAccounts()
         {
             DatabaseManager databaseManager = new DatabaseManager();
-            List<Account> accounts = databaseManager.GetAccounts();
-
-            Accounts.Clear();
-            foreach (Account account in accounts)
+            Accounts = databaseManager.GetAccounts();
+            foreach (Account account in Accounts)
             {
-                Accounts.Add(account);
+                PopulateMailboxes(account);
             }
         }
 
@@ -54,7 +51,6 @@ namespace MinimalEmailClient.Models
             DatabaseManager dbManager = new DatabaseManager();
             List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
             ConstructMailboxTree(account, localMailboxes);
-            BeginSyncMailboxes(account);
         }
 
         // Updates the mailbox tree in the specified account with ones from the server.

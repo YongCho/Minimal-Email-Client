@@ -48,7 +48,7 @@ namespace MinimalEmailClient.ViewModels
         {
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
-            Accounts = new ObservableCollection<Account>();
+
             LoadAccounts();
         }
 
@@ -59,18 +59,22 @@ namespace MinimalEmailClient.ViewModels
 
         public async void LoadAccounts()
         {
+            if (Accounts == null)
+            {
+                Accounts = new ObservableCollection<Account>();
+            }
+            else
+            {
+                Accounts.Clear();
+            }
+
             List<Account> accounts = await Task.Run<List<Account>>(() => {
                 return AccountManager.Instance().Accounts;
             });
             foreach (Account acc in accounts)
             {
                 Accounts.Add(acc);
-            }
-            foreach (Account acc in Accounts)
-            {
-                await Task.Run(() => {
-                    AccountManager.Instance().PopulateMailboxes(acc);
-                });
+                AccountManager.Instance().BeginSyncMailboxes(acc);
             }
         }
     }
