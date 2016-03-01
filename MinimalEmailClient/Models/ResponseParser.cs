@@ -8,7 +8,7 @@ namespace MinimalEmailClient.Models
     public class ResponseParser
     {
         // Constructs a Message object from an untagged response string returned by a FETCH command.
-        public static Message CreateHeader(string untaggedItem)
+        public static Message ParseFetchHeader(string untaggedItem)
         {
             Debug.WriteLine(untaggedItem);
 
