@@ -12,12 +12,6 @@ namespace MinimalEmailClient.Models
             get { return this.accountName; }
             set { SetProperty(ref this.accountName, value); }
         }
-        private string userName;
-        public string UserName
-        {
-            get { return this.userName; }
-            set { SetProperty(ref this.userName, value); }
-        }
         private string emailAddress;
         public string EmailAddress
         {
@@ -84,7 +78,7 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nUserName: {1}\nEmailAddress: {2}\nImapServerName: {3}\nImapLoginName: {4}\nImapLoginPassword: {5}\nImapPortNumber: {6}\nSmtpServerName: {7}\nSmtpLoginName: {8}\nSmtpLoginPassword: {9}\nSmtpPortNumber: {10}\n", AccountName, UserName, EmailAddress, ImapServerName, ImapLoginName, ImapLoginPassword, ImapPortNumber, SmtpServerName, SmtpLoginName, SmtpLoginPassword, SmtpPortNumber);
+            string str = string.Format("AccountName: {0}\nEmailAddress: {1}\nImapServerName: {2}\nImapLoginName: {3}\nImapLoginPassword: {4}\nImapPortNumber: {5}\nSmtpServerName: {6}\nSmtpLoginName: {7}\nSmtpLoginPassword: {8}\nSmtpPortNumber: {9}\n", AccountName, EmailAddress, ImapServerName, ImapLoginName, ImapLoginPassword, ImapPortNumber, SmtpServerName, SmtpLoginName, SmtpLoginPassword, SmtpPortNumber);
             return str;
         }
     }

@@ -31,25 +31,6 @@ namespace MinimalEmailClient.ViewModels
             set { SetProperty(ref this.accountNameValidated, value); }
         }
         #endregion
-        #region UserName
-        private string userName;
-        public string UserName
-        {
-            get { return this.userName; }
-            set
-            {
-                SetProperty(ref this.userName, value);
-                UserNameValidated = !String.IsNullOrWhiteSpace(UserName);
-                HandleInputChange();
-            }
-        }
-        private bool userNameValidated = false;
-        public bool UserNameValidated
-        {
-            get { return this.userNameValidated; }
-            set { SetProperty(ref this.userNameValidated, value); }
-        }
-        #endregion
         #region EmailAddress
         private string emailAddress;
         public string EmailAddress
@@ -256,7 +237,6 @@ namespace MinimalEmailClient.ViewModels
             {
                 Account account = new Account();
                 account.AccountName = AccountName;
-                account.UserName = UserName;
                 account.EmailAddress = EmailAddress;
                 account.ImapLoginName = LoginName;
                 account.ImapLoginPassword = LoginPassword;
@@ -342,7 +322,6 @@ namespace MinimalEmailClient.ViewModels
             Message = string.Empty;
 
             if ((bool)AccountNameValidated &&
-                (bool)UserNameValidated &&
                 (bool)EmailAddressValidated &&
                 (bool)LoginNameValidated &&
                 (bool)LoginPasswordValidated &&
@@ -362,7 +341,6 @@ namespace MinimalEmailClient.ViewModels
         private void ResetForm()
         {
             AccountName = string.Empty;
-            UserName = string.Empty;
             EmailAddress = string.Empty;
             LoginName = string.Empty;
             LoginPassword = string.Empty;

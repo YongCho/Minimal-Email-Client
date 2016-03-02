@@ -37,7 +37,7 @@ namespace MinimalEmailClient.Models
 
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
                 {
-                    cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, UserName TEXT, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
+                    cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
                     cmd.ExecuteNonQuery();
 
                     cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, Path TEXT, Separator TEXT, FlagString TEXT, PRIMARY KEY (AccountName, Path), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
@@ -73,7 +73,6 @@ namespace MinimalEmailClient.Models
                             {
                                 Account account = new Account();
                                 account.AccountName = (string)reader["AccountName"];
-                                account.UserName = (string)reader["UserName"];
                                 account.EmailAddress = (string)reader["EmailAddress"];
                                 account.ImapLoginName = (string)reader["ImapLoginName"];
                                 account.ImapLoginPassword = (string)reader["ImapLoginPassword"];
@@ -108,11 +107,10 @@ namespace MinimalEmailClient.Models
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
                 {
-                    cmd.CommandText = @"INSERT INTO Accounts VALUES(@AccountName, @UserName, @EmailAddress, @ImapLoginName, @ImapLoginPassword, @ImapServerName, @ImapPortNumber, @SmtpLoginName, @SmtpLoginPassword, @SmtpServerName, @SmtpPortNumber);";
+                    cmd.CommandText = @"INSERT INTO Accounts VALUES(@AccountName, @EmailAddress, @ImapLoginName, @ImapLoginPassword, @ImapServerName, @ImapPortNumber, @SmtpLoginName, @SmtpLoginPassword, @SmtpServerName, @SmtpPortNumber);";
                     cmd.Prepare();
 
                     cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
-                    cmd.Parameters.AddWithValue("@UserName", account.UserName);
                     cmd.Parameters.AddWithValue("@EmailAddress", account.EmailAddress);
                     cmd.Parameters.AddWithValue("@ImapLoginName", account.ImapLoginName);
                     cmd.Parameters.AddWithValue("@ImapLoginPassword", account.ImapLoginPassword);

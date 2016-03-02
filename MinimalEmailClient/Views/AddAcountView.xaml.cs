@@ -19,9 +19,10 @@ namespace MinimalEmailClient.Views
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             Window parentWindow = Window.GetWindow(this);
-            parentWindow.MinWidth = 400;
-            parentWindow.MaxWidth = 400;
-            MessagePanel.Width = 380;
+            int fixecWidth = 320;
+            parentWindow.MinWidth = fixecWidth;
+            parentWindow.MaxWidth = fixecWidth;
+            MessagePanel.Width = fixecWidth - 20;
         }
     }
 }

@@ -54,51 +54,39 @@
         </Grid.RowDefinitions>
 
 
-        <!-- Account Name -->
+        <!-- Account Name, Email -->
         <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Account Name:" />
-            <TextBox Grid.Column="1" Text="{Binding AccountName, UpdateSourceTrigger=PropertyChanged}">
-                <TextBox.Style>
-                    <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding AccountNameValidated}" Value="False">
-                                <Setter Property="BorderBrush" Value="#FFFF8080" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBox.Style>
-            </TextBox>
-        </Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-            <!-- User Information -->
-        <GroupBox Grid.Row="1" Header="User Information">
-            <Grid>
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
-                    <ColumnDefinition />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="Name:" />
-                <TextBlock Grid.Column="0" Grid.Row="1" Text="Email:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding UserName, UpdateSourceTrigger=PropertyChanged}">
+                <TextBlock Grid.Column="0" Text="Account Name:" />
+                <TextBox Grid.Column="1" Text="{Binding AccountName, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding UserNameValidated}" Value="False">
+                                <DataTrigger Binding="{Binding AccountNameValidated}" Value="False">
                                     <Setter Property="BorderBrush" Value="#FFFF8080" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBox.Style>
                 </TextBox>
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}">
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Email:" />
+                <TextBox Grid.Column="1" Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
@@ -110,9 +98,9 @@
                     </TextBox.Style>
                 </TextBox>
             </Grid>
-        </GroupBox>
+        </Grid>
 
-            <!-- Authentication -->
+        <!-- Authentication -->
         <GroupBox Grid.Row="2" Header="Authentication">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -151,7 +139,7 @@
             </Grid>
         </GroupBox>
 
-            <!-- IMAP Server Information -->
+        <!-- IMAP Server Information -->
         <GroupBox Grid.Row="3" Header="Incoming Server">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -189,7 +177,7 @@
             </Grid>
         </GroupBox>
 
-            <!-- SMTP Server Information -->
+        <!-- SMTP Server Information -->
         <GroupBox Grid.Row="4" Header="Outgoing Server">
             <Grid>
                 <Grid.ColumnDefinitions>
