@@ -54,20 +54,20 @@ namespace MinimalEmailClient.ViewModels
         private void HandleMailboxSelection(Mailbox selectedMailbox)
         {
             Account selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
-            Sync(selectedAccount, selectedMailbox.FullPath);
+            UpdateListView(selectedAccount, selectedMailbox.DirectoryPath);
         }
 
-        public async void Sync(Account account, string mailboxPath)
+        public async void UpdateListView(Account account, string mailboxPath)
         {
-            Downloader downloader = new Downloader(account);
-            if (!downloader.Connect())
+            ImapClient imapClient = new ImapClient(account);
+            if (!imapClient.Connect())
             {
                 return;
             }
             Messages.Clear();
 
             MailboxStatus status;
-            if (downloader.Examine(mailboxPath, out status))
+            if (imapClient.Examine(mailboxPath, out status))
             {
                 int messagesCount = status.Exists;
 
@@ -88,7 +88,7 @@ namespace MinimalEmailClient.ViewModels
                         {
                             startSeq = 1;
                         }
-                        return downloader.FetchHeaders(startSeq, endSeq - startSeq + 1);
+                        return imapClient.FetchHeaders(startSeq, endSeq - startSeq + 1);
                     });
                     if (msgs.Count > 0)
                     {
@@ -102,7 +102,7 @@ namespace MinimalEmailClient.ViewModels
                 }
             }
 
-            downloader.Disconnect();
+            imapClient.Disconnect();
         }
 
     }

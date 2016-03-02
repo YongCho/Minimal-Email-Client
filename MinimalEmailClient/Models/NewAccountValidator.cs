@@ -24,19 +24,19 @@
         }
         public bool Validate()
         {
-            Downloader downloader = new Downloader(Account);
+            ImapClient imapClient = new ImapClient(Account);
             bool success = false;
             Error = string.Empty;
 
-            if (downloader.Connect())
+            if (imapClient.Connect())
             {
                 success = true;
             }
             else
             {
-                Error = downloader.Error;
+                Error = imapClient.Error;
             }
-            downloader.Disconnect();
+            imapClient.Disconnect();
 
             return success;
         }

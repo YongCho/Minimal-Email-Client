@@ -21,11 +21,11 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.mailboxName, value); }
         }
 
-        private string fullPath;
-        public string FullPath
+        private string directoryPath;
+        public string DirectoryPath
         {
-            get { return this.fullPath; }
-            set { SetProperty(ref this.fullPath, value); }
+            get { return this.directoryPath; }
+            set { SetProperty(ref this.directoryPath, value); }
         }
 
         private string pathSeparator;
@@ -46,7 +46,7 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nDisplayName: {1}\nFullPath: {2}\nPathSeparator: {3}\nAttributes: ", AccountName, MailboxName, FullPath, PathSeparator);
+            string str = string.Format("AccountName: {0}\nMailboxName: {1}\nDirectoryPath: {2}\nPathSeparator: {3}\nAttributes: ", AccountName, MailboxName, DirectoryPath, PathSeparator);
             foreach (string attribute in Attributes)
             {
                 str += attribute;
@@ -66,12 +66,12 @@ namespace MinimalEmailClient.Models
             {
                 return false;
             }
-            return (x.AccountName == y.AccountName) && (x.FullPath == y.FullPath);
+            return (x.AccountName == y.AccountName) && (x.DirectoryPath == y.DirectoryPath);
         }
 
         public int GetHashCode(Mailbox obj)
         {
-            return obj.AccountName.GetHashCode() ^ obj.FullPath.GetHashCode();
+            return obj.AccountName.GetHashCode() ^ obj.DirectoryPath.GetHashCode();
         }
     }
 }

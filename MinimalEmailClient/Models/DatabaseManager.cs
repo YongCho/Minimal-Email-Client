@@ -166,7 +166,7 @@ namespace MinimalEmailClient.Models
                             {
                                 Mailbox mailbox = new Mailbox();
                                 mailbox.AccountName = accountName;
-                                mailbox.FullPath = (string)reader["Path"];
+                                mailbox.DirectoryPath = (string)reader["Path"];
                                 mailbox.PathSeparator = (string)reader["Separator"];
 
                                 string[] flags = (reader["FlagString"] as string).Split(' ');
@@ -220,7 +220,7 @@ namespace MinimalEmailClient.Models
                         cmd.Prepare();
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@AccountName", mailbox.AccountName);
-                        cmd.Parameters.AddWithValue("@Path", mailbox.FullPath);
+                        cmd.Parameters.AddWithValue("@Path", mailbox.DirectoryPath);
                         cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
 
                         string flagString = string.Empty;

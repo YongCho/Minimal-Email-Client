@@ -21,7 +21,7 @@ namespace MinimalEmailClient.Models
         public List<string> Flags;
     }
 
-    public class Downloader
+    public class ImapClient
     {
         private Account account;
         public Account Account
@@ -41,7 +41,7 @@ namespace MinimalEmailClient.Models
 
         SslStream sslStream;
 
-        public Downloader(Account account)
+        public ImapClient(Account account)
         {
             Account = account;
         }
@@ -155,7 +155,7 @@ namespace MinimalEmailClient.Models
                     Mailbox mailbox = new Mailbox()
                     {
                         AccountName = account.AccountName,
-                        FullPath = m.Groups["mailboxName"].ToString(),
+                        DirectoryPath = m.Groups["mailboxName"].ToString(),
                         PathSeparator = m.Groups["separator"].ToString(),
                         Attributes = new List<string>(m.Groups["attributes"].ToString().Split(' ')),
                     };

@@ -167,7 +167,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Models\Decoder.cs" />
-    <Compile Include="Models\Downloader.cs" />
+    <Compile Include="Models\ImapClient.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MailboxTreeView.xaml.cs">

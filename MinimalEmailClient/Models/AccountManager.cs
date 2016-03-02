@@ -61,10 +61,10 @@ namespace MinimalEmailClient.Models
                 DatabaseManager dbManager = new DatabaseManager();
                 List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
 
-                Downloader downloader = new Downloader(account);
-                if (downloader.Connect())
+                ImapClient imapClient = new ImapClient(account);
+                if (imapClient.Connect())
                 {
-                    List<Mailbox> serverMailboxes = downloader.GetMailboxes();
+                    List<Mailbox> serverMailboxes = imapClient.GetMailboxes();
 
                     var comparer = new CompareMailbox();
                     var localNotServer = localMailboxes.Except(serverMailboxes, comparer).ToList();
@@ -76,7 +76,7 @@ namespace MinimalEmailClient.Models
                         dbManager.UpdateMailboxes(account.AccountName, serverMailboxes);
                     }
 
-                    downloader.Disconnect();
+                    imapClient.Disconnect();
                 }
             });
         }
@@ -90,7 +90,7 @@ namespace MinimalEmailClient.Models
                 // DisplayName is the directory name without its path string.
                 string pattern = "[^" + mailbox.PathSeparator + "]+$";
                 Regex regx = new Regex(pattern);
-                Match match = regx.Match(mailbox.FullPath);
+                Match match = regx.Match(mailbox.DirectoryPath);
                 mailbox.MailboxName = match.Value.ToString().Replace("\"", "");
 
                 // Check if the mailbox a child of another mailbox.
@@ -102,12 +102,12 @@ namespace MinimalEmailClient.Models
                 // mailbox name before its children on the LIST command. If for some reason the server
                 // returns a child mailbox before the parent, the child mailbox will show up in the
                 // root of the tree instead of under the parent.
-                if (mailbox.FullPath.Contains(mailbox.PathSeparator))
+                if (mailbox.DirectoryPath.Contains(mailbox.PathSeparator))
                 {
                     // Matches "pp/qq/rr" from "pp/qq/rr/ss".
                     string parentPathPattern = "^(.*)" + mailbox.PathSeparator + "[^" + mailbox.PathSeparator + "]+$";
                     Regex regex = new Regex(parentPathPattern);
-                    Match m = regex.Match(mailbox.FullPath);
+                    Match m = regex.Match(mailbox.DirectoryPath);
                     string parentPath = m.Groups[1].ToString();
 
                     // Find the parent mailbox.
@@ -177,7 +177,7 @@ namespace MinimalEmailClient.Models
             bool success = dm.AddAccount(account);
             if (success)
             {
-                PopulateMailboxes(account);
+                BeginSyncMailboxes(account);
                 Accounts.Add(account);
                 this.eventAggregator.GetEvent<NewAccountAddedEvent>().Publish(account);
             }
