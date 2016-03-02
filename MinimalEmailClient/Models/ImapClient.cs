@@ -296,18 +296,19 @@ namespace MinimalEmailClient.Models
             int byteCount;
             response = string.Empty;
             bool? tagOk = null;
+            string pattern = "^" + tag + " (?<ok>[a-zA-Z]+).*\r\n";
+            Match m;
 
             while (!tagOk.HasValue)
             {
-                byteCount = ReadItemIntoBuffer(stream, 0);
+                byteCount = stream.Read(this.buffer, 0, this.buffer.Length);
                 byte[] data = new byte[byteCount];
                 Array.Copy(this.buffer, data, byteCount);
                 response += Encoding.ASCII.GetString(data);
-                string pattern = "(^|\r\n)" + tag + " (\\w+) ";
-                Match match = Regex.Match(response, pattern);
-                if (match.Success)
+                m = Regex.Match(response, pattern, RegexOptions.Multiline);
+                if (m.Success)
                 {
-                    if (match.Groups[2].ToString() == "OK")
+                    if (m.Groups["ok"].ToString() == "OK")
                     {
                         tagOk = true;
                     }
@@ -320,35 +321,6 @@ namespace MinimalEmailClient.Models
 
             // Debug.Write("Response:\n" + response);
             return (bool)tagOk;
-        }
-
-        private int ReadItemIntoBuffer(SslStream stream, int offset)
-        {
-            int totalBytes = 0;
-            bool done = false;
-
-            while (!done)
-            {
-                int bytesRead = 0;
-                try
-                {
-                    // Offset always points to the next available slot.
-                    bytesRead = stream.Read(this.buffer, offset, this.buffer.Length - offset);
-                    totalBytes += bytesRead;
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show("ReadItemIntoBuffer: ", e.Message);
-                    return totalBytes;
-                }
-
-                offset += bytesRead;
-                if (this.buffer[offset - 2] == '\r' && this.buffer[offset - 1] == '\n')
-                {
-                    done = true;
-                }
-            }
-            return totalBytes;
         }
     }
 }
