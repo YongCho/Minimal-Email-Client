@@ -10,8 +10,7 @@ namespace MinimalEmailClient.Models
     {
         public string Error = string.Empty;
         public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
-        public static readonly string DatabaseFileName = "ec.db";
-        public static readonly string DatabasePath = DatabaseFolder + "\\" + DatabaseFileName;
+        public static readonly string DatabasePath = DatabaseFolder + "\\" + Properties.Settings.Default.DatabaseFileName;
         private string connectionString = string.Format("Data Source={0}; Version=3; foreign keys=true; UTF16Encoding=True", DatabasePath);
 
         public DatabaseManager()

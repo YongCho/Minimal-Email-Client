@@ -31,5 +31,17 @@ namespace MinimalEmailClient.Properties {
                 return ((string)(this["AppName"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ec.db")]
+        public string DatabaseFileName {
+            get {
+                return ((string)(this["DatabaseFileName"]));
+            }
+            set {
+                this["DatabaseFileName"] = value;
+            }
+        }
     }
 }
