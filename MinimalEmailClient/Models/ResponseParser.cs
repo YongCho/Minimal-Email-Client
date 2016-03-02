@@ -54,11 +54,7 @@ namespace MinimalEmailClient.Models
             string datePattern = "\r\nDate: (.*)\r\n";
             string dtString = Regex.Match(untaggedItem, datePattern, RegexOptions.IgnoreCase).Groups[1].ToString();
             Debug.WriteLine("Date: " + dtString);
-            DateTime dt;
-            if (!DateTime.TryParse(dtString, out dt))
-            {
-                dt = DateTimeParser.Parse(dtString);
-            }
+            DateTime dt = ResponseParser.ParseDate(dtString);
             message.DateString = dtString;
             message.Date = dt;
 
@@ -80,7 +76,6 @@ namespace MinimalEmailClient.Models
             Debug.WriteLine("\n\n==========================\n\n");
             return message;
         }
-
 
         public static MailboxStatus ParseExamine(string examineResponse)
         {
@@ -135,6 +130,39 @@ namespace MinimalEmailClient.Models
             }
 
             return status;
+        }
+
+        // Parses date string returned by FETCH command and creates a DateTime object.
+        public static DateTime ParseDate(string dateString)
+        {
+            DateTime dt;
+
+            // Try System parser first. This should catch all the standard formatted inputs.
+            if (DateTime.TryParse(dateString, out dt))
+            {
+                return dt;
+            }
+
+            // If we got here, the input string probably has some erroneous characters.
+            // Try to filter them out with regex.
+            string[] patterns = { "\\d+ \\w+ \\d+ \\d+:\\d+:\\d+ ?[-+\\d]*", "\\d+-\\d+-\\d+ \\d+:\\d+:\\d+ ?[-+\\d]*" };
+
+            Regex regex;
+            Match m;
+
+            foreach (string pattern in patterns)
+            {
+                regex = new Regex(pattern);
+                m = regex.Match(dateString);
+                if (m.Success)
+                {
+                    return DateTime.Parse(m.ToString());
+                }
+
+            }
+
+            // Still couldn't find a match. Let's use the Unix zero point as the fallback.
+            return new DateTime(1970, 1, 1);
         }
     }
 }
