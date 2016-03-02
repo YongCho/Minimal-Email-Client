@@ -4,7 +4,6 @@ namespace MinimalEmailClient.Common
 {
     public static class Globals
     {
-        public static readonly string AppName = "Minimal Email Client";
-        public static readonly string UserSettingsFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + AppName;
+        public static readonly string UserSettingsFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + Properties.Settings.Default.AppName;
     }
 }

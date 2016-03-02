@@ -22,5 +22,14 @@ namespace MinimalEmailClient.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Minimal Email Client")]
+        public string AppName {
+            get {
+                return ((string)(this["AppName"]));
+            }
+        }
     }
 }
