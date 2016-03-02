@@ -13,19 +13,20 @@
         <viewModels:MailboxTreeViewModel />
     </UserControl.DataContext>
 
-    <TreeView BorderThickness="0" ItemsSource="{Binding Accounts}" SelectedItemChanged="TreeView_SelectedItemChanged">
+    <TreeView Padding="5" BorderThickness="0" ItemsSource="{Binding Accounts}" SelectedItemChanged="TreeView_SelectedItemChanged">
         <TreeView.Background>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#fffafafa" Offset="1"/>
                 <GradientStop Color="White"/>
             </LinearGradientBrush>
         </TreeView.Background>
+
         <TreeView.Resources>
             <HierarchicalDataTemplate DataType="{x:Type models:Account}" ItemsSource="{Binding Mailboxes}">
-                <TextBlock Text="{Binding EmailAddress}" />
+                <TextBlock Text="{Binding EmailAddress}" Margin="0, 2" />
             </HierarchicalDataTemplate>
             <HierarchicalDataTemplate DataType="{x:Type models:Mailbox}" ItemsSource="{Binding Subdirectories}">
-                <TextBlock Text="{Binding MailboxName}" />
+                <TextBlock Text="{Binding MailboxName}" Margin="0, 2" />
             </HierarchicalDataTemplate>
         </TreeView.Resources>
     </TreeView>
