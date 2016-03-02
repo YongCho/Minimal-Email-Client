@@ -47,7 +47,7 @@ namespace MinimalEmailClient.Models
 
             string subjectPattern = "\r\nSubject: (.*)\r\n";
             string subject = Regex.Match(untaggedItem, subjectPattern).Groups[1].ToString();
-            subject = Decoder.DecodeHeaderElement(subject);
+            subject = Decoder.DecodeSingleLine(subject);
             Debug.WriteLine("Subject: " + subject);
             message.Subject = subject;
 
@@ -62,7 +62,7 @@ namespace MinimalEmailClient.Models
             Match m = Regex.Match(untaggedItem, senderPattern);
             Debug.WriteLine("From: " + m.ToString());
 
-            string senderName = Decoder.DecodeHeaderElement(m.Groups[1].ToString());
+            string senderName = Decoder.DecodeSingleLine(m.Groups[1].ToString());
             string senderAddress = m.Groups[2].ToString();
             if (string.IsNullOrWhiteSpace(senderName))
             {

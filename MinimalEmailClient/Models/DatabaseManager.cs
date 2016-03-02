@@ -51,6 +51,7 @@ namespace MinimalEmailClient.Models
             }
         }
 
+        // Loads all accounts from Accounts table and returns them as a list of Account objects.
         public List<Account> GetAccounts()
         {
             List<Account> accounts = new List<Account>();
@@ -93,7 +94,8 @@ namespace MinimalEmailClient.Models
             return accounts;
         }
 
-        public bool AddAccount(Account account)
+        // Stores an Account object into the Accounts table.
+        public bool InsertAccount(Account account)
         {
             int numRowsInserted = 0;
 
@@ -137,7 +139,7 @@ namespace MinimalEmailClient.Models
             return numRowsInserted == 1 ? true : false;
         }
 
-
+        // Loads all mailboxes from the Mailboxes table and returns them as a list of Mailbox objects.
         public List<Mailbox> GetMailboxes(string accountName)
         {
             List<Mailbox> mailboxes = new List<Mailbox>();

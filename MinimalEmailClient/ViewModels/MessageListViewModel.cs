@@ -67,7 +67,7 @@ namespace MinimalEmailClient.ViewModels
             Messages.Clear();
 
             MailboxStatus status;
-            if (imapClient.Examine(mailboxPath, out status))
+            if (imapClient.ExamineMailbox(mailboxPath, out status))
             {
                 int messagesCount = status.Exists;
 

@@ -8,7 +8,9 @@ namespace MinimalEmailClient.Models
 {
     public class Decoder
     {
-        public static string DecodeHeaderElement(string encodedString)
+        // Decodes a line of Quoted-Printable or Base64 string and returns it
+        // as a C# string.
+        public static string DecodeSingleLine(string encodedString)
         {
             var regex = new Regex(@"=\?(?<charset>.*?)\?(?<encoding>[qQbB])\?(?<value>.*?)\?=");
             var decodedString = string.Empty;

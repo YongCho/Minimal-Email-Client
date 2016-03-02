@@ -135,7 +135,7 @@ namespace MinimalEmailClient.Models
             return msgs;
         }
 
-        public List<Mailbox> GetMailboxes()
+        public List<Mailbox> ListMailboxes()
         {
             string tag = NextTag();
             SendString(tag + " LIST \"\" *");
@@ -167,7 +167,7 @@ namespace MinimalEmailClient.Models
         }
 
         // Sends 'EXAMINE' command to the server with the specified mailbox.
-        public bool Examine(string mailboxPath, out MailboxStatus status)
+        public bool ExamineMailbox(string mailboxPath, out MailboxStatus status)
         {
             status = new MailboxStatus();
 
@@ -184,6 +184,7 @@ namespace MinimalEmailClient.Models
             return true;
         }
 
+        // Fetches message headers and returns them as a list of Message objects.
         public List<Message> FetchHeaders(int startSeqNum, int count)
         {
             var messages = new List<Message>(count);
@@ -280,22 +281,10 @@ namespace MinimalEmailClient.Models
             SendString(str, this.sslStream);
         }
 
-        private bool hasTagAtBeginning(string responseLine, string tag, out bool tagOk)
+        private bool ReadResponse(string tag)
         {
-            string pattern = "(^|\r\n)" + tag + " (\\w+) ";
-            Match match = Regex.Match(responseLine, pattern);
-            bool retVal = false;
-            tagOk = false;
-
-            if (match.Success)
-            {
-                retVal = true;
-                if (match.Groups[2].ToString() == "OK")
-                {
-                    tagOk = true;
-                }
-            }
-            return retVal;
+            string response;
+            return ReadResponse(tag, out response);
         }
 
         private bool ReadResponse(string tag, out string response)
@@ -333,12 +322,6 @@ namespace MinimalEmailClient.Models
 
             // Debug.Write("Response:\n" + response);
             return (bool)tagOk;
-        }
-
-        private bool ReadResponse(string tag)
-        {
-            string response;
-            return ReadResponse(tag, out response);
         }
 
         private int ReadItemIntoBuffer(SslStream stream, int offset)

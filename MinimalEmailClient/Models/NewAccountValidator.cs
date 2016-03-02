@@ -22,6 +22,7 @@
         {
             Account = account;
         }
+
         public bool Validate()
         {
             ImapClient imapClient = new ImapClient(Account);

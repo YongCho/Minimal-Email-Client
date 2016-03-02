@@ -64,7 +64,7 @@ namespace MinimalEmailClient.Models
                 ImapClient imapClient = new ImapClient(account);
                 if (imapClient.Connect())
                 {
-                    List<Mailbox> serverMailboxes = imapClient.GetMailboxes();
+                    List<Mailbox> serverMailboxes = imapClient.ListMailboxes();
 
                     var comparer = new CompareMailbox();
                     var localNotServer = localMailboxes.Except(serverMailboxes, comparer).ToList();
@@ -174,7 +174,7 @@ namespace MinimalEmailClient.Models
         public bool AddAccount(Account account)
         {
             DatabaseManager dm = new DatabaseManager();
-            bool success = dm.AddAccount(account);
+            bool success = dm.InsertAccount(account);
             if (success)
             {
                 BeginSyncMailboxList(account);
