@@ -35,6 +35,20 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.pathSeparator, value); }
         }
 
+        private int uidNext;
+        public int UidNext
+        {
+            get { return this.uidNext; }
+            set { SetProperty(ref this.uidNext, value); }
+        }
+
+        private int uidValidity;
+        public int UidValidity
+        {
+            get { return this.uidValidity; }
+            set { SetProperty(ref this.uidValidity, value); }
+        }
+
         public List<string> Attributes { get; set; }
         public ObservableCollection<Mailbox> Subdirectories { get; set; }
 
@@ -46,7 +60,7 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nMailboxName: {1}\nDirectoryPath: {2}\nPathSeparator: {3}\nAttributes: ", AccountName, MailboxName, DirectoryPath, PathSeparator);
+            string str = string.Format("AccountName: {0}\nMailboxName: {1}\nDirectoryPath: {2}\nPathSeparator: {3}\nUidNext: {4}\nUidValidity: {5}\nAttributes: ", AccountName, MailboxName, DirectoryPath, PathSeparator, UidNext, UidValidity);
             foreach (string attribute in Attributes)
             {
                 str += attribute;

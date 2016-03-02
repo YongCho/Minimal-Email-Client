@@ -6,8 +6,6 @@ using System.Net.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Threading;
-using System.Globalization;
 
 namespace MinimalEmailClient.Models
 {

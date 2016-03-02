@@ -40,7 +40,7 @@ namespace MinimalEmailClient.Models
                     cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
                     cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, Path TEXT, Separator TEXT, FlagString TEXT, PRIMARY KEY (AccountName, Path), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
+                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT, Path TEXT, Separator TEXT, UidNext INT, UidValidity INT, FlagString TEXT, PRIMARY KEY (AccountName, Path), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName));";
                     cmd.ExecuteNonQuery();
 
                     cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, Date TEXT, SenderName TEXT, SenderAddress TEXT, RecipientName TEXT, RecipientAddress TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName) REFERENCES Accounts(AccountName), FOREIGN KEY (MailboxPath) REFERENCES Mailboxes(Path));";
@@ -168,6 +168,8 @@ namespace MinimalEmailClient.Models
                                 mailbox.AccountName = accountName;
                                 mailbox.DirectoryPath = (string)reader["Path"];
                                 mailbox.PathSeparator = (string)reader["Separator"];
+                                mailbox.UidNext = (int)reader["UidNext"];
+                                mailbox.UidValidity = (int)reader["UidValidity"];
 
                                 string[] flags = (reader["FlagString"] as string).Split(' ');
                                 mailbox.Attributes.AddRange(flags);
@@ -213,7 +215,7 @@ namespace MinimalEmailClient.Models
                         return numRowsInserted;
                     }
 
-                    cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @FlagString);";
+                    cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @UidNext, @UidValidity, @FlagString);";
 
                     foreach (Mailbox mailbox in newMailboxes)
                     {
@@ -222,6 +224,8 @@ namespace MinimalEmailClient.Models
                         cmd.Parameters.AddWithValue("@AccountName", mailbox.AccountName);
                         cmd.Parameters.AddWithValue("@Path", mailbox.DirectoryPath);
                         cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
+                        cmd.Parameters.AddWithValue("@UidNext", mailbox.UidNext);
+                        cmd.Parameters.AddWithValue("@UidValidity", mailbox.UidValidity);
 
                         string flagString = string.Empty;
                         foreach (string flag in mailbox.Attributes)
