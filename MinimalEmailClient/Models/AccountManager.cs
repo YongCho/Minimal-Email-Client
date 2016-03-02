@@ -41,12 +41,12 @@ namespace MinimalEmailClient.Models
             Accounts = databaseManager.GetAccounts();
             foreach (Account account in Accounts)
             {
-                PopulateMailboxes(account);
+                LoadMailboxListFromDb(account);
             }
         }
 
         // Populates the mailbox tree of the specified account.
-        public void PopulateMailboxes(Account account)
+        public void LoadMailboxListFromDb(Account account)
         {
             DatabaseManager dbManager = new DatabaseManager();
             List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
@@ -55,7 +55,7 @@ namespace MinimalEmailClient.Models
 
         // Updates the mailbox tree in the specified account with ones from the server.
         // Also updates the database to reflect the change.
-        public void BeginSyncMailboxes(Account account)
+        public void BeginSyncMailboxList(Account account)
         {
             Task.Factory.StartNew(() => {
                 DatabaseManager dbManager = new DatabaseManager();
@@ -177,7 +177,7 @@ namespace MinimalEmailClient.Models
             bool success = dm.AddAccount(account);
             if (success)
             {
-                BeginSyncMailboxes(account);
+                BeginSyncMailboxList(account);
                 Accounts.Add(account);
                 this.eventAggregator.GetEvent<NewAccountAddedEvent>().Publish(account);
             }

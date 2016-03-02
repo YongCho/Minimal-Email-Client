@@ -74,7 +74,7 @@ namespace MinimalEmailClient.ViewModels
             foreach (Account acc in accounts)
             {
                 Accounts.Add(acc);
-                AccountManager.Instance().BeginSyncMailboxes(acc);
+                AccountManager.Instance().BeginSyncMailboxList(acc);
             }
         }
     }
