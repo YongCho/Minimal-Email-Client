@@ -7,6 +7,10 @@
             <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
             <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
         </Style>
+        <Style TargetType="{x:Type UserControl}">
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        </Style>
 
         <SolidColorBrush x:Key="MenuItemBackgroundBrush" Color="White" />
         <SolidColorBrush x:Key="MenuItemBorderBrush" Color="#FFDADADA" />
