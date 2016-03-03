@@ -23,6 +23,9 @@ namespace MinimalEmailClient.ViewModels
             get { return this.selectedMessage; }
             set { SetProperty(ref this.selectedMessage, value); }
         }
+        private Account selectedAccount;
+        private Mailbox selectedMailbox;
+
         private IEventAggregator eventAggregator;
         public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
         public ICommand OpenSelectedMessageCommand { get; set; }
@@ -45,7 +48,7 @@ namespace MinimalEmailClient.ViewModels
         {
             if (SelectedMessage != null)
             {
-                SelectedMessageNotification notification = new SelectedMessageNotification(SelectedMessage);
+                SelectedMessageNotification notification = new SelectedMessageNotification(this.selectedAccount, this.selectedMailbox, SelectedMessage);
                 notification.Title = SelectedMessage.Subject;
                 OpenSelectedMessagePopupRequest.Raise(notification);
             }
@@ -53,8 +56,9 @@ namespace MinimalEmailClient.ViewModels
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
         {
-            Account selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
-            UpdateListView(selectedAccount, selectedMailbox.DirectoryPath);
+            this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
+            this.selectedMailbox = selectedMailbox;
+            UpdateListView(this.selectedAccount, selectedMailbox.DirectoryPath);
         }
 
         public async void UpdateListView(Account account, string mailboxPath)
@@ -66,7 +70,7 @@ namespace MinimalEmailClient.ViewModels
             }
             Messages.Clear();
 
-            MailboxStatus status;
+            ExamineResult status;
             if (imapClient.ExamineMailbox(mailboxPath, out status))
             {
                 int messagesCount = status.Exists;

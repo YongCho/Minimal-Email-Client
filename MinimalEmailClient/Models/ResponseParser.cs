@@ -41,45 +41,100 @@ namespace MinimalEmailClient.Models
 
             Message message = new Message();
 
+            Match m;
+
             string itemHeaderPattern = "^(.*)\r\n";
-            string itemHeader = Regex.Match(untaggedItem, itemHeaderPattern).Groups[1].ToString();
-            Debug.WriteLine("Item Header: " + itemHeader);
-
-            string subjectPattern = "\r\nSubject: (.*)\r\n";
-            string subject = Regex.Match(untaggedItem, subjectPattern).Groups[1].ToString();
-            subject = Decoder.DecodeSingleLine(subject);
-            Debug.WriteLine("Subject: " + subject);
-            message.Subject = subject;
-
-            string datePattern = "\r\nDate: (.*)\r\n";
-            string dtString = Regex.Match(untaggedItem, datePattern, RegexOptions.IgnoreCase).Groups[1].ToString();
-            Debug.WriteLine("Date: " + dtString);
-            DateTime dt = ResponseParser.ParseDate(dtString);
-            message.DateString = dtString;
-            message.Date = dt;
-
-            string senderPattern = "\r\nFrom: (.*)<(.*)>\r\n";
-            Match m = Regex.Match(untaggedItem, senderPattern);
-            Debug.WriteLine("From: " + m.ToString());
-
-            string senderName = Decoder.DecodeSingleLine(m.Groups[1].ToString());
-            string senderAddress = m.Groups[2].ToString();
-            if (string.IsNullOrWhiteSpace(senderName))
+            m = Regex.Match(untaggedItem, itemHeaderPattern);
+            if (m.Success)
             {
-                senderName = senderAddress;
+                string itemHeader = m.Groups[1].ToString();
+                Debug.WriteLine("Item Header: " + itemHeader);
             }
-            Debug.WriteLine("Sender Name: " + senderName);
-            Debug.WriteLine("Sender Address: " + senderAddress);
+
+            string subjectPattern = "^Subject: (.*)\r\n";
+            m = Regex.Match(untaggedItem, subjectPattern, RegexOptions.Multiline);
+            if (m.Success)
+            {
+                string subject = m.Groups[1].ToString();
+                subject = Decoder.DecodeSingleLine(subject);
+                Debug.WriteLine("Subject: " + subject);
+                message.Subject = subject;
+                untaggedItem = Regex.Replace(untaggedItem, subjectPattern, "", RegexOptions.Multiline);
+
+            }
+
+            string datePattern = "^Date: ([^\r\n]*)";
+            m = Regex.Match(untaggedItem, datePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (m.Success)
+            {
+                string dtString = m.Groups[1].ToString();
+                Debug.WriteLine("Date: " + dtString);
+                DateTime dt = ResponseParser.ParseDate(dtString);
+                message.DateString = dtString;
+                message.Date = dt;
+                untaggedItem = Regex.Replace(untaggedItem, datePattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            }
+
+            string senderName = string.Empty;
+            string senderAddress = string.Empty;
+            string senderPattern = "^From: (.*)<([^<>]*)>?\r\n";
+            m = Regex.Match(untaggedItem, senderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (m.Success)
+            {
+                senderName = Decoder.DecodeSingleLine(m.Groups[1].ToString());
+                senderAddress = m.Groups[2].ToString();
+                if (string.IsNullOrWhiteSpace(senderName))
+                {
+                    senderName = senderAddress;
+                }
+
+                untaggedItem = Regex.Replace(untaggedItem, senderPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            }
+            else
+            {
+                senderPattern = "^From: (.*)\r\n";
+                m = Regex.Match(untaggedItem, senderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                if (m.Success)
+                {
+                    senderName = Decoder.DecodeSingleLine(m.Groups[1].ToString());
+                    if (senderName.Contains("@"))
+                    {
+                        senderAddress = senderName;
+                    }
+                    untaggedItem = Regex.Replace(untaggedItem, senderPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                }
+            }
             message.SenderAddress = senderAddress;
             message.SenderName = senderName;
+            Debug.WriteLine("Sender Name: " + senderName);
+            Debug.WriteLine("Sender Address: " + senderAddress);
+
+            string recipientPattern = "^To: (.*)\r\n";
+            m = Regex.Match(untaggedItem, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (m.Success)
+            {
+                string recipient = Decoder.DecodeSingleLine(m.Groups[1].ToString());
+                Debug.WriteLine("Recipient: " + recipient);
+                message.Recipient = recipient;
+                untaggedItem = Regex.Replace(untaggedItem, recipientPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            }
+
+            string uidPattern = "UID (\\d+)";
+            m = Regex.Match(untaggedItem, uidPattern);
+            if (m.Success)
+            {
+                int uid = Convert.ToInt32(m.Groups[1].ToString());
+                Debug.WriteLine("UID: " + uid);
+                message.Uid = uid;
+            }
 
             Debug.WriteLine("\n\n==========================\n\n");
             return message;
         }
 
-        public static MailboxStatus ParseExamine(string examineResponse)
+        public static ExamineResult ParseExamine(string examineResponse)
         {
-            MailboxStatus status = new MailboxStatus();
+            ExamineResult status = new ExamineResult();
             Regex regex;
             Match m;
 

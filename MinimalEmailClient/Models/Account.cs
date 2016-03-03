@@ -78,7 +78,7 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nEmailAddress: {1}\nImapServerName: {2}\nImapLoginName: {3}\nImapLoginPassword: {4}\nImapPortNumber: {5}\nSmtpServerName: {6}\nSmtpLoginName: {7}\nSmtpLoginPassword: {8}\nSmtpPortNumber: {9}\n", AccountName, EmailAddress, ImapServerName, ImapLoginName, ImapLoginPassword, ImapPortNumber, SmtpServerName, SmtpLoginName, SmtpLoginPassword, SmtpPortNumber);
+            string str = string.Format("Account:\nAccountName: {0}\nEmailAddress: {1}\nImapServerName: {2}\nImapLoginName: {3}\nImapLoginPassword: {4}\nImapPortNumber: {5}\nSmtpServerName: {6}\nSmtpLoginName: {7}\nSmtpLoginPassword: {8}\nSmtpPortNumber: {9}\n", AccountName, EmailAddress, ImapServerName, ImapLoginName, ImapLoginPassword, ImapPortNumber, SmtpServerName, SmtpLoginName, SmtpLoginPassword, SmtpPortNumber);
             return str;
         }
     }

@@ -2,6 +2,7 @@
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using MinimalEmailClient.Models;
+using System.Diagnostics;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -12,7 +13,11 @@ namespace MinimalEmailClient.ViewModels
         public Message Message
         {
             get { return this.message; }
-            set { SetProperty(ref this.message, value); }
+            set
+            {
+                SetProperty(ref this.message, value);
+                SyncMsgBody();
+            }
         }
         public Action FinishInteraction { get; set; }
         public INotification Notification
@@ -27,9 +32,26 @@ namespace MinimalEmailClient.ViewModels
                 {
                     this.notification = value as SelectedMessageNotification;
                     this.OnPropertyChanged(() => this.Notification);
-                    Message = (value as SelectedMessageNotification).Message;
+                    Message = (value as SelectedMessageNotification).SelectedMessage;
                 }
             }
+        }
+
+        private void SyncMsgBody()
+        {
+            Debug.WriteLine(Message);
+            Debug.WriteLine(notification.SelectedAccount);
+
+            ImapClient imap = new ImapClient(notification.SelectedAccount);
+            if (imap.Connect())
+            {
+                if (imap.ExamineMailbox(notification.SelectedMailbox.DirectoryPath))
+                {
+                    Message.Body = imap.FetchBody(Message.Uid);
+                }
+                imap.Disconnect();
+            }
+
         }
     }
 }

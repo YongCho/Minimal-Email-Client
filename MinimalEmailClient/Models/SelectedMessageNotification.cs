@@ -4,11 +4,15 @@ namespace MinimalEmailClient.Models
 {
     public class SelectedMessageNotification : Notification
     {
-        public Message Message;
+        public Account SelectedAccount;
+        public Mailbox SelectedMailbox;
+        public Message SelectedMessage;
 
-        public SelectedMessageNotification(Message message)
+        public SelectedMessageNotification(Account account, Mailbox mailbox, Message message)
         {
-            Message = message;
+            SelectedAccount = account;
+            SelectedMailbox = mailbox;
+            SelectedMessage = message;
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Windows;
 
 namespace MinimalEmailClient.Models
 {
-    public struct MailboxStatus
+    public struct ExamineResult
     {
         public int Recent;
         public int Exists;
@@ -121,8 +121,7 @@ namespace MinimalEmailClient.Models
                     Subject = string.Format("Subject of message {0}", i),
                     SenderAddress = string.Format("Sender{0}@gmail.com", i),
                     SenderName = string.Format("Sender Name {0}", i),
-                    RecipientAddress = string.Format("Recipient{0}@gmail.com", i),
-                    RecipientName = string.Format("Recipient Name {0}", i),
+                    Recipient = string.Format("Recipient {0} <Recipient{0}@gmail.com>", i),
                     Date = DateTime.Now,
                     IsSeen = (new Random().Next(2) == 0) ? false : true,
                 };
@@ -133,6 +132,8 @@ namespace MinimalEmailClient.Models
             return msgs;
         }
 
+        // Sends LIST command and returns the result as a list of Mailbox objects.
+        // Each Mailbox object is populated with the result of the LIST command.
         public List<Mailbox> ListMailboxes()
         {
             string tag = NextTag();
@@ -164,10 +165,15 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        // Sends 'EXAMINE' command to the server with the specified mailbox.
-        public bool ExamineMailbox(string mailboxPath, out MailboxStatus status)
+        public bool ExamineMailbox(string mailboxPath)
         {
-            status = new MailboxStatus();
+            ExamineResult result = new ExamineResult();
+            return ExamineMailbox(mailboxPath, out result);
+        }
+        // Sends 'EXAMINE' command to the server with the specified mailbox.
+        public bool ExamineMailbox(string mailboxPath, out ExamineResult status)
+        {
+            status = new ExamineResult();
 
             string tag = NextTag();
             SendString(tag + " EXAMINE " + mailboxPath);
@@ -182,6 +188,22 @@ namespace MinimalEmailClient.Models
             return true;
         }
 
+        // Fetches body of a message.
+        // ExamineMailbox must be called to select the mailbox before calling this method.
+        public string FetchBody(int uid)
+        {
+            string tag = NextTag();
+            SendString(string.Format("{0} UID FETCH {1} BODY[]", tag, uid));
+
+            string response = string.Empty;
+            if (ReadResponse(tag, out response))
+            {
+                response = Regex.Replace(response, "(^|\r\n)(\\*|" + tag + ") [^\r\n]*\r\n", "", RegexOptions.IgnoreCase);
+            }
+
+            return response;
+        }
+
         // Fetches message headers and returns them as a list of Message objects.
         public List<Message> FetchHeaders(int startSeqNum, int count)
         {
@@ -193,7 +215,7 @@ namespace MinimalEmailClient.Models
             }
 
             string tag = NextTag();
-            SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM)] UID)", tag, startSeqNum, startSeqNum + count - 1));
+            SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)", tag, startSeqNum, startSeqNum + count - 1));
 
             int bytesInBuffer = 0;
             bool doneFetching = false;

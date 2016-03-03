@@ -20,19 +20,24 @@
         </Grid.RowDefinitions>
 
         <!-- Subject -->
-        <TextBlock Grid.Row ="0" Margin="0,0,0,5" Text="Subject goes here." FontSize="18" />
+        <Border x:Name="subjectBorder" Grid.Row="0" Margin="0,0,0,8">
+            <TextBlock Margin="0,0,0,8" Text="{Binding Message.Subject}" FontSize="18" Width="{Binding ElementName=subjectBorder, Path=ActualWidth}" TextWrapping="Wrap" />
+        </Border>
 
         <Border Grid.Row="1" Margin="5,0,5,10">
             <StackPanel>
                 <!-- From -->
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="From" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                    <TextBlock Text="Yong_Cho@student.uml.edu" FontSize="14" />
+                    <TextBlock Text="{Binding Message.SenderName}" FontSize="14" />
+                    <TextBlock Text="&lt;" FontSize="14" />
+                    <TextBlock Text="{Binding Message.SenderAddress}" FontSize="14" />
+                    <TextBlock Text="&gt;" FontSize="14" />
                 </StackPanel>
                 <!-- To -->
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="to" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                    <TextBlock Text="Yong_Cho@student.uml.edu" FontSize="14" />
+                    <TextBlock Text="{Binding Message.Recipient}" FontSize="14" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -44,8 +49,8 @@
         </Border>
 
         <!-- Message body -->
-        <Border Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
-            <TextBox BorderThickness="0" Text="Message body goes here." FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+        <Border x:Name="msgBorder" Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
+            <TextBox BorderThickness="0" Text="{Binding Message.Body}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" Width="{Binding ElementName=msgBorder, Path=ActualWidth}" />
         </Border>
 
     </Grid>

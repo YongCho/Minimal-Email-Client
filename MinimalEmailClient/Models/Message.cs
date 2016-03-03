@@ -42,21 +42,12 @@ namespace MinimalEmailClient.Models
         }
         #endregion
 
-        private string recipientName;
-        #region public string RecipientName
-        public string RecipientName
+        private string recipient;
+        #region public string Recipient
+        public string Recipient
         {
-            get { return this.recipientName; }
-            set { SetProperty(ref this.recipientName, value); }
-        }
-        #endregion
-
-        private string recipientAddress;
-        #region public string RecipientAddress
-        public string RecipientAddress
-        {
-            get { return this.recipientAddress; }
-            set { SetProperty(ref this.recipientAddress, value); }
+            get { return this.recipient; }
+            set { SetProperty(ref this.recipient, value); }
         }
         #endregion
 
@@ -85,10 +76,17 @@ namespace MinimalEmailClient.Models
         }
         #endregion
 
+        private string body;
+        public string Body
+        {
+            get { return this.body; }
+            set { SetProperty(ref this.body, value); }
+        }
+
         public override string ToString()
         {
-            return string.Format("Message UID={0}, Subject={1}, Sender={2}<{3}>, Date={4}, New?={5}",
-                Uid, Subject, SenderName, SenderAddress, Date.ToString(), IsSeen ? "Yes" : "No");
+            return string.Format("Message:\nUID={0}, Subject={1}, Sender={2}<{3}>, Recipient={4}, Date={5}, IsSeen?={6}",
+                Uid, Subject, SenderName, SenderAddress, Recipient, Date.ToString(), IsSeen ? "Yes" : "No");
         }
     }
 }
