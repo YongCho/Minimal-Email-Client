@@ -50,8 +50,9 @@
 
         <!-- Message body -->
         <Border x:Name="msgBorder" Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
-            <TextBox BorderThickness="0" Text="{Binding Message.Body}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" Width="{Binding ElementName=msgBorder, Path=ActualWidth}" />
+            <ScrollViewer Height="{Binding ElementName=msgBorder, Path=ActualHeight}" Width="{Binding ElementName=msgBorder, Path=ActualWidth}">
+                <TextBox BorderThickness="0" Text="{Binding Message.Body}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+            </ScrollViewer>
         </Border>
-
     </Grid>
 </UserControl>

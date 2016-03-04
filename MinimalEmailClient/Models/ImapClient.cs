@@ -198,7 +198,12 @@ namespace MinimalEmailClient.Models
             string response = string.Empty;
             if (ReadResponse(tag, out response))
             {
-                response = Regex.Replace(response, "(^|\r\n)(\\*|" + tag + ") [^\r\n]*\r\n", "", RegexOptions.IgnoreCase);
+                string bodyPattern = "^\\*[^\r\n]*\r\n(?<body>[\\s\\S]*)\r\n.*\\)\r\n" + tag + " OK";
+                Match m = Regex.Match(response, bodyPattern);
+                if (m.Success)
+                {
+                    response = m.Groups["body"].ToString();
+                }
             }
 
             return response;

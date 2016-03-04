@@ -104,6 +104,8 @@ namespace MinimalEmailClient.Models
                     untaggedItem = Regex.Replace(untaggedItem, senderPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
                 }
             }
+            senderAddress = senderAddress.Trim();
+            senderName = senderName.Trim();
             message.SenderAddress = senderAddress;
             message.SenderName = senderName;
             Debug.WriteLine("Sender Name: " + senderName);
@@ -113,7 +115,7 @@ namespace MinimalEmailClient.Models
             m = Regex.Match(untaggedItem, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (m.Success)
             {
-                string recipient = Decoder.DecodeSingleLine(m.Groups[1].ToString());
+                string recipient = Decoder.DecodeSingleLine(m.Groups[1].ToString().Trim());
                 Debug.WriteLine("Recipient: " + recipient);
                 message.Recipient = recipient;
                 untaggedItem = Regex.Replace(untaggedItem, recipientPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
