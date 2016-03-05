@@ -236,7 +236,8 @@ namespace MinimalEmailClient.ViewModels
             if (AccountValidated)
             {
                 Account account = new Account();
-                account.AccountName = AccountName;
+                /*account.AccountName = AccountName;*/
+                account.AccountName = EmailAddress;
                 account.EmailAddress = EmailAddress;
                 account.ImapLoginName = LoginName;
                 account.ImapLoginPassword = LoginPassword;
@@ -321,7 +322,7 @@ namespace MinimalEmailClient.ViewModels
             ValidationFailed = false;
             Message = string.Empty;
 
-            if ((bool)AccountNameValidated &&
+            if (/*(bool)AccountNameValidated &&*/
                 (bool)EmailAddressValidated &&
                 (bool)LoginNameValidated &&
                 (bool)LoginPasswordValidated &&
