@@ -4,12 +4,11 @@ namespace MinimalEmailClient.Models
 {
     public class WriteNewMessageNotification : Notification
     {
-        // Account info to be used as the sender.
-        public string SomeAccountInfo;
+        public Account CurrentAccount;
 
-        public WriteNewMessageNotification(string someAccountInfo)
+        public WriteNewMessageNotification(Account currentAccount)
         {
-            SomeAccountInfo = someAccountInfo;
+            CurrentAccount = currentAccount;
         }
     }
 }

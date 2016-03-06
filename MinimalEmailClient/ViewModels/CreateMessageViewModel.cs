@@ -2,6 +2,7 @@
 using Prism.Mvvm;
 using MinimalEmailClient.Models;
 using System;
+using System.Diagnostics;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -21,6 +22,7 @@ namespace MinimalEmailClient.ViewModels
                 {
                     this.notification = value as WriteNewMessageNotification;
                     this.OnPropertyChanged(() => this.Notification);
+                    Debug.WriteLine(this.notification.CurrentAccount);
                 }
             }
         }

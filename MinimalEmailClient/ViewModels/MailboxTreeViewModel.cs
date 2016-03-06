@@ -8,7 +8,6 @@ using Prism.Events;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Prism.Commands;
-using System;
 using System.Windows;
 
 namespace MinimalEmailClient.ViewModels
@@ -19,20 +18,6 @@ namespace MinimalEmailClient.ViewModels
         private IEventAggregator eventAggregator;
         public ICommand DeleteAccountCommand { get; set; }
 
-        private Mailbox selectedMailbox;
-        public Mailbox SelectedMailbox
-        {
-            get { return this.selectedMailbox; }
-            set
-            {
-                SetProperty(ref this.selectedMailbox, value);
-                if (!value.Attributes.Contains(@"\Noselect"))
-                {
-                    this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(this.selectedMailbox);
-                }
-            }
-        }
-
         // This could be a Mailbox or an Account.
         private object selectedTreeViewItem;
         public object SelectedTreeViewItem
@@ -41,10 +26,18 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.selectedTreeViewItem, value);
-                var selectedObject = value as Mailbox;
-                if (selectedObject != null)
+                if (value is Mailbox)
                 {
-                    SelectedMailbox = selectedObject;
+                    Mailbox selectedMailbox = value as Mailbox;
+                    if (!selectedMailbox.Attributes.Contains(@"\Noselect"))
+                    {
+                        this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(selectedMailbox);
+                    }
+                }
+                else if (value is Account)
+                {
+                    Account selectedAccount = value as Account;
+                    this.eventAggregator.GetEvent<AccountSelectionEvent>().Publish(selectedAccount);
                 }
             }
         }
