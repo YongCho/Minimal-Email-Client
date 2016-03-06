@@ -56,9 +56,17 @@ namespace MinimalEmailClient.ViewModels
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
         {
-            this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
             this.selectedMailbox = selectedMailbox;
-            UpdateListView(this.selectedAccount, selectedMailbox.DirectoryPath);
+
+            if (this.selectedMailbox == null)
+            {
+                Messages.Clear();
+            }
+            else
+            {
+                this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
+                UpdateListView(this.selectedAccount, selectedMailbox.DirectoryPath);
+            }
         }
 
         public async void UpdateListView(Account account, string mailboxPath)

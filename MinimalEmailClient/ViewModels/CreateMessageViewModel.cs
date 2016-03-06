@@ -22,7 +22,15 @@ namespace MinimalEmailClient.ViewModels
                 {
                     this.notification = value as WriteNewMessageNotification;
                     this.OnPropertyChanged(() => this.Notification);
-                    Debug.WriteLine(this.notification.CurrentAccount);
+                    if (this.notification.CurrentAccount == null)
+                    {
+                        Debug.WriteLine("No user account selected as the sending account.");
+
+                    }
+                    else
+                    {
+                        Debug.WriteLine(this.notification.CurrentAccount);
+                    }
                 }
             }
         }

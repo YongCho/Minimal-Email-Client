@@ -33,7 +33,25 @@ namespace MinimalEmailClient.ViewModels
 
         private void RaiseWriteNewMessagePopupRequest()
         {
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(this.selectedAccount);
+            Account currentAccount;
+            if (this.selectedAccount == null)
+            {
+                if (AccountManager.Instance().Accounts.Count > 0)
+                {
+                    currentAccount = AccountManager.Instance().Accounts[0];
+                }
+                else
+                {
+                    // We should not get here because we should only allow sending a message
+                    // when there exists at least one user account to be used as the sender address.
+                    currentAccount = null;
+                }
+            }
+            else
+            {
+                currentAccount = this.selectedAccount;
+            }
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(currentAccount);
             notification.Title = "New Message";
             WriteNewMessagePopupRequest.Raise(notification);
         }

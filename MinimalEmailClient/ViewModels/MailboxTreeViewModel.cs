@@ -39,6 +39,14 @@ namespace MinimalEmailClient.ViewModels
                     Account selectedAccount = value as Account;
                     this.eventAggregator.GetEvent<AccountSelectionEvent>().Publish(selectedAccount);
                 }
+                else if (value == null)
+                {
+                    if (Accounts.Count == 0)
+                    {
+                        this.eventAggregator.GetEvent<AccountSelectionEvent>().Publish(null);
+                        this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(null);
+                    }
+                }
             }
         }
 
