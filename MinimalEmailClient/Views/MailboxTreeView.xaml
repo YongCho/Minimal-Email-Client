@@ -22,12 +22,26 @@
         </TreeView.Background>
 
         <TreeView.Resources>
+
+            <!-- Template for displaying Account object -->
             <HierarchicalDataTemplate DataType="{x:Type models:Account}" ItemsSource="{Binding Mailboxes}">
-                <TextBlock Text="{Binding EmailAddress}" Margin="0, 2" />
+                <TextBlock Text="{Binding EmailAddress}"
+                           Margin="0, 2">
+                    <TextBlock.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Delete Account"
+                                      Click="AccountMenuItem_Click"
+                                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" />
+                        </ContextMenu>
+                    </TextBlock.ContextMenu>
+                </TextBlock>
             </HierarchicalDataTemplate>
+
+            <!-- Template for displaying Mailbox object -->
             <HierarchicalDataTemplate DataType="{x:Type models:Mailbox}" ItemsSource="{Binding Subdirectories}">
                 <TextBlock Text="{Binding MailboxName}" Margin="0, 2" />
             </HierarchicalDataTemplate>
+
         </TreeView.Resources>
     </TreeView>
 </UserControl>

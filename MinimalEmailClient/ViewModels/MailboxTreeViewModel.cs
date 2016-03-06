@@ -6,6 +6,10 @@ using MinimalEmailClient.Events;
 using System.Collections.ObjectModel;
 using Prism.Events;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using Prism.Commands;
+using System;
+using System.Windows;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -13,6 +17,7 @@ namespace MinimalEmailClient.ViewModels
     {
         public ObservableCollection<Account> Accounts { get; set; }
         private IEventAggregator eventAggregator;
+        public ICommand DeleteAccountCommand { get; set; }
 
         private Mailbox selectedMailbox;
         public Mailbox SelectedMailbox
@@ -48,13 +53,31 @@ namespace MinimalEmailClient.ViewModels
         {
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
+            this.eventAggregator.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent);
+            DeleteAccountCommand = new DelegateCommand<Account>(DeleteAccount);
 
             LoadAccounts();
+        }
+
+        private void DeleteAccount(Account ac)
+        {
+            Task.Run(() => { AccountManager.Instance().DeleteAccount(ac); });
         }
 
         private void HandleNewAccountAddedEvent(Account newAccount)
         {
             Accounts.Add(newAccount);
+        }
+
+        private void HandleAccountDeletedEvent(string accountName)
+        {
+            foreach (Account ac in Accounts)
+            {
+                if (ac.AccountName == accountName)
+                {
+                    Application.Current.Dispatcher.Invoke(() => { Accounts.Remove(ac); });
+                }
+            }
         }
 
         public async void LoadAccounts()

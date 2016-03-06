@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using MinimalEmailClient.ViewModels;
 using MinimalEmailClient.Models;
+using System.Diagnostics;
 
 namespace MinimalEmailClient.Views
 {
@@ -19,6 +20,28 @@ namespace MinimalEmailClient.Views
         {
             MailboxTreeViewModel viewModel = (MailboxTreeViewModel)this.DataContext;
             viewModel.SelectedTreeViewItem = e.NewValue;
+        }
+
+        private void AccountMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem mi = sender as MenuItem;
+            if (mi != null)
+            {
+                ContextMenu cm = mi.CommandParameter as ContextMenu;
+                if (cm != null)
+                {
+                    TextBlock textBlock = cm.PlacementTarget as TextBlock;
+                    if (textBlock.DataContext is Account)
+                    {
+                        Account ac = textBlock.DataContext as Account;
+                        var viewModel = this.DataContext as MailboxTreeViewModel;
+                        if (viewModel.DeleteAccountCommand.CanExecute(ac))
+                        {
+                            viewModel.DeleteAccountCommand.Execute(ac);
+                        }
+                    }
+                }
+            }
         }
     }
 }

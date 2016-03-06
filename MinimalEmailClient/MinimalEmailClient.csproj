@@ -120,8 +120,7 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="Common\Globals.cs" />
     <Compile Include="Events\GlobalEventAggregator.cs" />
-    <Compile Include="Events\MailboxSelectionEvent.cs" />
-    <Compile Include="Events\NewAccountAddedEvent.cs" />
+    <Compile Include="Events\EventCollection.cs" />
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\DatabaseManager.cs" />

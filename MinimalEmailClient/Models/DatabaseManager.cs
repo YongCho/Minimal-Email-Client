@@ -138,6 +138,70 @@ namespace MinimalEmailClient.Models
             return numRowsInserted == 1 ? true : false;
         }
 
+        // Deletes an account from Accounts table and also deletes all mailboxes and messages
+        // associated with the account.
+        public bool DeleteAccount(Account account)
+        {
+            if (!DatabaseExists())
+            {
+                Error = "Unable to locate database.";
+                return false;
+            }
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+            {
+                dbConnection.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                {
+                    cmd.CommandText = "DELETE FROM Accounts WHERE AccountName = @AccountName;";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Error = ex.Message;
+                        return false;
+                    }
+
+                    // Following two queries should not be necessary if we are using foreign key restrictions on
+                    // Mailboxes and Messages tables' AccountName attribute. I am executing them here anyway because
+                    // they are harmless.
+                    cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName;";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Error = ex.Message;
+                        return false;
+                    }
+
+                    cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName;";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Error = ex.Message;
+                        return false;
+                    }
+                }
+
+                dbConnection.Close();
+
+                return true;
+            }
+        }
+
         // Loads all mailboxes from the Mailboxes table and returns them as a list of Mailbox objects.
         public List<Mailbox> GetMailboxes(string accountName)
         {

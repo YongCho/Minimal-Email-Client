@@ -189,6 +189,23 @@ namespace MinimalEmailClient.Models
             return success;
         }
 
+        public bool DeleteAccount(Account account)
+        {
+            DatabaseManager dm = new DatabaseManager();
+            bool success = dm.DeleteAccount(account);
+            if (!success)
+            {
+                Error = dm.Error;
+                return false;
+            }
+
+            Account ac = GetAccountByName(account.AccountName);
+            Accounts.Remove(ac);
+            this.eventAggregator.GetEvent<AccountDeletedEvent>().Publish(account.AccountName);
+
+            return true;
+        }
+
         public Account GetAccountByName(string accountName)
         {
             foreach (Account account in Accounts)
