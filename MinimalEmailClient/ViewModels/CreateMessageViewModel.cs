@@ -24,12 +24,12 @@ namespace MinimalEmailClient.ViewModels
                     this.OnPropertyChanged(() => this.Notification);
                     if (this.notification.CurrentAccount == null)
                     {
-                        Debug.WriteLine("No user account selected as the sending account.");
+                        Trace.WriteLine("No user account selected as the sending account.");
 
                     }
                     else
                     {
-                        Debug.WriteLine(this.notification.CurrentAccount);
+                        Trace.WriteLine(this.notification.CurrentAccount);
                     }
                 }
             }

@@ -32,7 +32,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e.Message);
+                        Trace.WriteLine(e.Message);
                         decodedString = encodedString;
                     }
                 }
@@ -98,7 +98,7 @@ namespace MinimalEmailClient.Models
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Trace.WriteLine(e.Message);
                 decodedString = encodedString;
             }
 

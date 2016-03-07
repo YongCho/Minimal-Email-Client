@@ -37,8 +37,7 @@ namespace MinimalEmailClient.Models
         // Loads all accounts from database.
         public void LoadAccounts()
         {
-            DatabaseManager databaseManager = new DatabaseManager();
-            Accounts = databaseManager.GetAccounts();
+            Accounts = DatabaseManager.GetAccounts();
             foreach (Account account in Accounts)
             {
                 LoadMailboxListFromDb(account);
@@ -48,8 +47,7 @@ namespace MinimalEmailClient.Models
         // Populates the mailbox tree of the specified account.
         public void LoadMailboxListFromDb(Account account)
         {
-            DatabaseManager dbManager = new DatabaseManager();
-            List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
+            List<Mailbox> localMailboxes = DatabaseManager.GetMailboxes(account.AccountName);
             ConstructMailboxTree(account, localMailboxes);
         }
 
@@ -58,8 +56,7 @@ namespace MinimalEmailClient.Models
         public void BeginSyncMailboxList(Account account)
         {
             Task.Factory.StartNew(() => {
-                DatabaseManager dbManager = new DatabaseManager();
-                List<Mailbox> localMailboxes = dbManager.GetMailboxes(account.AccountName);
+                List<Mailbox> localMailboxes = DatabaseManager.GetMailboxes(account.AccountName);
 
                 ImapClient imapClient = new ImapClient(account);
                 if (imapClient.Connect())
@@ -73,11 +70,13 @@ namespace MinimalEmailClient.Models
                     if (localNotServer.Count > 0 || serverNotLocal.Count > 0)
                     {
                         ConstructMailboxTree(account, serverMailboxes);
-                        dbManager.UpdateMailboxes(account.AccountName, serverMailboxes);
+                        DatabaseManager.UpdateMailboxes(account.AccountName, serverMailboxes);
                     }
 
                     imapClient.Disconnect();
                 }
+
+                this.eventAggregator.GetEvent<MailboxListSyncFinishedEvent>().Publish(account);
             });
         }
 
@@ -173,8 +172,8 @@ namespace MinimalEmailClient.Models
         // Returns true if successfully added the account. False, otherwise.
         public bool AddAccount(Account account)
         {
-            DatabaseManager dm = new DatabaseManager();
-            bool success = dm.InsertAccount(account);
+            string error;
+            bool success = DatabaseManager.InsertAccount(account, out error);
             if (success)
             {
                 BeginSyncMailboxList(account);
@@ -183,7 +182,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                Error = dm.Error;
+                Error = error;
             }
 
             return success;
@@ -191,11 +190,11 @@ namespace MinimalEmailClient.Models
 
         public bool DeleteAccount(Account account)
         {
-            DatabaseManager dm = new DatabaseManager();
-            bool success = dm.DeleteAccount(account);
+            string error;
+            bool success = DatabaseManager.DeleteAccount(account, out error);
             if (!success)
             {
-                Error = dm.Error;
+                Error = error;
                 return false;
             }
 

@@ -125,7 +125,7 @@ namespace MinimalEmailClient.ViewModels
             textBody.WriteTo(memStream);
             memStream.Seek(0, SeekOrigin.Begin);
             string encoding = mimeBody.ContentTransferEncoding.ToLower();
-            Debug.WriteLine("ContentTransferEncoding: " + encoding);
+            Trace.WriteLine("ContentTransferEncoding: " + encoding);
             byte[] buffer = new byte[memStream.Length];
             int bytesRead;
             if (encoding == "quoted-printable")

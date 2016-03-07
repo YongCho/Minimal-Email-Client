@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef TRACE
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -10,7 +12,7 @@ namespace MinimalEmailClient.Models
         // Constructs a Message object from an untagged response string returned by a FETCH command.
         public static Message ParseFetchHeader(string untaggedItem)
         {
-            Debug.WriteLine(untaggedItem);
+            Trace.WriteLine(untaggedItem);
 
             // Server divides long subjects and senders, etc. into multiple lines.
             // We have to merge these multi-line blocks into a single block first.
@@ -48,7 +50,7 @@ namespace MinimalEmailClient.Models
             if (m.Success)
             {
                 string itemHeader = m.Groups[1].ToString();
-                Debug.WriteLine("Item Header: " + itemHeader);
+                Trace.WriteLine("Item Header: " + itemHeader);
             }
 
             string subjectPattern = "^Subject: (.*)\r\n";
@@ -57,7 +59,7 @@ namespace MinimalEmailClient.Models
             {
                 string subject = m.Groups[1].ToString();
                 subject = Decoder.DecodeSingleLine(subject);
-                Debug.WriteLine("Subject: " + subject);
+                Trace.WriteLine("Subject: " + subject);
                 message.Subject = subject;
                 untaggedItem = Regex.Replace(untaggedItem, subjectPattern, "", RegexOptions.Multiline);
 
@@ -67,11 +69,9 @@ namespace MinimalEmailClient.Models
             m = Regex.Match(untaggedItem, datePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (m.Success)
             {
-                string dtString = m.Groups[1].ToString();
-                Debug.WriteLine("Date: " + dtString);
-                DateTime dt = ResponseParser.ParseDate(dtString);
-                message.DateString = dtString;
-                message.Date = dt;
+                string dateString = m.Groups[1].ToString();
+                Trace.WriteLine("DateString: " + dateString);
+                message.DateString = dateString;
                 untaggedItem = Regex.Replace(untaggedItem, datePattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             }
 
@@ -108,15 +108,15 @@ namespace MinimalEmailClient.Models
             senderName = senderName.Trim();
             message.SenderAddress = senderAddress;
             message.SenderName = senderName;
-            Debug.WriteLine("Sender Name: " + senderName);
-            Debug.WriteLine("Sender Address: " + senderAddress);
+            Trace.WriteLine("Sender Name: " + senderName);
+            Trace.WriteLine("Sender Address: " + senderAddress);
 
             string recipientPattern = "^To: (.*)\r\n";
             m = Regex.Match(untaggedItem, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (m.Success)
             {
                 string recipient = Decoder.DecodeSingleLine(m.Groups[1].ToString().Trim());
-                Debug.WriteLine("Recipient: " + recipient);
+                Trace.WriteLine("Recipient: " + recipient);
                 message.Recipient = recipient;
                 untaggedItem = Regex.Replace(untaggedItem, recipientPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             }
@@ -126,11 +126,20 @@ namespace MinimalEmailClient.Models
             if (m.Success)
             {
                 int uid = Convert.ToInt32(m.Groups[1].ToString());
-                Debug.WriteLine("UID: " + uid);
+                Trace.WriteLine("UID: " + uid);
                 message.Uid = uid;
             }
 
-            Debug.WriteLine("\n\n==========================\n\n");
+            string flagsPattern = "FLAGS \\((?<flags>[^\\(\\)]*)\\)";
+            m = Regex.Match(untaggedItem, flagsPattern);
+            if (m.Success)
+            {
+                string flagString = m.Groups["flags"].ToString();
+                Trace.WriteLine("FlagString: " + flagString);
+                message.FlagString = flagString;
+            }
+
+            Trace.WriteLine("\n\n==========================\n\n");
             return message;
         }
 

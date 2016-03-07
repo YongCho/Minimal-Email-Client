@@ -18,4 +18,8 @@ namespace MinimalEmailClient.Events
     public class AccountSelectionEvent : PubSubEvent<Account>
     {
     }
+
+    public class MailboxListSyncFinishedEvent : PubSubEvent<Account>
+    {
+    }
 }

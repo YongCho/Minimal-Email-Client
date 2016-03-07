@@ -1,36 +1,44 @@
-﻿using System.Collections.Generic;
+﻿#undef TRACE
+using System.Collections.Generic;
 using System.IO;
 using System.Data.SQLite;
 using System;
 using MinimalEmailClient.Common;
+using System.Diagnostics;
 
 namespace MinimalEmailClient.Models
 {
     public class DatabaseManager
     {
-        public string Error = string.Empty;
         public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
         public static readonly string DatabasePath = DatabaseFolder + "\\" + Properties.Settings.Default.DatabaseFileName;
-        private string connectionString = string.Format("Data Source={0}; Version=3; foreign keys=true; UTF16Encoding=True", DatabasePath);
 
-        public DatabaseManager()
+        private static string ConnString()
         {
-            if (!DatabaseExists())
-            {
-                CreateDatabase();
-            }
+            SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
+            connBuilder.DataSource = DatabasePath;
+            connBuilder.Version = 3;
+            connBuilder.ForeignKeys = true;
+            connBuilder.UseUTF16Encoding = true;
+
+            // Having not enough BusyTimeout seems to cause "SQLite error (5): database is locked" error
+            // in some asynchronous read/write operation.
+            connBuilder.BusyTimeout = 400;
+
+            return connBuilder.ToString();
         }
 
-        private bool DatabaseExists()
+        private static bool DatabaseExists()
         {
             return File.Exists(DatabasePath);
         }
 
-        private void CreateDatabase()
+        private static void CreateDatabase()
         {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
             Directory.CreateDirectory(DatabaseFolder);
             SQLiteConnection.CreateFile(DatabasePath);
-            using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
             {
                 dbConnection.Open();
 
@@ -42,7 +50,7 @@ namespace MinimalEmailClient.Models
                     cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path TEXT, Separator TEXT, UidNext INT, UidValidity INT, FlagString TEXT, PRIMARY KEY (AccountName, Path));";
                     cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, Date TEXT, SenderName TEXT, SenderAddress TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
+                    cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, DateString TEXT, SenderName TEXT, SenderAddress TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
                     cmd.ExecuteNonQuery();
                 }
 
@@ -51,8 +59,10 @@ namespace MinimalEmailClient.Models
         }
 
         // Loads all accounts from Accounts table and returns them as a list of Account objects.
-        public List<Account> GetAccounts()
+        public static List<Account> GetAccounts()
         {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
             List<Account> accounts = new List<Account>();
 
             if (!DatabaseExists())
@@ -61,7 +71,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
                 {
                     dbConnection.Open();
                     string cmdString = @"SELECT * FROM Accounts;";
@@ -93,9 +103,17 @@ namespace MinimalEmailClient.Models
             return accounts;
         }
 
-        // Stores an Account object into the Accounts table.
-        public bool InsertAccount(Account account)
+        public static bool InsertAccount(Account account)
         {
+            string ignoredErrorMsg;
+            return InsertAccount(account, out ignoredErrorMsg);
+        }
+
+        // Stores an Account object into the Accounts table.
+        public static bool InsertAccount(Account account, out string errorMsg)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
             int numRowsInserted = 0;
 
             if (!DatabaseExists())
@@ -103,7 +121,7 @@ namespace MinimalEmailClient.Models
                 CreateDatabase();
             }
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
             {
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
@@ -128,7 +146,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
-                        Error = ex.Message;
+                        errorMsg = ex.Message;
                     }
                 }
 
@@ -140,15 +158,17 @@ namespace MinimalEmailClient.Models
 
         // Deletes an account from Accounts table and also deletes all mailboxes and messages
         // associated with the account.
-        public bool DeleteAccount(Account account)
+        public static bool DeleteAccount(Account account, out string errorMsg)
         {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
             if (!DatabaseExists())
             {
-                Error = "Unable to locate database.";
+                errorMsg = "Unable to locate database.";
                 return false;
             }
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
             {
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
@@ -162,7 +182,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
-                        Error = ex.Message;
+                        errorMsg = ex.Message;
                         return false;
                     }
 
@@ -178,7 +198,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
-                        Error = ex.Message;
+                        errorMsg = ex.Message;
                         return false;
                     }
 
@@ -191,7 +211,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
-                        Error = ex.Message;
+                        errorMsg = ex.Message;
                         return false;
                     }
                 }
@@ -203,8 +223,9 @@ namespace MinimalEmailClient.Models
         }
 
         // Loads all mailboxes from the Mailboxes table and returns them as a list of Mailbox objects.
-        public List<Mailbox> GetMailboxes(string accountName)
+        public static List<Mailbox> GetMailboxes(string accountName)
         {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
             List<Mailbox> mailboxes = new List<Mailbox>();
 
             if (!DatabaseExists())
@@ -214,7 +235,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
                 {
                     dbConnection.Open();
 
@@ -248,11 +269,19 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
+        public static int UpdateMailboxes(string accountName, List<Mailbox> newMailboxes)
+        {
+            string ignoredErrorMsg;
+            return UpdateMailboxes(accountName, newMailboxes, out ignoredErrorMsg);
+        }
+
         // Removes all entries in the Mailboxes table that has the specified AccountName
         // and inserts the given mailboxes in the table.
         // Returns the number of mailboxes inserted.
-        public int UpdateMailboxes(string accountName, List<Mailbox> newMailboxes)
+        public static int UpdateMailboxes(string accountName, List<Mailbox> newMailboxes, out string errorMsg)
         {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
             if (!DatabaseExists())
             {
                 CreateDatabase();
@@ -260,7 +289,7 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(connectionString))
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
             {
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
@@ -274,7 +303,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
-                        Error = ex.Message;
+                        errorMsg = ex.Message;
                         return numRowsInserted;
                     }
 
@@ -304,7 +333,7 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
-                            Error = ex.Message;
+                            errorMsg = ex.Message;
                         }
                     }
                 }
@@ -314,5 +343,195 @@ namespace MinimalEmailClient.Models
                 return numRowsInserted;
             }
         }
+
+        public static int GetMaxUid(string accountName, string mailboxPath)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            int maxUid = 0;
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+                return maxUid;
+            }
+            else
+            {
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                {
+                    dbConnection.Open();
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    {
+                        cmd.CommandText = @"SELECT MAX(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", accountName);
+                        cmd.Parameters.AddWithValue("@MailboxPath", mailboxPath);
+                        try
+                        {
+                            object result = cmd.ExecuteScalar();
+                            if (result is long)
+                            {
+                                maxUid = Convert.ToInt32(result);
+                            }
+                        }
+                        catch
+                        {
+                            maxUid = 0;
+                        }
+                    }
+                    dbConnection.Close();
+                }
+            }
+
+            return maxUid;
+        }
+
+        public static int GetMinUid(string accountName, string mailboxPath)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            int minUid = 0;
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+                return minUid;
+            }
+            else
+            {
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                {
+                    dbConnection.Open();
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    {
+                        cmd.CommandText = @"SELECT MIN(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", accountName);
+                        cmd.Parameters.AddWithValue("@MailboxPath", mailboxPath);
+                        try
+                        {
+                            object result = cmd.ExecuteScalar();
+                            if (result is long)
+                            {
+                                minUid = Convert.ToInt32(result);
+                            }
+                        }
+                        catch
+                        {
+                            minUid = 0;
+                        }
+                    }
+                    dbConnection.Close();
+                }
+            }
+
+            return minUid;
+        }
+
+        // Loads all messages from Messages table and returns them as a list of Message objects.
+        public static List<Message> GetMessages()
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            List<Message> messages = new List<Message>();
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+            else
+            {
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                {
+                    dbConnection.Open();
+
+                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    {
+                        cmd.CommandText = @"SELECT * FROM Messages;";
+                        cmd.Prepare();
+                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Message message = new Message();
+                                message.AccountName = (string)reader["AccountName"];
+                                message.MailboxPath = (string)reader["MailboxPath"];
+                                message.Uid = (int)reader["Uid"];
+                                message.Subject = (string)reader["Subject"];
+                                message.DateString = (string)reader["DateString"];
+                                message.SenderName = (string)reader["SenderName"];
+                                message.SenderAddress = (string)reader["SenderAddress"];
+                                message.Recipient = (string)reader["Recipient"];
+                                message.FlagString = (string)reader["FlagString"];
+                                message.Body = (string)reader["Body"];
+
+                                messages.Add(message);
+                            }
+                        }
+                    }
+                    dbConnection.Close();
+                }
+            }
+
+            return messages;
+        }
+
+        public static int StoreMessages(List<Message> messages)
+        {
+            string ignoredErrorMsg;
+            return StoreMessages(messages, out ignoredErrorMsg);
+        }
+
+        // Stores the messages in the Messages table.
+        public static int StoreMessages(List<Message> messages, out string errorMsg)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+
+            int numRowsInserted = 0;
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            {
+                dbConnection.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                {
+                    cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @SenderName, @SenderAddress, @Recipient, @FlagString, @Body);";
+
+                    foreach (Message msg in messages)
+                    {
+                        cmd.Prepare();
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.AddWithValue("@AccountName", msg.AccountName);
+                        cmd.Parameters.AddWithValue("@MailboxPath", msg.MailboxPath);
+                        cmd.Parameters.AddWithValue("@Uid", msg.Uid);
+                        cmd.Parameters.AddWithValue("@Subject", msg.Subject);
+                        cmd.Parameters.AddWithValue("@DateString", msg.DateString);
+                        cmd.Parameters.AddWithValue("@SenderName", msg.SenderName);
+                        cmd.Parameters.AddWithValue("@SenderAddress", msg.SenderAddress);
+                        cmd.Parameters.AddWithValue("@Recipient", msg.Recipient);
+                        cmd.Parameters.AddWithValue("@FlagString", msg.FlagString);
+                        cmd.Parameters.AddWithValue("@Body", msg.Body);
+
+                        try
+                        {
+                            numRowsInserted = cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            errorMsg = ex.Message;
+                        }
+                    }
+                }
+
+                dbConnection.Close();
+            }
+
+            return numRowsInserted;
+        }
+
+
     }
 }

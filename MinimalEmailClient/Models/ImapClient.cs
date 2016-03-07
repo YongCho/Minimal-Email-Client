@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows;
 
 namespace MinimalEmailClient.Models
 {
@@ -106,32 +105,6 @@ namespace MinimalEmailClient.Models
             return ReadResponse(tag, out response, stream);
         }
 
-        // Working with dummy messages for now to test the rest of the program.
-        // TODO: Change this to real IMAP logic.
-        public List<Message> GetDummyMessages()
-        {
-            List<Message> msgs = new List<Message>(20);
-
-            for (int i = 0; i < 20; ++i)
-            {
-                Debug.WriteLine("Downloading message " + i);
-                Message msg = new Message()
-                {
-                    Uid = i,
-                    Subject = string.Format("Subject of message {0}", i),
-                    SenderAddress = string.Format("Sender{0}@gmail.com", i),
-                    SenderName = string.Format("Sender Name {0}", i),
-                    Recipient = string.Format("Recipient {0} <Recipient{0}@gmail.com>", i),
-                    Date = DateTime.Now,
-                    IsSeen = (new Random().Next(2) == 0) ? false : true,
-                };
-
-                msgs.Add(msg);
-            }
-
-            return msgs;
-        }
-
         // Sends LIST command and returns the result as a list of Mailbox objects.
         // Each Mailbox object is populated with the result of the LIST command.
         public List<Mailbox> ListMailboxes()
@@ -181,6 +154,7 @@ namespace MinimalEmailClient.Models
             string response = string.Empty;
             if (!ReadResponse(tag, out response))
             {
+                Error = response;
                 return false;
             }
 
@@ -210,7 +184,7 @@ namespace MinimalEmailClient.Models
         }
 
         // Fetches message headers and returns them as a list of Message objects.
-        public List<Message> FetchHeaders(int startSeqNum, int count)
+        public List<Message> FetchHeaders(int startSeqNum, int count, bool useUid)
         {
             var messages = new List<Message>(count);
 
@@ -220,7 +194,16 @@ namespace MinimalEmailClient.Models
             }
 
             string tag = NextTag();
-            SendString(string.Format("{0} FETCH {1}:{2} (BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)", tag, startSeqNum, startSeqNum + count - 1));
+            string command;
+            if (useUid)
+            {
+                command = "{0} UID FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
+            }
+            else
+            {
+                command = "{0} FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
+            }
+            SendString(string.Format(command, tag, startSeqNum, startSeqNum + count - 1));
 
             int bytesInBuffer = 0;
             bool doneFetching = false;
@@ -258,7 +241,6 @@ namespace MinimalEmailClient.Models
                         match = Regex.Match(remainder, taggedResponsePattern);
                         if (match.Success)
                         {
-                            Debug.WriteLine(match.Groups[0].ToString());
                             doneMatching = true;
                             doneFetching = true;
                         }

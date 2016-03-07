@@ -11,12 +11,15 @@ using System.ComponentModel;
 using Prism.Interactivity.InteractionRequest;
 using System.Windows.Input;
 using Prism.Commands;
+using System;
+using System.Windows;
 
 namespace MinimalEmailClient.ViewModels
 {
     public class MessageListViewModel : BindableBase
     {
         public ObservableCollection<Message> Messages { get; set; }
+        private CollectionView messagesCv;
         private Message selectedMessage;  // This could be null
         public Message SelectedMessage
         {
@@ -33,15 +36,17 @@ namespace MinimalEmailClient.ViewModels
         public MessageListViewModel()
         {
             Messages = new ObservableCollection<Message>();
-
-            CollectionView cv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
-            cv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
-
             OpenSelectedMessagePopupRequest = new InteractionRequest<SelectedMessageNotification>();
             OpenSelectedMessageCommand = new DelegateCommand(RaiseOpenSelectedMessagePopupRequest);
+            this.messagesCv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
+            this.messagesCv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
+
+            HandleMailboxSelectionChange(null);
+            LoadMessagesFromDb();
 
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
+            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
+            this.eventAggregator.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
         }
 
         private void RaiseOpenSelectedMessagePopupRequest()
@@ -54,68 +59,128 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        private void HandleMailboxSelection(Mailbox selectedMailbox)
+        private void HandleMailboxListSyncFinished(Account account)
+        {
+            BeginSyncMessages(account);
+        }
+
+        private void HandleMailboxSelectionChange(Mailbox selectedMailbox)
         {
             this.selectedMailbox = selectedMailbox;
-
-            if (this.selectedMailbox == null)
-            {
-                Messages.Clear();
-            }
-            else
+            if (this.selectedMailbox != null)
             {
                 this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
-                UpdateListView(this.selectedAccount, selectedMailbox.DirectoryPath);
+            }
+            this.messagesCv.Filter = new Predicate<object>(MessageFilter);
+        }
+
+        private bool MessageFilter(object item)
+        {
+            // Do not display any messages when no mailbox is selected.
+            if (this.selectedMailbox == null)
+            {
+                return false;
+            }
+
+            Message message = item as Message;
+            bool showMsg = false;
+
+            if (message.AccountName == this.selectedAccount.AccountName &&
+                message.MailboxPath == this.selectedMailbox.DirectoryPath)
+            {
+                showMsg = true;
+            }
+
+            return showMsg;
+        }
+
+        private void LoadMessagesFromDb()
+        {
+            List<Message> localMessages = DatabaseManager.GetMessages();
+            Messages.Clear();
+            Messages.AddRange(localMessages);
+        }
+
+        private void BeginSyncMessages(Account account)
+        {
+            List<Mailbox> mailboxes = DatabaseManager.GetMailboxes(account.AccountName);
+            foreach (Mailbox mailbox in mailboxes)
+            {
+                Task.Run(() => { SyncMessage(account, mailbox); });
             }
         }
 
-        public async void UpdateListView(Account account, string mailboxPath)
+        private void SyncMessage(Account account, Mailbox mailbox)
         {
-            ImapClient imapClient = new ImapClient(account);
-            if (!imapClient.Connect())
+            if (mailbox.Attributes.Contains(@"\Noselect"))
             {
                 return;
             }
-            Messages.Clear();
+
+            ImapClient imapClient = new ImapClient(account);
+            if (!imapClient.Connect())
+            {
+                Trace.WriteLine(imapClient.Error);
+                return;
+            }
 
             ExamineResult status;
-            if (imapClient.ExamineMailbox(mailboxPath, out status))
+            if (!imapClient.ExamineMailbox(mailbox.DirectoryPath, out status))
             {
-                int messagesCount = status.Exists;
+                Trace.WriteLine(imapClient.Error);
+                imapClient.Disconnect();
+                return;
+            }
 
-                if (messagesCount < 1)
-                {
-                    return;
-                }
+            // Download recent messages.
+            int localLargestUid = DatabaseManager.GetMaxUid(account.AccountName, mailbox.DirectoryPath);
+            int serverLargestUid = status.UidNext - 1;
+            if (serverLargestUid > localLargestUid)
+            {
+                SyncHelper(account, mailbox, imapClient, localLargestUid + 1, serverLargestUid);
+            }
 
-                int downloadChunk = 10;
-                int startSeq = messagesCount - downloadChunk + 1;
-                int endSeq = messagesCount;
-                while (endSeq > 0)
-                {
-                    List<Message> msgs = await Task.Run<List<Message>>(() =>
-                    {
-                        // Message sequence number starts from 1.
-                        if (startSeq < 1)
-                        {
-                            startSeq = 1;
-                        }
-                        return imapClient.FetchHeaders(startSeq, endSeq - startSeq + 1);
-                    });
-                    if (msgs.Count > 0)
-                    {
-                        foreach (Message m in msgs)
-                        {
-                            Messages.Add(m);
-                        }
-                    }
-                    endSeq = startSeq - 1;
-                    startSeq = endSeq - downloadChunk + 1;
-                }
+            // Download old messages. (Maybe the program shut down previously in the middle of downloading?)
+            int localSmallestUid = DatabaseManager.GetMinUid(account.AccountName, mailbox.DirectoryPath);
+            if (localSmallestUid > 1)
+            {
+                SyncHelper(account, mailbox, imapClient, 1, localSmallestUid - 1);
             }
 
             imapClient.Disconnect();
         }
+
+        private void SyncHelper(Account account, Mailbox mailbox, ImapClient imapClient, int firstUid, int lastUid)
+        {
+            int messagesCount = lastUid - firstUid + 1;
+            int downloadChunk = 30;
+            int startUid = lastUid - downloadChunk + 1;
+            int endUid = lastUid;
+
+            while (endUid >= firstUid)
+            {
+                if (startUid < firstUid)
+                {
+                    startUid = firstUid;
+                }
+                List<Message> msgs = imapClient.FetchHeaders(startUid, endUid - startUid + 1, true);
+                if (msgs.Count > 0)
+                {
+                    foreach (Message m in msgs)
+                    {
+                        m.AccountName = account.AccountName;
+                        m.MailboxPath = mailbox.DirectoryPath;
+                        Application.Current.Dispatcher.Invoke(() => { Messages.Add(m); } );
+                    }
+                    DatabaseManager.StoreMessages(msgs);
+                }
+
+                endUid = startUid - 1;
+                startUid = endUid - downloadChunk + 1;
+            }
+        }
+
+
 
     }
 }

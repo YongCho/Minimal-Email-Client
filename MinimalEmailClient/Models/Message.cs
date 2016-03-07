@@ -6,77 +6,81 @@ namespace MinimalEmailClient.Models
 {
     public class Message : BindableBase
     {
-        private int uid;
-        #region public int Uid
+        public string AccountName = string.Empty;
+        public string MailboxPath = string.Empty;
+
+        private int uid = 0;
         public int Uid
         {
             get { return this.uid; }
             set { SetProperty(ref this.uid, value); }
         }
-        #endregion
 
-        private string subject;
-        #region public string Subject
+        private string subject = string.Empty;
         public string Subject
         {
             get { return this.subject; }
             set { SetProperty(ref this.subject, value); }
         }
-        #endregion
 
-        private string senderName;
-        #region public string SenderName
+        private string senderName = string.Empty;
         public string SenderName
         {
             get { return this.senderName; }
             set { SetProperty(ref this.senderName, value); }
         }
-        #endregion
 
-        private string senderAddress;
-        #region public string SenderAddress
+        private string senderAddress = string.Empty;
         public string SenderAddress
         {
             get { return this.senderAddress; }
             set { SetProperty(ref this.senderAddress, value); }
         }
-        #endregion
 
-        private string recipient;
-        #region public string Recipient
+        private string recipient = string.Empty;
         public string Recipient
         {
             get { return this.recipient; }
             set { SetProperty(ref this.recipient, value); }
         }
-        #endregion
 
-        private string dateString;
+        private string dateString = string.Empty;
         public string DateString
         {
             get { return this.dateString; }
-            set { SetProperty(ref this.dateString, value); }
+            set
+            {
+                SetProperty(ref this.dateString, value);
+                Date = ResponseParser.ParseDate(this.dateString);
+            }
         }
 
         private DateTime date;
-        #region public DateTime Date
         public DateTime Date
         {
             get { return this.date; }
-            set { SetProperty(ref this.date, value); }
+            private set { SetProperty(ref this.date, value); }
         }
-        #endregion
 
-        private bool isSeen;
-        #region public bool IsSeen
+        private string flagString = string.Empty;
+        public string FlagString
+        {
+            get { return this.flagString; }
+            set
+            {
+                SetProperty(ref this.flagString, value);
+                IsSeen = this.flagString.Contains(@"\Seen");
+            }
+        }
+
+        private bool isSeen = false;
         public bool IsSeen
         {
             get { return this.isSeen; }
-            set { SetProperty(ref this.isSeen, value); }
+            private set { SetProperty(ref this.isSeen, value); }
         }
-        #endregion
 
-        private string body;
+        private string body = string.Empty;
         public string Body
         {
             get { return this.body; }
@@ -85,8 +89,8 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            return string.Format("Message:\nUID={0}, Subject={1}, Sender={2}<{3}>, Recipient={4}, Date={5}, IsSeen?={6}",
-                Uid, Subject, SenderName, SenderAddress, Recipient, Date.ToString(), IsSeen ? "Yes" : "No");
+            return string.Format("Message:\nUID={0}, Subject={1}, Sender={2}<{3}>, Recipient={4}, Date={5}, FlagsString={6}, IsSeen?={7}",
+                Uid, Subject, SenderName, SenderAddress, Recipient, Date.ToString(), FlagString, IsSeen ? "Yes" : "No");
         }
     }
 }
