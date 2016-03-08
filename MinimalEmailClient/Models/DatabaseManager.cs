@@ -62,7 +62,6 @@ namespace MinimalEmailClient.Models
         public static List<Account> GetAccounts()
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
-            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
             List<Account> accounts = new List<Account>();
 
             if (!DatabaseExists())
