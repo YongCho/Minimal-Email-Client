@@ -35,6 +35,19 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.pathSeparator, value); }
         }
 
+        private string flagString;
+        public string FlagString
+        {
+            get { return this.flagString; }
+            set
+            {
+                SetProperty(ref this.flagString, value);
+                string[] flags = this.flagString.Split(' ');
+                Flags.Clear();
+                Flags.AddRange(flags);
+            }
+        }
+
         private int uidNext;
         public int UidNext
         {
@@ -49,21 +62,21 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.uidValidity, value); }
         }
 
-        public List<string> Attributes { get; set; }
+        public List<string> Flags { get; set; }
         public ObservableCollection<Mailbox> Subdirectories { get; set; }
 
         public Mailbox()
         {
-            Attributes = new List<string>();
+            Flags = new List<string>();
             Subdirectories = new ObservableCollection<Mailbox>();
         }
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nMailboxName: {1}\nDirectoryPath: {2}\nPathSeparator: {3}\nUidNext: {4}\nUidValidity: {5}\nAttributes: ", AccountName, MailboxName, DirectoryPath, PathSeparator, UidNext, UidValidity);
-            foreach (string attribute in Attributes)
+            string str = string.Format("AccountName: {0}\nMailboxName: {1}\nDirectoryPath: {2}\nPathSeparator: {3}\nUidNext: {4}\nUidValidity: {5}\nFlags: ", AccountName, MailboxName, DirectoryPath, PathSeparator, UidNext, UidValidity);
+            foreach (string flag in Flags)
             {
-                str += attribute;
+                str += flag;
                 str += " ";
             }
             str += "\n";

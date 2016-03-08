@@ -29,7 +29,7 @@ namespace MinimalEmailClient.ViewModels
                 if (value is Mailbox)
                 {
                     Mailbox selectedMailbox = value as Mailbox;
-                    if (!selectedMailbox.Attributes.Contains(@"\Noselect"))
+                    if (!selectedMailbox.Flags.Contains(@"\Noselect"))
                     {
                         this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(selectedMailbox);
                     }

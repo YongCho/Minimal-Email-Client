@@ -254,9 +254,7 @@ namespace MinimalEmailClient.Models
                                 mailbox.PathSeparator = (string)reader["Separator"];
                                 mailbox.UidNext = (int)reader["UidNext"];
                                 mailbox.UidValidity = (int)reader["UidValidity"];
-
-                                string[] flags = (reader["FlagString"] as string).Split(' ');
-                                mailbox.Attributes.AddRange(flags);
+                                mailbox.FlagString = (string)reader["FlagString"];
 
                                 mailboxes.Add(mailbox);
                             }
@@ -350,14 +348,7 @@ namespace MinimalEmailClient.Models
                         cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
                         cmd.Parameters.AddWithValue("@UidNext", mailbox.UidNext);
                         cmd.Parameters.AddWithValue("@UidValidity", mailbox.UidValidity);
-
-                        string flagString = string.Empty;
-                        foreach (string flag in mailbox.Attributes)
-                        {
-                            flagString += (flag + " ");
-                        }
-                        flagString = flagString.Substring(0, flagString.Length - 1);
-                        cmd.Parameters.AddWithValue("@FlagString", flagString);
+                        cmd.Parameters.AddWithValue("@FlagString", mailbox.FlagString);
 
                         try
                         {

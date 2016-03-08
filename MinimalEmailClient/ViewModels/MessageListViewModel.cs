@@ -112,7 +112,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void SyncMessage(Account account, Mailbox mailbox)
         {
-            if (mailbox.Attributes.Contains(@"\Noselect"))
+            if (mailbox.Flags.Contains(@"\Noselect"))
             {
                 return;
             }
