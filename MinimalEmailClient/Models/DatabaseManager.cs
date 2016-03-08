@@ -269,16 +269,62 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        public static int UpdateMailboxes(string accountName, List<Mailbox> newMailboxes)
+        public static int DeleteMailboxes(List<Mailbox> mailboxes)
         {
             string ignoredErrorMsg;
-            return UpdateMailboxes(accountName, newMailboxes, out ignoredErrorMsg);
+            return DeleteMailboxes(mailboxes, out ignoredErrorMsg);
         }
 
-        // Removes all entries in the Mailboxes table that has the specified AccountName
-        // and inserts the given mailboxes in the table.
+        // Returns the number of mailboxes deleted.
+        public static int DeleteMailboxes(List<Mailbox> mailboxes, out string errorMsg)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+
+            int numRowsDeleted = 0;
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            {
+                dbConnection.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                {
+                    cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName AND Path = @DirectoryPath;";
+                    foreach (Mailbox mbox in mailboxes)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", mbox.AccountName);
+                        cmd.Parameters.AddWithValue("@DirectoryPath", mbox.DirectoryPath);
+                        try
+                        {
+                            numRowsDeleted += cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            errorMsg = ex.Message;
+                            return numRowsDeleted;
+                        }
+                    }
+                }
+
+                dbConnection.Close();
+
+                return numRowsDeleted;
+            }
+        }
+
+        public static int InsertMailboxes(List<Mailbox> mailboxes)
+        {
+            string ignoredErrorMsg;
+            return InsertMailboxes(mailboxes, out ignoredErrorMsg);
+        }
+
         // Returns the number of mailboxes inserted.
-        public static int UpdateMailboxes(string accountName, List<Mailbox> newMailboxes, out string errorMsg)
+        public static int InsertMailboxes(List<Mailbox> mailboxes, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
             errorMsg = string.Empty;
@@ -294,25 +340,11 @@ namespace MinimalEmailClient.Models
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
                 {
-                    cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName;";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@AccountName", accountName);
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        errorMsg = ex.Message;
-                        return numRowsInserted;
-                    }
-
                     cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @UidNext, @UidValidity, @FlagString);";
-
-                    foreach (Mailbox mailbox in newMailboxes)
+                    foreach (Mailbox mailbox in mailboxes)
                     {
-                        cmd.Prepare();
                         cmd.Parameters.Clear();
+                        cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", mailbox.AccountName);
                         cmd.Parameters.AddWithValue("@Path", mailbox.DirectoryPath);
                         cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
@@ -334,6 +366,7 @@ namespace MinimalEmailClient.Models
                         catch (Exception ex)
                         {
                             errorMsg = ex.Message;
+                            return numRowsInserted;
                         }
                     }
                 }
