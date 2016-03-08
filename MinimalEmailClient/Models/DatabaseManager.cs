@@ -241,7 +241,7 @@ namespace MinimalEmailClient.Models
 
                     using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
                     {
-                        cmd.CommandText = @"SELECT * FROM Mailboxes WHERE AccountName = @AccountName;";
+                        cmd.CommandText = @"SELECT * FROM Mailboxes WHERE AccountName = @AccountName ORDER BY Path;";
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", accountName);
                         using (SQLiteDataReader reader = cmd.ExecuteReader())
