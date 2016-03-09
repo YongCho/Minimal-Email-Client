@@ -33,28 +33,31 @@ namespace MinimalEmailClient.Models
             return File.Exists(DatabasePath);
         }
 
-        private static void CreateDatabase()
+        public static void CreateDatabase()
         {
-            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
-            Directory.CreateDirectory(DatabaseFolder);
-            SQLiteConnection.CreateFile(DatabasePath);
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            if (!DatabaseExists())
             {
-                dbConnection.Open();
-
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+                Directory.CreateDirectory(DatabaseFolder);
+                SQLiteConnection.CreateFile(DatabasePath);
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
                 {
-                    cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
-                    cmd.ExecuteNonQuery();
+                    dbConnection.Open();
 
-                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path TEXT, Separator TEXT, UidNext INT, UidValidity INT, FlagString TEXT, PRIMARY KEY (AccountName, Path));";
-                    cmd.ExecuteNonQuery();
+                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    {
+                        cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
+                        cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, DateString TEXT, SenderName TEXT, SenderAddress TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
-                    cmd.ExecuteNonQuery();
+                        cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path TEXT, Separator TEXT, UidNext INT, UidValidity INT, FlagString TEXT, PRIMARY KEY (AccountName, Path));";
+                        cmd.ExecuteNonQuery();
+
+                        cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, DateString TEXT, SenderName TEXT, SenderAddress TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    dbConnection.Close();
                 }
-
-                dbConnection.Close();
             }
         }
 

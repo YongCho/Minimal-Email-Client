@@ -29,6 +29,8 @@ namespace MinimalEmailClient.ViewModels
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
             this.eventAggregator.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection);
+
+            DatabaseManager.CreateDatabase();
         }
 
         private void RaiseWriteNewMessagePopupRequest()
