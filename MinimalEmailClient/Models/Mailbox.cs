@@ -93,12 +93,12 @@ namespace MinimalEmailClient.Models
             {
                 return false;
             }
-            return (x.AccountName == y.AccountName) && (x.DirectoryPath == y.DirectoryPath);
+            return (x.AccountName == y.AccountName) && (x.DirectoryPath == y.DirectoryPath) && (x.FlagString == y.FlagString) && (x.PathSeparator == y.PathSeparator);
         }
 
         public int GetHashCode(Mailbox obj)
         {
-            return obj.AccountName.GetHashCode() ^ obj.DirectoryPath.GetHashCode();
+            return obj.AccountName.GetHashCode() ^ obj.DirectoryPath.GetHashCode() ^ obj.FlagString.GetHashCode() ^ obj.PathSeparator.GetHashCode();
         }
     }
 }
