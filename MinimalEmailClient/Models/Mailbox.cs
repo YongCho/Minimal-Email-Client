@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System;
+using System.Globalization;
 
 namespace MinimalEmailClient.Models
 {
@@ -14,11 +15,32 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.accountName, value); }
         }
 
+        private string displayName;
+        public string DisplayName
+        {
+            get { return this.displayName; }
+            set
+            {
+                if (value.ToLower() == "inbox")
+                {
+                    SetProperty(ref this.displayName, "Inbox");
+                }
+                else
+                {
+                    SetProperty(ref this.displayName, value);
+                }
+            }
+        }
+
         private string mailboxName;
         public string MailboxName
         {
             get { return this.mailboxName; }
-            set { SetProperty(ref this.mailboxName, value); }
+            set
+            {
+                SetProperty(ref this.mailboxName, value);
+                DisplayName = this.mailboxName.Trim(new char[] { '"', ' ' });
+            }
         }
 
         private string directoryPath;

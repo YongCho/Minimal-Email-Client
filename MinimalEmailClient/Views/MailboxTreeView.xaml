@@ -39,7 +39,7 @@
 
             <!-- Template for displaying Mailbox object -->
             <HierarchicalDataTemplate DataType="{x:Type models:Mailbox}" ItemsSource="{Binding Subdirectories}">
-                <TextBlock Text="{Binding MailboxName}" Margin="0, 2" />
+                <TextBlock Text="{Binding DisplayName}" Margin="0, 2" />
             </HierarchicalDataTemplate>
 
         </TreeView.Resources>
