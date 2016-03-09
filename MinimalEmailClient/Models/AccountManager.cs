@@ -120,7 +120,7 @@ namespace MinimalEmailClient.Models
                     Mailbox parent = FindMailboxRecursive(parentPath, mailbox.PathSeparator, account.Mailboxes);
                     if (parent != null)
                     {
-                        parent.Subdirectories.Add(mailbox);
+                        Application.Current.Dispatcher.Invoke(() => { parent.Subdirectories.Add(mailbox); });
                     }
                     else
                     {
