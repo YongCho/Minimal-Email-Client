@@ -28,6 +28,9 @@
 
     <Grid>
         <ListView BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Single" SelectedItem="{Binding SelectedMessage}">
+            <ListView.Background>
+                <ImageBrush ImageSource="/Images/watermark1.png" Stretch="None" Opacity="0.5" />
+            </ListView.Background>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction Command="{Binding OpenSelectedMessageCommand}" />
