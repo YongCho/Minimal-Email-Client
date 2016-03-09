@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>mail.ico</ApplicationIcon>
+    <ApplicationIcon>mail2_MNX_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -206,7 +206,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -224,9 +223,6 @@
     <Resource Include="Images\write.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="mail.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\send.png" />
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +233,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\no.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="mail2_MNX_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets')" />
