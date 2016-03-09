@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using MinimalEmailClient.Events;
 using System.Collections.ObjectModel;
-using System.Windows.Threading;
-using System;
 using System.Windows;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,7 +46,9 @@ namespace MinimalEmailClient.Models
         public void LoadMailboxListFromDb(Account account)
         {
             List<Mailbox> localMailboxes = DatabaseManager.GetMailboxes(account.AccountName);
-            ConstructMailboxTree(account, localMailboxes);
+            ObservableCollection<Mailbox> mailboxTree = ConstructMailboxTree(localMailboxes);
+            account.Mailboxes.Clear();
+            account.Mailboxes.AddRange(mailboxTree.ToArray());
         }
 
         // Updates the mailbox tree in the specified account with ones from the server.
@@ -69,7 +69,12 @@ namespace MinimalEmailClient.Models
 
                     if (localNotServer.Count > 0 || serverNotLocal.Count > 0)
                     {
-                        ConstructMailboxTree(account, serverMailboxes);
+                        ObservableCollection<Mailbox> mailboxTree = ConstructMailboxTree(serverMailboxes);
+                        Application.Current.Dispatcher.Invoke(() => {
+                            account.Mailboxes.Clear();
+                            account.Mailboxes.AddRange(mailboxTree.ToArray());
+                        });
+
                         if (localNotServer.Count > 0)
                         {
                             DatabaseManager.DeleteMailboxes(localNotServer);
@@ -87,9 +92,9 @@ namespace MinimalEmailClient.Models
             });
         }
 
-        private void ConstructMailboxTree(Account account, List<Mailbox> rawMailboxes)
+        private ObservableCollection<Mailbox> ConstructMailboxTree(List<Mailbox> rawMailboxes)
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => { account.Mailboxes.Clear(); }));
+            ObservableCollection<Mailbox> mailboxTree = new ObservableCollection<Mailbox>();
 
             foreach (Mailbox mailbox in rawMailboxes)
             {
@@ -117,23 +122,34 @@ namespace MinimalEmailClient.Models
                     string parentPath = m.Groups[1].ToString();
 
                     // Find the parent mailbox.
-                    Mailbox parent = FindMailboxRecursive(parentPath, mailbox.PathSeparator, account.Mailboxes);
+                    Mailbox parent = FindMailboxRecursive(parentPath, mailbox.PathSeparator, mailboxTree);
                     if (parent != null)
                     {
-                        Application.Current.Dispatcher.Invoke(() => { parent.Subdirectories.Add(mailbox); });
+                        parent.Subdirectories.Add(mailbox);
                     }
                     else
                     {
                         // We shouldn't get here unless the server returned the child mailbox before any of its parents.
                         // For now, we are treating this mailbox as one of the root mailboxes.
-                        Application.Current.Dispatcher.Invoke(new Action(() => { account.Mailboxes.Add(mailbox); }));
+                        mailboxTree.Add(mailbox);
                     }
                 }
                 else
                 {
-                    Application.Current.Dispatcher.Invoke(new Action(() => { account.Mailboxes.Add(mailbox); }));
+                    mailboxTree.Add(mailbox);
                 }
             }
+
+            foreach (Mailbox mbox in mailboxTree)
+            {
+                if (mbox.DisplayName.ToLower() == "inbox")
+                {
+                    mailboxTree.Move(mailboxTree.IndexOf(mbox), 0);
+                    break;
+                }
+            }
+
+            return mailboxTree;
         }
 
         private Mailbox FindMailboxRecursive(string path, string separator, ObservableCollection<Mailbox> mailboxes)
