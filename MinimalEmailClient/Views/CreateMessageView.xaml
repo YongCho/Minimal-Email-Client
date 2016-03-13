@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MinimalEmailClient.Views"
         mc:Ignorable="d"
-        Height="600" Width="800">
+        Height="600" Width="800" Loaded="UserControl_Loaded" >
 
     <Grid>
         <DockPanel>
             <!-- Menu Bar -->
             <Menu DockPanel.Dock="Top" BorderThickness="0" Background="White" BorderBrush="AliceBlue">
-                <MenuItem Header="File">
+                <MenuItem Header="File" Background="AliceBlue">
                     <MenuItem Header="Send" />
                     <Separator />
                     <MenuItem Header="Close" />
@@ -22,7 +22,7 @@
             <ToolBarPanel DockPanel.Dock="Top" Background="White">
                 <ToolBar ToolBarTray.IsLocked="True" Background="White">
                     <!-- 'Send' button -->
-                    <Button>
+                    <Button Click="SendButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Images/send.png" Stretch="Uniform" Height="20" Width="20" Margin="0,0,3,0" />
                             <TextBlock Text="Send" VerticalAlignment="Center" />
@@ -38,27 +38,29 @@
                 </ToolBar>
                 <!-- Headers -->
                 <WrapPanel HorizontalAlignment="Left" Height="545" Width="800">
-                    <Button>
+                    <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="From" VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
                     <TextBox x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
-                    <Button>
+                    <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="To..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
                     <TextBox x:Name="To" Height="19" TextWrapping="Wrap" Width="742"/>
-                    <Button>
+                    <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Cc..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
                     <TextBox x:Name="Cc" Height="20" TextWrapping="Wrap" Width="742"/>
-                    <TextBlock x:Name="Subject" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Subject" Width="58"/>
+                    <Border BorderThickness="1" BorderBrush="Black">
+                        <TextBlock x:Name="Subject" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Subject" Width="56"/>
+                    </Border>
                     <TextBox x:Name="SubjectTextBox" Height="17" TextWrapping="Wrap" Width="742"/>
-                    <!-- Message Body -->
+                        <!-- Message Body -->
                     <TextBox x:Name="Body" Height="474" TextWrapping="Wrap" Width="802"/>
                 </WrapPanel>
             </ToolBarPanel>
