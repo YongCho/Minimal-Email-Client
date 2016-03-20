@@ -22,4 +22,8 @@ namespace MinimalEmailClient.Events
     public class MailboxListSyncFinishedEvent : PubSubEvent<Account>
     {
     }
+
+    public class DeleteMessagesEvent : PubSubEvent<string>  // payload is a dummy
+    {
+    }
 }

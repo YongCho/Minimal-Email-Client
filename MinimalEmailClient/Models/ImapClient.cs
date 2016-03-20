@@ -138,18 +138,25 @@ namespace MinimalEmailClient.Models
             return mailboxes;
         }
 
-        public bool ExamineMailbox(string mailboxPath)
+        public bool SelectMailbox(string mailboxPath, bool readOnly)
         {
             ExamineResult result = new ExamineResult();
-            return ExamineMailbox(mailboxPath, out result);
+            return SelectMailbox(mailboxPath, readOnly, out result);
         }
         // Sends 'EXAMINE' command to the server with the specified mailbox.
-        public bool ExamineMailbox(string mailboxPath, out ExamineResult status)
+        public bool SelectMailbox(string mailboxPath, bool readOnly, out ExamineResult status)
         {
             status = new ExamineResult();
 
             string tag = NextTag();
-            SendString(tag + " EXAMINE " + mailboxPath);
+            if (readOnly)
+            {
+                SendString(tag + " EXAMINE " + mailboxPath);
+            }
+            else
+            {
+                SendString(tag + " SELECT " + mailboxPath);
+            }
 
             string response = string.Empty;
             if (!ReadResponse(tag, out response))
@@ -264,6 +271,60 @@ namespace MinimalEmailClient.Models
             }
 
             return messages;
+        }
+
+        public void DeleteMessages(List<Message> messages)
+        {
+            bool selectOk = true;
+
+            while (messages.Count > 0 && selectOk)
+            {
+                string mailboxPath = messages[0].MailboxPath;
+                bool readOnly = false;
+                selectOk = SelectMailbox(mailboxPath, readOnly);
+                if (selectOk)
+                {
+                    int responseCount = 0;
+                    string response = string.Empty;
+                    string tag = string.Empty;
+
+                    // Delete all messages in this mailbox.
+                    for (int i = messages.Count - 1; i >= 0; --i)
+                    {
+                        Message msg = messages[i];
+                        if (msg.MailboxPath == mailboxPath)
+                        {
+                            tag = NextTag();
+                            SendString(tag + " UID STORE " + msg.Uid + " +FLAGS (\\Seen \\Deleted)");
+                            ++responseCount;
+
+                            // Empty the socket buffer every 10 commands.
+                            if (responseCount == 10)
+                            {
+                                ReadResponse(tag, out response);
+                                Trace.WriteLine("Response:\n" + response);
+                                responseCount = 0;
+                            }
+
+                            messages.RemoveAt(i);
+                        }
+                    }
+
+                    // Read the remaining responses.
+                    if (responseCount > 0)
+                    {
+                        ReadResponse(tag, out response);
+                        Trace.WriteLine("Response: " + response);
+                        responseCount = 0;
+                    }
+
+                    // Expunge the tagged messages and move out of the currently selected mailbox.
+                    tag = NextTag();
+                    SendString(tag + " CLOSE");
+                    ReadResponse(tag, out response);
+                    Trace.WriteLine(response);
+                }
+            }
         }
 
         private void Logout()

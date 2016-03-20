@@ -47,7 +47,8 @@ namespace MinimalEmailClient.ViewModels
             ImapClient imap = new ImapClient(notification.SelectedAccount);
             if (imap.Connect())
             {
-                if (imap.ExamineMailbox(notification.SelectedMailbox.DirectoryPath))
+                bool readOnly = true;
+                if (imap.SelectMailbox(notification.SelectedMailbox.DirectoryPath, readOnly))
                 {
                     string rawBody = imap.FetchBody(Message.Uid);
                     Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(rawBody));

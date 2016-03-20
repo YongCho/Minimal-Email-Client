@@ -125,7 +125,8 @@ namespace MinimalEmailClient.ViewModels
             }
 
             ExamineResult status;
-            if (!imapClient.ExamineMailbox(mailbox.DirectoryPath, out status))
+            bool readOnly = true;
+            if (!imapClient.SelectMailbox(mailbox.DirectoryPath, readOnly, out status))
             {
                 Trace.WriteLine(imapClient.Error);
                 imapClient.Disconnect();
@@ -180,7 +181,27 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
+        public void DeleteMessages(List<Message> messages)
+        {
+            // Delete from view.
+            foreach (Message msg in messages)
+            {
+                Messages.Remove(msg);
+            }
 
+            // Delete from database.
+            DatabaseManager.DeleteMessages(messages);
+
+            // Delete from server.
+            Task.Run(() => {
+                ImapClient imapClient = new ImapClient(this.selectedAccount);
+                if (imapClient.Connect())
+                {
+                    imapClient.DeleteMessages(messages);
+                    imapClient.Disconnect();
+                }
+            });
+        }
 
     }
 }

@@ -558,6 +558,55 @@ namespace MinimalEmailClient.Models
             return numRowsInserted;
         }
 
+        public static int DeleteMessages(List<Message> messages)
+        {
+            string ignoredErrorMsg;
+            return DeleteMessages(messages, out ignoredErrorMsg);
+        }
 
+        public static int DeleteMessages(List<Message> messages, out string errorMsg)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+                return 0;
+            }
+            else
+            {
+                int numRowsDeleted = 0;
+
+                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                {
+                    dbConnection.Open();
+                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    {
+                        cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
+                        foreach (Message message in messages)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.Prepare();
+                            cmd.Parameters.AddWithValue("@AccountName", message.AccountName);
+                            cmd.Parameters.AddWithValue("@MailboxPath", message.MailboxPath);
+                            cmd.Parameters.AddWithValue("@Uid", message.Uid);
+                            try
+                            {
+                                numRowsDeleted += cmd.ExecuteNonQuery();
+                            }
+                            catch (Exception ex)
+                            {
+                                errorMsg = ex.Message;
+                                return numRowsDeleted;
+                            }
+                        }
+                    }
+
+                    dbConnection.Close();
+
+                    return numRowsDeleted;
+                }
+            }
+        }
     }
 }
