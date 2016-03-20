@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using MinimalEmailClient.Models;
 
 namespace MinimalEmailClient
 {
@@ -9,6 +10,7 @@ namespace MinimalEmailClient
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            DatabaseManager.CreateDatabase();
             base.OnStartup(e);
 
             var bs = new Bootstrapper();
