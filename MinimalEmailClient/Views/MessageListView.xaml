@@ -6,10 +6,20 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:views="clr-namespace:MinimalEmailClient.Views"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
-             xmlns:models="clr-namespace:MinimalEmailClient.Models"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="600">
+
+    <i:Interaction.Triggers>
+        <!-- Popup for opening the selected message -->
+        <prism:InteractionRequestTrigger SourceObject="{Binding OpenSelectedMessagePopupRequest, Mode=OneWay}">
+            <prism:PopupWindowAction>
+                <prism:PopupWindowAction.WindowContent>
+                    <views:SelectedMessageView />
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
 
     <UserControl.DataContext>
         <viewModels:MessageListViewModel />
@@ -46,18 +56,9 @@
         </Style>
     </UserControl.Resources>
 
-    <i:Interaction.Triggers>
-        <!-- Popup for writing a new message -->
-        <prism:InteractionRequestTrigger SourceObject="{Binding OpenSelectedMessagePopupRequest, Mode=OneWay}">
-            <prism:PopupWindowAction>
-                <prism:PopupWindowAction.WindowContent>
-                    <views:SelectedMessageView />
-                </prism:PopupWindowAction.WindowContent>
-            </prism:PopupWindowAction>
-        </prism:InteractionRequestTrigger>
-    </i:Interaction.Triggers>
-
     <Grid>
+
+        <!-- The listview -->
         <ListView BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Single" SelectedItem="{Binding SelectedMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2">
             <ListView.Background>
                 <ImageBrush ImageSource="/Images/watermark1.png" Stretch="None" Opacity="0.5" />
