@@ -54,25 +54,60 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Style for TextBlock in ListView column cell -->
+        <Style x:Key="CellTextBlockStyle" TargetType="TextBlock">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSeen}" Value="False">
+                    <Setter Property="FontWeight" Value="Bold" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
 
         <!-- The listview -->
         <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2">
+
             <ListView.Background>
                 <ImageBrush ImageSource="/Images/watermark1.png" Stretch="None" Opacity="0.5" />
             </ListView.Background>
+
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction Command="{Binding OpenSelectedMessageCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+
             <ListView.View>
                 <GridView>
-                    <GridViewColumn x:Name="col0" Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
-                    <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}" DisplayMemberBinding="{Binding Subject}" />
-                    <GridViewColumn x:Name="col2" Header="Date" DisplayMemberBinding="{Binding Date}" Width="200" />
+                    <!-- 'From' column -->
+                    <GridViewColumn x:Name="col0" Header="From" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding SenderAddress}" Style="{StaticResource CellTextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 'Subject' column -->
+                    <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Subject}" Style="{StaticResource CellTextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 'Date' column -->
+                    <GridViewColumn x:Name="col2" Header="Date" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Date}" Style="{StaticResource CellTextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

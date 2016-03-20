@@ -68,8 +68,15 @@ namespace MinimalEmailClient.Models
             get { return this.flagString; }
             set
             {
-                SetProperty(ref this.flagString, value);
-                IsSeen = this.flagString.Contains(@"\Seen");
+                SetProperty(ref this.flagString, value.Trim(' '));
+                if (this.flagString.Contains(@"\Seen") && !IsSeen)
+                {
+                    IsSeen = true;
+                }
+                else if(!this.flagString.Contains(@"\Seen") && IsSeen)
+                {
+                    IsSeen = false;
+                }
             }
         }
 
@@ -77,7 +84,18 @@ namespace MinimalEmailClient.Models
         public bool IsSeen
         {
             get { return this.isSeen; }
-            private set { SetProperty(ref this.isSeen, value); }
+            set
+            {
+                SetProperty(ref this.isSeen, value);
+                if (this.isSeen && !FlagString.Contains(@"\Seen"))
+                {
+                    FlagString += @" \Seen";
+                }
+                else if (!this.isSeen && FlagString.Contains(@"\Seen"))
+                {
+                    FlagString = FlagString.Replace(@"\Seen", "").Trim(' ');
+                }
+            }
         }
 
         private string body = string.Empty;

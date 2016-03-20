@@ -8,6 +8,7 @@ using NI.Email.Mime.Field;
 using NI.Email.Mime.Decoder;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -47,7 +48,7 @@ namespace MinimalEmailClient.ViewModels
             ImapClient imap = new ImapClient(notification.SelectedAccount);
             if (imap.Connect())
             {
-                bool readOnly = true;
+                bool readOnly = false;
                 if (imap.SelectMailbox(notification.SelectedMailbox.DirectoryPath, readOnly))
                 {
                     string rawBody = imap.FetchBody(Message.Uid);
@@ -68,6 +69,19 @@ namespace MinimalEmailClient.ViewModels
                         Message.Body = rawBody;
                     }
                 }
+
+                if (!Message.IsSeen)
+                {
+                    // Update view/memory.
+                    Message.IsSeen = true;
+
+                    // Update database.
+                    DatabaseManager.Update(Message);
+
+                    // The server should automatically set the \Seen flag when BODY is fetched.
+                    // We shouldn't have to send command for this.
+                }
+
                 imap.Disconnect();
             }
         }
