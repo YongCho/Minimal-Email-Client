@@ -15,6 +15,37 @@
         <viewModels:MessageListViewModel />
     </UserControl.DataContext>
 
+    <UserControl.Resources>
+        <!-- Style for each row -->
+        <Style TargetType="{x:Type ListViewItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <!-- Remove corner radius. Without this, each row will have rounded corners by default. -->
+                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="0">
+                            <GridViewRowPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Height" Value="23" />
+            <Setter Property="Foreground" Value="Black" />
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                    <Setter Property="Background" Value="White"></Setter>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="WhiteSmoke"></Setter>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource MenuItemHighlightBackgroundBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <i:Interaction.Triggers>
         <!-- Popup for writing a new message -->
         <prism:InteractionRequestTrigger SourceObject="{Binding OpenSelectedMessagePopupRequest, Mode=OneWay}">
@@ -27,7 +58,7 @@
     </i:Interaction.Triggers>
 
     <Grid>
-        <ListView BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Single" SelectedItem="{Binding SelectedMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListView BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Single" SelectedItem="{Binding SelectedMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2">
             <ListView.Background>
                 <ImageBrush ImageSource="/Images/watermark1.png" Stretch="None" Opacity="0.5" />
             </ListView.Background>
