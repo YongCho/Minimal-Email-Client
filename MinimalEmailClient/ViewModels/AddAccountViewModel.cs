@@ -6,7 +6,6 @@ using MinimalEmailClient.Models;
 using System;
 using System.Text.RegularExpressions;
 using Prism.Interactivity.InteractionRequest;
-using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -236,7 +235,6 @@ namespace MinimalEmailClient.ViewModels
             if (AccountValidated)
             {
                 Account account = new Account();
-                /*account.AccountName = AccountName;*/
                 account.AccountName = EmailAddress;
                 account.EmailAddress = EmailAddress;
                 account.ImapLoginName = LoginName;
@@ -322,8 +320,7 @@ namespace MinimalEmailClient.ViewModels
             ValidationFailed = false;
             Message = string.Empty;
 
-            if (/*(bool)AccountNameValidated &&*/
-                (bool)EmailAddressValidated &&
+            if ((bool)EmailAddressValidated &&
                 (bool)LoginNameValidated &&
                 (bool)LoginPasswordValidated &&
                 (bool)ImapServerNameValidated &&
