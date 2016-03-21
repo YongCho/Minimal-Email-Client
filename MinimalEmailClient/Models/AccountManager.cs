@@ -72,7 +72,10 @@ namespace MinimalEmailClient.Models
                         ObservableCollection<Mailbox> mailboxTree = ConstructMailboxTree(serverMailboxes);
                         Application.Current.Dispatcher.Invoke(() => {
                             account.Mailboxes.Clear();
-                            account.Mailboxes.AddRange(mailboxTree.ToArray());
+                            foreach (Mailbox mbox in mailboxTree)
+                            {
+                                account.Mailboxes.Add(mbox);
+                            }
                         });
 
                         if (localNotServer.Count > 0)
