@@ -704,7 +704,7 @@ namespace MinimalEmailClient.Models
         public static int Update(List<Mailbox> mailboxes, out string errorMsg)
         {
             errorMsg = string.Empty;
-            return 0;
+            throw new NotImplementedException();
         }
 
         public static int Update(Account account)
@@ -729,7 +729,7 @@ namespace MinimalEmailClient.Models
         public static int Update(List<Account> accounts, out string errorMsg)
         {
             errorMsg = string.Empty;
-            return 0;
+            throw new NotImplementedException();
         }
 
     }
