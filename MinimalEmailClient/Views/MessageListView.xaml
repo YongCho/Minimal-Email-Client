@@ -26,7 +26,7 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <!-- Converts Message.IsSeen to envelope images. -->
+        <!-- Converts Message.IsSeen to envelope image source string. -->
         <views:BooleanToEnvelopImageSourceConverter x:Key="BooleanToEnvelopImageSourceConverter" />
 
         <!-- Style for each row -->
