@@ -19,10 +19,10 @@
     <SolidColorBrush x:Key="ListViewHeaderPressedBrush" Color="#FFB9DFFF" />
     <SolidColorBrush x:Key="ListViewHeaderBorderBrush" Color="LightGray" />
     <SolidColorBrush x:Key="ListViewHeaderForegroundBrush" Color="Gray" />
-    <SolidColorBrush x:Key="ToolBarButtonHoverBorder" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
-    <SolidColorBrush x:Key="ToolBarButtonHover" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
-    <SolidColorBrush x:Key="ToolBarButtonPressedBorder" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
-    <SolidColorBrush x:Key="ToolBarButtonPressed" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+    <SolidColorBrush x:Key="ToolBarButtonHoverBorderBrush" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+    <SolidColorBrush x:Key="ToolBarButtonHoverBrush" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+    <SolidColorBrush x:Key="ToolBarButtonPressedBorderBrush" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
+    <SolidColorBrush x:Key="ToolBarButtonPressedBrush" Color="{Binding Color, Source={StaticResource MenuItemHighlightBackgroundBrush}}" />
 
     <Thickness x:Key="MenuItemBorderThickness">0</Thickness>
     <Thickness x:Key="ToolbarButtonBorderThickness">0</Thickness>
@@ -293,16 +293,16 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonHoverBorder}"/>
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonHover}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonHoverBorderBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="true">
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonHoverBorder}"/>
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonHover}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonHoverBorderBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="true">
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonPressedBorder}"/>
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonPressed}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ToolBarButtonPressedBorderBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource ToolBarButtonPressedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
                             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
