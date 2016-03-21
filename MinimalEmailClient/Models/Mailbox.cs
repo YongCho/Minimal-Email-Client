@@ -87,6 +87,13 @@ namespace MinimalEmailClient.Models
         public List<string> Flags { get; set; }
         public ObservableCollection<Mailbox> Subdirectories { get; set; }
 
+        private bool isExpanded = false;
+        public bool IsExpanded
+        {
+            get { return this.isExpanded; }
+            set { SetProperty(ref this.isExpanded, value); }
+        }
+
         public Mailbox()
         {
             Flags = new List<string>();
