@@ -11,7 +11,7 @@ namespace MinimalEmailClient.Models
     public class DatabaseManager
     {
         public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
-        public static readonly string DatabasePath = DatabaseFolder + "\\" + Properties.Settings.Default.DatabaseFileName;
+        public static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
 
         private static string ConnString()
         {
