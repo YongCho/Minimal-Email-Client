@@ -21,7 +21,7 @@
 
         <!-- Subject -->
         <Border x:Name="subjectBorder" Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock Margin="0,0,0,8" Text="{Binding Message.Subject}" FontSize="18" Width="{Binding ElementName=subjectBorder, Path=ActualWidth}" TextWrapping="Wrap" />
+            <TextBlock Margin="0,0,0,8" Text="{Binding Message.Subject, Mode=OneWay}" FontSize="18" Width="{Binding ElementName=subjectBorder, Path=ActualWidth}" TextWrapping="Wrap" />
         </Border>
 
         <Border Grid.Row="1" Margin="5,0,5,10">
@@ -29,15 +29,15 @@
                 <!-- From -->
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="From" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                    <TextBlock Text="{Binding Message.SenderName}" FontSize="14" />
+                    <TextBlock Text="{Binding Message.SenderName, Mode=OneWay}" FontSize="14" />
                     <TextBlock Text="&lt;" FontSize="14" />
-                    <TextBlock Text="{Binding Message.SenderAddress}" FontSize="14" />
+                    <TextBlock Text="{Binding Message.SenderAddress, Mode=OneWay}" FontSize="14" />
                     <TextBlock Text="&gt;" FontSize="14" />
                 </StackPanel>
                 <!-- To -->
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="to" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                    <TextBlock Text="{Binding Message.Recipient}" FontSize="14" />
+                    <TextBlock Text="{Binding Message.Recipient, Mode=OneWay}" FontSize="14" />
                 </StackPanel>
             </StackPanel>
         </Border>
@@ -51,7 +51,7 @@
         <!-- Message body -->
         <Border x:Name="msgBorder" Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
             <ScrollViewer Height="{Binding ElementName=msgBorder, Path=ActualHeight}" Width="{Binding ElementName=msgBorder, Path=ActualWidth}">
-                <TextBox BorderThickness="0" Text="{Binding Message.Body}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                <TextBox BorderThickness="0" Text="{Binding Message.DisplayBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
             </ScrollViewer>
         </Border>
     </Grid>
