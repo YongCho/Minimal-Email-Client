@@ -10,11 +10,11 @@ namespace MinimalEmailClient.Views
         {
             if ((bool)value)
             {
-                return "/Images/envelope_seen.png";
+                return "/Resources/Images/envelope_seen.png";
             }
             else
             {
-                return "/Images/envelope_unseen.png";
+                return "/Resources/Images/envelope_unseen.png";
             }
         }
 

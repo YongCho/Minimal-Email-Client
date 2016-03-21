@@ -217,8 +217,8 @@
 
         <!-- Error Message -->
         <StackPanel Name="MessagePanel" Grid.Row="5" MinHeight="30" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Source="/Images/validate.png" Height="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
-            <Image Source="/Images/no.png" Height="30" Visibility="{Binding ValidationFailed, Converter={StaticResource BoolToHiddenConverter}}" />
+            <Image Source="/Resources/Images/validate.png" Height="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
+            <Image Source="/Resources/Images/no.png" Height="30" Visibility="{Binding ValidationFailed, Converter={StaticResource BoolToHiddenConverter}}" />
             <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
         </StackPanel>
 

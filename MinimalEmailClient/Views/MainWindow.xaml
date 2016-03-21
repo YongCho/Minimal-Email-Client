@@ -52,21 +52,21 @@
                 <!-- 'Write' button -->
                 <Button Command="{Binding WriteNewMessageCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Images/write.png" Stretch="Uniform" Height="20" Width="20" />
+                        <Image Source="/Resources/Images/write.png" Stretch="Uniform" Height="20" Width="20" />
                         <TextBlock Text="Write" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
                 <!-- 'Reply' button -->
                 <Button>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Images/reply.png" Stretch="Uniform" Height="20" Width="20" />
+                        <Image Source="/Resources/Images/reply.png" Stretch="Uniform" Height="20" Width="20" />
                         <TextBlock Text="Reply" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
                 <!-- 'Delete' button -->
                 <Button Command="{Binding DeleteMessageCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Images/no.png" Stretch="Uniform" Height="20" Width="20" />
+                        <Image Source="/Resources/Images/no.png" Stretch="Uniform" Height="20" Width="20" />
                         <TextBlock Text="Delete" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>

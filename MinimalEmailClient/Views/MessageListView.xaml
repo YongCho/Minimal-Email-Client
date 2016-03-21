@@ -75,7 +75,7 @@
         <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2">
 
             <ListView.Background>
-                <ImageBrush ImageSource="/Images/watermark1.png" Stretch="None" Opacity="0.5" />
+                <ImageBrush ImageSource="/Resources/Images/watermark1.png" Stretch="None" Opacity="0.5" />
             </ListView.Background>
 
             <i:Interaction.Triggers>
@@ -89,7 +89,7 @@
                     <!-- 'IsSeen' column -->
                     <views:FixedWidthGridViewColumn x:Name="col0" FixedWidth="30">
                         <views:FixedWidthGridViewColumn.Header>
-                            <Image Source="/Images/envelope.png" Width="16" Height="14" />
+                            <Image Source="/Resources/Images/envelope.png" Width="16" Height="14" />
                         </views:FixedWidthGridViewColumn.Header>
                         <views:FixedWidthGridViewColumn.CellTemplate>
                             <DataTemplate>
