@@ -106,7 +106,22 @@ namespace MinimalEmailClient.ViewModels
             List<Mailbox> mailboxes = DatabaseManager.GetMailboxes(account.AccountName);
             foreach (Mailbox mailbox in mailboxes)
             {
-                Task.Run(() => { SyncMessage(account, mailbox); });
+                if (mailbox.DisplayName.ToLower() == "inbox")
+                {
+                    Task.Run(() => { SyncMessage(account, mailbox); });
+                    mailboxes.Remove(mailbox);
+                    break;
+                }
+            }
+
+            SyncMessage(account, mailboxes);
+        }
+
+        private async void SyncMessage(Account account, List<Mailbox> mailboxes)
+        {
+            foreach (Mailbox mailbox in mailboxes)
+            {
+                await Task.Run(() => { SyncMessage(account, mailbox); });
             }
         }
 

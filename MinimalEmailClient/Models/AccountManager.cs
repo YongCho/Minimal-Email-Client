@@ -101,12 +101,6 @@ namespace MinimalEmailClient.Models
 
             foreach (Mailbox mailbox in rawMailboxes)
             {
-                // DisplayName is the directory name without its path string.
-                string pattern = "[^" + mailbox.PathSeparator + "]+$";
-                Regex regx = new Regex(pattern);
-                Match match = regx.Match(mailbox.DirectoryPath);
-                mailbox.MailboxName = match.Value.ToString().Replace("\"", "");
-
                 // Check if the mailbox is a child of another mailbox.
                 // If so, add it to the parent mailbox's Subdirectories.
                 // Otherwise, treat it as a root mailbox and add it directly to the account's mailbox list.
