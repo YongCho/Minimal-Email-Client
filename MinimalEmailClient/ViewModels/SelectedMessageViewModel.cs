@@ -2,6 +2,7 @@
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using MinimalEmailClient.Models;
+using System.Threading.Tasks;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -39,31 +40,44 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        private void GetMsgBody()
+        private bool downloading;
+        public bool Downloading
         {
-            ImapClient imap = new ImapClient(notification.SelectedAccount);
-            if (imap.Connect())
-            {
-                // Not readonly because we need to set the \Seen flag.
-                bool readOnly = false;
-                if (imap.SelectMailbox(notification.SelectedMailbox.DirectoryPath, readOnly))
+            get { return this.downloading; }
+            private set { SetProperty(ref this.downloading, value); }
+        }
+
+        private async void GetMsgBody()
+        {
+            Downloading = true;
+
+            await Task.Run(() => {
+                ImapClient imap = new ImapClient(notification.SelectedAccount);
+                if (imap.Connect())
                 {
-                    this.message.Body = imap.FetchBody(Message.Uid);
+                    // Not readonly because we need to set the \Seen flag.
+                    bool readOnly = false;
+                    if (imap.SelectMailbox(notification.SelectedMailbox.DirectoryPath, readOnly))
+                    {
+                        this.message.Body = imap.FetchBody(Message.Uid);
+                    }
+
+                    imap.Disconnect();
+
+                    if (!Message.IsSeen)
+                    {
+                        Message.IsSeen = true;
+
+                        // The server should automatically set the \Seen flag when BODY is fetched.
+                        // We shouldn't have to send command for this.
+                    }
+
+                    // Store the Body and IsSeen flag to the database.
+                    DatabaseManager.Update(Message);
                 }
+            });
 
-                imap.Disconnect();
-
-                if (!Message.IsSeen)
-                {
-                    Message.IsSeen = true;
-
-                    // The server should automatically set the \Seen flag when BODY is fetched.
-                    // We shouldn't have to send command for this.
-                }
-
-                // Store the Body and IsSeen flag to the database.
-                DatabaseManager.Update(Message);
-            }
+            Downloading = false;
         }
     }
 }

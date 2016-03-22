@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" Background="White" Padding="8" Loaded="UserControl_Loaded">
 
@@ -50,9 +51,11 @@
 
         <!-- Message body -->
         <Border x:Name="msgBorder" Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
-            <ScrollViewer Height="{Binding ElementName=msgBorder, Path=ActualHeight}" Width="{Binding ElementName=msgBorder, Path=ActualWidth}">
-                <TextBox BorderThickness="0" Text="{Binding Message.DisplayBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
-            </ScrollViewer>
+            <xctk:BusyIndicator IsBusy="{Binding Downloading}" BusyContent="Downloading message ..." >
+                <ScrollViewer Height="{Binding ElementName=msgBorder, Path=ActualHeight}" Width="{Binding ElementName=msgBorder, Path=ActualWidth}">
+                    <TextBox BorderThickness="0" Text="{Binding Message.DisplayBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                </ScrollViewer>
+            </xctk:BusyIndicator>
         </Border>
     </Grid>
 </UserControl>
