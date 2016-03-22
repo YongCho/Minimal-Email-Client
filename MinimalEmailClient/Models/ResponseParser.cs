@@ -1,6 +1,4 @@
-﻿#undef TRACE
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -12,8 +10,6 @@ namespace MinimalEmailClient.Models
         // Constructs a Message object from an untagged response string returned by a FETCH command.
         public static Message ParseFetchHeader(string untaggedItem)
         {
-            Trace.WriteLine(untaggedItem);
-
             // Server divides long subjects and senders, etc. into multiple lines.
             // We have to merge these multi-line blocks into a single block first.
             // Here is an example.
@@ -47,10 +43,38 @@ namespace MinimalEmailClient.Models
 
             string itemHeaderPattern = "^(.*)\r\n";
             m = Regex.Match(untaggedItem, itemHeaderPattern);
+            int uid = -1;
             if (m.Success)
             {
                 string itemHeader = m.Groups[1].ToString();
-                Trace.WriteLine("Item Header: " + itemHeader);
+
+                string flagsPattern = "FLAGS \\((?<flags>[^\\(\\)]*)\\)";
+                m = Regex.Match(itemHeader, flagsPattern);
+                if (m.Success)
+                {
+                    string flagString = m.Groups["flags"].ToString();
+                    message.FlagString = flagString;
+                }
+
+                string uidPattern = "UID (\\d+)";
+                m = Regex.Match(untaggedItem, uidPattern);
+                if (m.Success)
+                {
+                    uid = Convert.ToInt32(m.Groups[1].ToString());
+                    message.Uid = uid;
+                }
+            }
+
+            // UID is not in the first line. It must be in the last line.
+            if (uid == -1)
+            {
+                string uidPattern = "\r\n UID (\\d+)\\)\r\n";
+                m = Regex.Match(untaggedItem, uidPattern);
+                if (m.Success)
+                {
+                    uid = Convert.ToInt32(m.Groups[1].ToString());
+                    message.Uid = uid;
+                }
             }
 
             string subjectPattern = "^Subject: (.*)\r\n";
@@ -59,9 +83,7 @@ namespace MinimalEmailClient.Models
             {
                 string subject = m.Groups[1].ToString();
                 subject = Decoder.DecodeSingleLine(subject);
-                Trace.WriteLine("Subject: " + subject);
                 message.Subject = subject;
-                untaggedItem = Regex.Replace(untaggedItem, subjectPattern, "", RegexOptions.Multiline);
 
             }
 
@@ -70,9 +92,7 @@ namespace MinimalEmailClient.Models
             if (m.Success)
             {
                 string dateString = m.Groups[1].ToString();
-                Trace.WriteLine("DateString: " + dateString);
                 message.DateString = dateString;
-                untaggedItem = Regex.Replace(untaggedItem, datePattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             }
 
             string senderName = string.Empty;
@@ -87,8 +107,6 @@ namespace MinimalEmailClient.Models
                 {
                     senderName = senderAddress;
                 }
-
-                untaggedItem = Regex.Replace(untaggedItem, senderPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             }
             else
             {
@@ -101,45 +119,21 @@ namespace MinimalEmailClient.Models
                     {
                         senderAddress = senderName;
                     }
-                    untaggedItem = Regex.Replace(untaggedItem, senderPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
                 }
             }
             senderAddress = senderAddress.Trim();
             senderName = senderName.Trim();
             message.SenderAddress = senderAddress;
             message.SenderName = senderName;
-            Trace.WriteLine("Sender Name: " + senderName);
-            Trace.WriteLine("Sender Address: " + senderAddress);
 
             string recipientPattern = "^To: (.*)\r\n";
             m = Regex.Match(untaggedItem, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (m.Success)
             {
                 string recipient = Decoder.DecodeSingleLine(m.Groups[1].ToString().Trim());
-                Trace.WriteLine("Recipient: " + recipient);
                 message.Recipient = recipient;
-                untaggedItem = Regex.Replace(untaggedItem, recipientPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             }
 
-            string uidPattern = "UID (\\d+)";
-            m = Regex.Match(untaggedItem, uidPattern);
-            if (m.Success)
-            {
-                int uid = Convert.ToInt32(m.Groups[1].ToString());
-                Trace.WriteLine("UID: " + uid);
-                message.Uid = uid;
-            }
-
-            string flagsPattern = "FLAGS \\((?<flags>[^\\(\\)]*)\\)";
-            m = Regex.Match(untaggedItem, flagsPattern);
-            if (m.Success)
-            {
-                string flagString = m.Groups["flags"].ToString();
-                Trace.WriteLine("FlagString: " + flagString);
-                message.FlagString = flagString;
-            }
-
-            Trace.WriteLine("\n\n==========================\n\n");
             return message;
         }
 

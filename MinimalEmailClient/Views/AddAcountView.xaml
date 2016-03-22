@@ -60,26 +60,7 @@
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <!--
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Account Name:" />
-                <TextBox Grid.Column="1" Text="{Binding AccountName, UpdateSourceTrigger=PropertyChanged}">
-                    <TextBox.Style>
-                        <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding AccountNameValidated}" Value="False">
-                                    <Setter Property="BorderBrush" Value="#FFFF8080" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
-            </Grid>
-            -->
+
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto" />
@@ -217,8 +198,8 @@
 
         <!-- Error Message -->
         <StackPanel Name="MessagePanel" Grid.Row="5" MinHeight="30" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Source="/Images/validate.png" Height="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
-            <Image Source="/Images/no.png" Height="30" Visibility="{Binding ValidationFailed, Converter={StaticResource BoolToHiddenConverter}}" />
+            <Image Source="/Resources/Images/validate.png" Height="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
+            <Image Source="/Resources/Images/no.png" Height="30" Visibility="{Binding ValidationFailed, Converter={StaticResource BoolToHiddenConverter}}" />
             <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
         </StackPanel>
 

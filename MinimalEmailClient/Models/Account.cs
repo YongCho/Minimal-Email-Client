@@ -71,6 +71,13 @@ namespace MinimalEmailClient.Models
 
         public ObservableCollection<Mailbox> Mailboxes { get; set; }
 
+        private bool isExpanded = true;
+        public bool IsExpanded
+        {
+            get { return this.isExpanded; }
+            set { SetProperty(ref this.isExpanded, value); }
+        }
+
         public Account()
         {
             Mailboxes = new ObservableCollection<Mailbox>();

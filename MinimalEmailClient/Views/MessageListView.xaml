@@ -26,32 +26,15 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <!-- Style for each row -->
-        <Style TargetType="{x:Type ListViewItem}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <!-- Remove corner radius. Without this, each row will have rounded corners by default. -->
-                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="0">
-                            <GridViewRowPresenter />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Margin" Value="0" />
-            <Setter Property="Height" Value="23" />
-            <Setter Property="Foreground" Value="Black" />
+        <!-- Converts Message.IsSeen to envelope image source string. -->
+        <views:BooleanToEnvelopImageSourceConverter x:Key="BooleanToEnvelopImageSourceConverter" />
+
+        <!-- Style for TextBlock in ListView column cell -->
+        <Style x:Key="CellTextBlockStyle" TargetType="TextBlock">
             <Style.Triggers>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                    <Setter Property="Background" Value="White"></Setter>
-                </Trigger>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                    <Setter Property="Background" Value="WhiteSmoke"></Setter>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource MenuItemHighlightBackgroundBrush}"/>
-                </Trigger>
+                <DataTrigger Binding="{Binding IsSeen}" Value="False">
+                    <Setter Property="FontWeight" Value="Bold" />
+                </DataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
@@ -60,19 +43,57 @@
 
         <!-- The listview -->
         <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding Messages}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessage}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2">
+
             <ListView.Background>
-                <ImageBrush ImageSource="/Images/watermark1.png" Stretch="None" Opacity="0.5" />
+                <ImageBrush ImageSource="/Resources/Images/watermark1.png" Stretch="None" Opacity="0.5" />
             </ListView.Background>
+
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
                     <i:InvokeCommandAction Command="{Binding OpenSelectedMessageCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
+
             <ListView.View>
                 <GridView>
-                    <GridViewColumn x:Name="col0" Header="From" Width="200" DisplayMemberBinding="{Binding SenderAddress}" />
-                    <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}" DisplayMemberBinding="{Binding Subject}" />
-                    <GridViewColumn x:Name="col2" Header="Date" DisplayMemberBinding="{Binding Date}" Width="200" />
+                    <!-- 'IsSeen' column -->
+                    <views:FixedWidthGridViewColumn x:Name="col0" FixedWidth="30">
+                        <views:FixedWidthGridViewColumn.Header>
+                            <Image Source="/Resources/Images/envelope.png" Height="14" />
+                        </views:FixedWidthGridViewColumn.Header>
+                        <views:FixedWidthGridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding IsSeen, Converter={StaticResource BooleanToEnvelopImageSourceConverter}}" Height="14" Margin="2, 0, -2, 0" />
+                            </DataTemplate>
+                        </views:FixedWidthGridViewColumn.CellTemplate>
+                    </views:FixedWidthGridViewColumn>
+
+                    <!-- 'From' column -->
+                    <GridViewColumn x:Name="col1" Header="From" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding SenderAddress}" Style="{StaticResource CellTextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 'Subject' column -->
+                    <GridViewColumn Header="Subject" Width="{Binding ElementName=helperField, Path=ActualWidth}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Subject}" Style="{StaticResource CellTextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 'Date' column -->
+                    <GridViewColumn x:Name="col3" Header="Date" Width="200">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Date}" Style="{StaticResource CellTextBlockStyle}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -81,10 +102,11 @@
         <Grid Visibility="Hidden">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding ElementName=col0, Path=ActualWidth}"/>
+                <ColumnDefinition Width="{Binding ElementName=col1, Path=ActualWidth}"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="{Binding ElementName=col2, Path=ActualWidth}"/>
+                <ColumnDefinition Width="{Binding ElementName=col3, Path=ActualWidth}"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="1" Name="helperField"/>
+            <Grid Grid.Column="2" Name="helperField"/>
         </Grid>
 
     </Grid>

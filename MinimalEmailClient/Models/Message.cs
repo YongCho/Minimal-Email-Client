@@ -1,6 +1,6 @@
 ﻿using Prism.Mvvm;
 using System;
-using System.ComponentModel;
+using System.Diagnostics;
 
 namespace MinimalEmailClient.Models
 {
@@ -68,8 +68,15 @@ namespace MinimalEmailClient.Models
             get { return this.flagString; }
             set
             {
-                SetProperty(ref this.flagString, value);
-                IsSeen = this.flagString.Contains(@"\Seen");
+                SetProperty(ref this.flagString, value.Trim(' '));
+                if (this.flagString.Contains(@"\Seen") && !IsSeen)
+                {
+                    IsSeen = true;
+                }
+                else if(!this.flagString.Contains(@"\Seen") && IsSeen)
+                {
+                    IsSeen = false;
+                }
             }
         }
 
@@ -77,14 +84,53 @@ namespace MinimalEmailClient.Models
         public bool IsSeen
         {
             get { return this.isSeen; }
-            private set { SetProperty(ref this.isSeen, value); }
+            set
+            {
+                SetProperty(ref this.isSeen, value);
+                if (this.isSeen && !FlagString.Contains(@"\Seen"))
+                {
+                    FlagString += @" \Seen";
+                }
+                else if (!this.isSeen && FlagString.Contains(@"\Seen"))
+                {
+                    FlagString = FlagString.Replace(@"\Seen", "").Trim(' ');
+                }
+            }
         }
 
         private string body = string.Empty;
         public string Body
         {
             get { return this.body; }
-            set { SetProperty(ref this.body, value); }
+            set
+            {
+                SetProperty(ref this.body, value);
+                if (this.body != string.Empty)
+                {
+                    string textBody = MimeUtility.GetTextBody(this.body);
+                    string htmlBody = MimeUtility.GetHtmlBody(this.body);
+
+                    if (!string.IsNullOrEmpty(textBody))
+                    {
+                        DisplayBody = textBody;
+                    }
+                    else if (!string.IsNullOrEmpty(htmlBody))
+                    {
+                        DisplayBody = htmlBody;
+                    }
+                    else
+                    {
+                        DisplayBody = this.body;
+                    }
+                }
+            }
+        }
+
+        private string displayBody = string.Empty;
+        public string DisplayBody
+        {
+            get { return this.displayBody; }
+            private set { SetProperty(ref this.displayBody, value); }
         }
 
         public override string ToString()

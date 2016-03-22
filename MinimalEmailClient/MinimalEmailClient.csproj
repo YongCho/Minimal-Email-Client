@@ -124,6 +124,7 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\DatabaseManager.cs" />
+    <Compile Include="Models\MimeUtility.cs" />
     <Compile Include="Models\ResponseParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
     <Compile Include="Models\NewAccountValidator.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageListViewModel.cs" />
     <Compile Include="ViewModels\SelectedMessageViewModel.cs" />
+    <Compile Include="Views\BooleanToEnvelopImageSourceConverter.cs" />
     <Compile Include="Views\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
@@ -142,12 +144,17 @@
     <Compile Include="Views\CreateMessageView.xaml.cs">
       <DependentUpon>CreateMessageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\FixedWidthGridViewColumn.cs" />
     <Compile Include="Views\MessageListView.xaml.cs">
       <DependentUpon>MessageListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SelectedMessageView.xaml.cs">
       <DependentUpon>SelectedMessageView.xaml</DependentUpon>
     </Compile>
+    <Page Include="Resources\MECResourceDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AddAcountView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -219,26 +226,35 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\reply.png" />
-    <Resource Include="Images\write.png" />
+    <Resource Include="Resources\Images\reply.png" />
+    <Resource Include="Resources\Images\write.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\send.png" />
+    <Resource Include="Resources\Images\send.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\attachment.png" />
+    <Resource Include="Resources\Images\attachment.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\validate.png" />
+    <Resource Include="Resources\Images\validate.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="mail2_MNX_icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\watermark1.png" />
+    <Resource Include="Resources\Images\watermark1.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\no.png" />
+    <Resource Include="Resources\Images\no.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\envelope.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\envelope_seen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\envelope_unseen.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.99.0\build\net451\System.Data.SQLite.Core.targets')" />

@@ -1,63 +1,56 @@
 ﻿using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System;
-using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.Models
 {
     public class Mailbox : BindableBase
     {
-        private string accountName;
+        private string accountName = string.Empty;
         public string AccountName
         {
             get { return this.accountName; }
             set { SetProperty(ref this.accountName, value); }
         }
 
-        private string displayName;
+        private string displayName = string.Empty;
         public string DisplayName
         {
             get { return this.displayName; }
-            set
-            {
-                if (value.ToLower() == "inbox")
-                {
-                    SetProperty(ref this.displayName, "Inbox");
-                }
-                else
-                {
-                    SetProperty(ref this.displayName, value);
-                }
-            }
+            private set { SetProperty(ref this.displayName, value); }
         }
 
-        private string mailboxName;
+        private string mailboxName = string.Empty;
         public string MailboxName
         {
             get { return this.mailboxName; }
-            set
-            {
-                SetProperty(ref this.mailboxName, value);
-                DisplayName = this.mailboxName.Trim(new char[] { '"', ' ' });
-            }
+            private set { SetProperty(ref this.mailboxName, value); }
         }
 
-        private string directoryPath;
+        private string directoryPath = string.Empty;
         public string DirectoryPath
         {
             get { return this.directoryPath; }
-            set { SetProperty(ref this.directoryPath, value); }
+            set
+            {
+                SetProperty(ref this.directoryPath, value);
+                SetMailboxName();
+            }
         }
 
-        private string pathSeparator;
+        private string pathSeparator = string.Empty;
         public string PathSeparator
         {
             get { return this.pathSeparator; }
-            set { SetProperty(ref this.pathSeparator, value); }
+            set
+            {
+                SetProperty(ref this.pathSeparator, value);
+                SetMailboxName();
+            }
         }
 
-        private string flagString;
+        private string flagString = string.Empty;
         public string FlagString
         {
             get { return this.flagString; }
@@ -87,6 +80,13 @@ namespace MinimalEmailClient.Models
         public List<string> Flags { get; set; }
         public ObservableCollection<Mailbox> Subdirectories { get; set; }
 
+        private bool isExpanded = false;
+        public bool IsExpanded
+        {
+            get { return this.isExpanded; }
+            set { SetProperty(ref this.isExpanded, value); }
+        }
+
         public Mailbox()
         {
             Flags = new List<string>();
@@ -104,6 +104,35 @@ namespace MinimalEmailClient.Models
             str += "\n";
 
             return str;
+        }
+
+        private void SetMailboxName()
+        {
+            if (PathSeparator == string.Empty || DirectoryPath == string.Empty)
+            {
+                return;
+            }
+
+            string pattern = "[^" + PathSeparator + "]+$";
+            Match match = Regex.Match(DirectoryPath, pattern);
+            if (match.Success)
+            {
+                MailboxName = match.Value.ToString().Trim('"');
+            }
+            else
+            {
+                MailboxName = DirectoryPath.Trim('"');
+            }
+
+            string displayName = MailboxName.Trim(' ');
+            if (displayName.ToLower() == "inbox")
+            {
+                DisplayName = "Inbox";
+            }
+            else
+            {
+                DisplayName = displayName;
+            }
         }
     }
 

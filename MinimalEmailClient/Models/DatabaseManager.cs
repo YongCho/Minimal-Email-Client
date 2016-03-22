@@ -11,7 +11,7 @@ namespace MinimalEmailClient.Models
     public class DatabaseManager
     {
         public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
-        public static readonly string DatabasePath = DatabaseFolder + "\\" + Properties.Settings.Default.DatabaseFileName;
+        public static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
 
         private static string ConnString()
         {
@@ -608,5 +608,129 @@ namespace MinimalEmailClient.Models
                 }
             }
         }
+
+        public static int Update(Message message)
+        {
+            string ignoredErrorMsg;
+            return Update(message, out ignoredErrorMsg);
+        }
+
+        public static int Update(Message message, out string errorMsg)
+        {
+            List<Message> msgList = new List<Message>();
+            msgList.Add(message);
+            return Update(msgList, out errorMsg);
+        }
+
+        public static int Update(List<Message> messages)
+        {
+            string ignoredErrorMsg;
+            return Update(messages, out ignoredErrorMsg);
+        }
+
+        public static int Update(List<Message> messages, out string errorMsg)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            errorMsg = string.Empty;
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+                return 0;
+            }
+
+            int numRowsUpdated = 0;
+
+            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            {
+                dbConnection.Open();
+                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                {
+                    cmd.CommandText = "Update Messages SET Subject = @Subject, DateString = @DateString, SenderName = @SenderName, SenderAddress = @SenderAddress, Recipient = @Recipient, FlagString = @FlagString, Body = @Body WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
+
+                    foreach (Message message in messages)
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Prepare();
+
+                        cmd.Parameters.AddWithValue("@Subject", message.Subject);
+                        cmd.Parameters.AddWithValue("@DateString", message.DateString);
+                        cmd.Parameters.AddWithValue("@SenderName", message.SenderName);
+                        cmd.Parameters.AddWithValue("@SenderAddress", message.SenderAddress);
+                        cmd.Parameters.AddWithValue("@Recipient", message.Recipient);
+                        cmd.Parameters.AddWithValue("@FlagString", message.FlagString);
+                        cmd.Parameters.AddWithValue("@Body", message.Body);
+
+                        cmd.Parameters.AddWithValue("@AccountName", message.AccountName);
+                        cmd.Parameters.AddWithValue("@MailboxPath", message.MailboxPath);
+                        cmd.Parameters.AddWithValue("@Uid", message.Uid);
+
+                        try
+                        {
+                            numRowsUpdated += cmd.ExecuteNonQuery();
+                        }
+                        catch (Exception ex)
+                        {
+                            errorMsg = ex.Message;
+                            return numRowsUpdated;
+                        }
+                    }
+                }
+
+                dbConnection.Close();
+
+                return numRowsUpdated;
+            }
+        }
+
+        public static int Update(Mailbox mailbox)
+        {
+            string ignoredErrorMsg;
+            return Update(mailbox, out ignoredErrorMsg);
+        }
+
+        public static int Update(Mailbox mailbox, out string errorMsg)
+        {
+            List<Mailbox> mailboxList = new List<Mailbox>();
+            mailboxList.Add(mailbox);
+            return Update(mailboxList, out errorMsg);
+        }
+
+        public static int Update(List<Mailbox> mailboxes)
+        {
+            string ignoredErrorMsg;
+            return Update(mailboxes, out ignoredErrorMsg);
+        }
+
+        public static int Update(List<Mailbox> mailboxes, out string errorMsg)
+        {
+            errorMsg = string.Empty;
+            throw new NotImplementedException();
+        }
+
+        public static int Update(Account account)
+        {
+            string ignoredErrorMsg;
+            return Update(account, out ignoredErrorMsg);
+        }
+
+        public static int Update(Account account, out string errorMsg)
+        {
+            List<Account> accountList = new List<Account>();
+            accountList.Add(account);
+            return Update(accountList, out errorMsg);
+        }
+
+        public static int Update(List<Account> accounts)
+        {
+            string ignoredErrorMsg;
+            return Update(accounts, out ignoredErrorMsg);
+        }
+
+        public static int Update(List<Account> accounts, out string errorMsg)
+        {
+            errorMsg = string.Empty;
+            throw new NotImplementedException();
+        }
+
     }
 }
