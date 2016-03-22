@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using System;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.Models
 {
@@ -23,18 +24,57 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.subject, value); }
         }
 
+        private string sender = string.Empty;
+        public string Sender
+        {
+            get { return this.sender; }
+            set
+            {
+                SetProperty(ref this.sender, value);
+                SetSenderNameAndAddress(this.sender);
+            }
+        }
+
+        private void SetSenderNameAndAddress(string sender)
+        {
+            string name = string.Empty;
+            string address = string.Empty;
+            string senderPattern = "(?<name>[^<>]*)(<(?<address>[^<>]*)>)?";
+            Match m = Regex.Match(sender, senderPattern);
+            if (m.Success)
+            {
+                name = m.Groups["name"].ToString().Trim(' ', '"');
+                address = m.Groups["address"].ToString().Trim(' ', '"');
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    name = address;
+                }
+                else if (name.Contains("@") && string.IsNullOrWhiteSpace(address))
+                {
+                    address = name;
+                }
+            }
+            else
+            {
+                name = sender;
+            }
+
+            SenderName = name.Trim('"', ' ');
+            SenderAddress = address.Trim('"', ' ');
+        }
+
         private string senderName = string.Empty;
         public string SenderName
         {
             get { return this.senderName; }
-            set { SetProperty(ref this.senderName, value); }
+            private set { SetProperty(ref this.senderName, value); }
         }
 
         private string senderAddress = string.Empty;
         public string SenderAddress
         {
             get { return this.senderAddress; }
-            set { SetProperty(ref this.senderAddress, value); }
+            private set { SetProperty(ref this.senderAddress, value); }
         }
 
         private string recipient = string.Empty;

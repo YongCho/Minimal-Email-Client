@@ -30,10 +30,7 @@
                 <!-- From -->
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="From" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                    <TextBlock Text="{Binding Message.SenderName, Mode=OneWay}" FontSize="14" />
-                    <TextBlock Text="&lt;" FontSize="14" />
-                    <TextBlock Text="{Binding Message.SenderAddress, Mode=OneWay}" FontSize="14" />
-                    <TextBlock Text="&gt;" FontSize="14" />
+                    <TextBlock Text="{Binding Message.Sender, Mode=OneWay}" FontSize="14" />
                 </StackPanel>
                 <!-- To -->
                 <StackPanel Orientation="Horizontal">

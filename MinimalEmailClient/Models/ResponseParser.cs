@@ -30,8 +30,10 @@ namespace MinimalEmailClient.Models
             untaggedItem = Regex.Replace(untaggedItem, "\\?=\r\n =\\?[-\\w]+\\?[QqBb]{1}\\?", "");
 
             // "?= \r\n " appears in a multi-line Quoted-Printable without charset information.
-            // Finally, "\r\n " appears in multi-line non-Quoted-Printable. They all need to go.
-            untaggedItem = untaggedItem.Replace("?=\r\n ", "").Replace("\r\n ", "");
+            // Finally, "\r\n " and "\r\n\t" appears in multi-line non-Quoted-Printables.
+            // I'm not sure if they need to be replaced with a single space or removed altogether.
+            // Continue experimenting on this.
+            untaggedItem = untaggedItem.Replace("?=\r\n ", "").Replace("\r\n ", " ").Replace("\r\n\t", " ");
 
 
             // Now we merged all multi-line blocks into their own line.
@@ -57,7 +59,7 @@ namespace MinimalEmailClient.Models
                 }
 
                 string uidPattern = "UID (\\d+)";
-                m = Regex.Match(untaggedItem, uidPattern);
+                m = Regex.Match(itemHeader, uidPattern);
                 if (m.Success)
                 {
                     uid = Convert.ToInt32(m.Groups[1].ToString());
@@ -65,7 +67,8 @@ namespace MinimalEmailClient.Models
                 }
             }
 
-            // UID is not in the first line. It must be in the last line.
+            // UID is not in the first line. The response must be in the alternate pattern
+            // where the UID is in the last line.
             if (uid == -1)
             {
                 string uidPattern = "\r\n UID (\\d+)\\)\r\n";
@@ -95,36 +98,12 @@ namespace MinimalEmailClient.Models
                 message.DateString = dateString;
             }
 
-            string senderName = string.Empty;
-            string senderAddress = string.Empty;
-            string senderPattern = "^From: (.*)<([^<>]*)>?\r\n";
+            string senderPattern = "^From: (.*)\r\n";
             m = Regex.Match(untaggedItem, senderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (m.Success)
             {
-                senderName = Decoder.DecodeSingleLine(m.Groups[1].ToString());
-                senderAddress = m.Groups[2].ToString();
-                if (string.IsNullOrWhiteSpace(senderName))
-                {
-                    senderName = senderAddress;
-                }
+                message.Sender = Decoder.DecodeSingleLine(m.Groups[1].ToString());
             }
-            else
-            {
-                senderPattern = "^From: (.*)\r\n";
-                m = Regex.Match(untaggedItem, senderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                if (m.Success)
-                {
-                    senderName = Decoder.DecodeSingleLine(m.Groups[1].ToString());
-                    if (senderName.Contains("@"))
-                    {
-                        senderAddress = senderName;
-                    }
-                }
-            }
-            senderAddress = senderAddress.Trim();
-            senderName = senderName.Trim();
-            message.SenderAddress = senderAddress;
-            message.SenderName = senderName;
 
             string recipientPattern = "^To: (.*)\r\n";
             m = Regex.Match(untaggedItem, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);

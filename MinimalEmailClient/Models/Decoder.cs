@@ -12,44 +12,47 @@ namespace MinimalEmailClient.Models
         // as a C# string.
         public static string DecodeSingleLine(string encodedString)
         {
-            var regex = new Regex(@"=\?(?<charset>.*?)\?(?<encoding>[qQbB])\?(?<value>.*?)\?=");
-            var decodedString = string.Empty;
-            var encodedBytes = new List<byte>();
+            Regex regex = new Regex(@"=\?(?<charset>.*?)\?(?<encoding>[qQbB])\?(?<value>.*?)\?=");
+            string decodedMatch = string.Empty;
+            string decodedString = string.Empty;
+            List<byte> encodedBytes = new List<byte>();
 
             var match = regex.Match(encodedString);
             if (match.Success)
             {
-                var charset = match.Groups["charset"].Value;
-                var encoding = match.Groups["encoding"].Value.ToUpper();
-                var value = match.Groups["value"].Value;
+                string charset = match.Groups["charset"].Value;
+                string encoding = match.Groups["encoding"].Value;
+                string value = match.Groups["value"].Value;
 
-                if (encoding.Equals("B"))
+                if (encoding.ToUpper().Equals("B"))
                 {
                     // Encoded value is Base-64.
                     try {
                         var bytes = Convert.FromBase64String(value);
-                        decodedString = Encoding.GetEncoding(charset).GetString(bytes);
+                        decodedMatch = Encoding.GetEncoding(charset).GetString(bytes);
                     }
                     catch (Exception e)
                     {
                         Trace.WriteLine(e.Message);
-                        decodedString = encodedString;
+                        decodedMatch = match.Value;
                     }
                 }
-                else if (encoding.Equals("Q"))
+                else if (encoding.ToUpper().Equals("Q"))
                 {
                     // Encoded value is Quoted-Printable.
-                    decodedString = QuotedPrintableToString(charset, value);
+                    decodedMatch = QuotedPrintableToString(charset, value);
                 }
                 else
                 {
-                    // Unknown encoding. Return the original string.
-                    decodedString = encodedString;
+                    // Unknown encoding. leave it as is.
+                    decodedMatch = match.Value;
                 }
+
+                decodedString = regex.Replace(encodedString, decodedMatch);
             }
             else
             {
-                // Plain ascii string; decoding is not necessary.
+                // No match. This must be a plain ASCII string.
                 decodedString = encodedString;
             }
 
@@ -67,10 +70,10 @@ namespace MinimalEmailClient.Models
         // returns "Prueba de español"
         public static string QuotedPrintableToString(string charset, string encodedString)
         {
-            var encodedBytes = new List<byte>();
+            List<byte> encodedBytes = new List<byte>();
 
             // Matches "=XX" followed by anything where X is a hex character.
-            var quotedPrintableCharPattern = @"^=([0-9a-fA-F]{2})";
+            string quotedPrintableCharPattern = @"^=([0-9a-fA-F]{2})";
             byte b;
 
             while (encodedString.Length > 0)

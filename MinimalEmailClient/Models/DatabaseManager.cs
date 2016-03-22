@@ -52,7 +52,7 @@ namespace MinimalEmailClient.Models
                         cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path TEXT, Separator TEXT, UidNext INT, UidValidity INT, FlagString TEXT, PRIMARY KEY (AccountName, Path));";
                         cmd.ExecuteNonQuery();
 
-                        cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, DateString TEXT, SenderName TEXT, SenderAddress TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
+                        cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, DateString TEXT, Sender TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
                         cmd.ExecuteNonQuery();
                     }
 
@@ -484,8 +484,7 @@ namespace MinimalEmailClient.Models
                                 message.Uid = (int)reader["Uid"];
                                 message.Subject = (string)reader["Subject"];
                                 message.DateString = (string)reader["DateString"];
-                                message.SenderName = (string)reader["SenderName"];
-                                message.SenderAddress = (string)reader["SenderAddress"];
+                                message.Sender = (string)reader["Sender"];
                                 message.Recipient = (string)reader["Recipient"];
                                 message.FlagString = (string)reader["FlagString"];
                                 message.Body = (string)reader["Body"];
@@ -524,7 +523,7 @@ namespace MinimalEmailClient.Models
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
                 {
-                    cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @SenderName, @SenderAddress, @Recipient, @FlagString, @Body);";
+                    cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @Sender, @Recipient, @FlagString, @Body);";
 
                     foreach (Message msg in messages)
                     {
@@ -535,8 +534,7 @@ namespace MinimalEmailClient.Models
                         cmd.Parameters.AddWithValue("@Uid", msg.Uid);
                         cmd.Parameters.AddWithValue("@Subject", msg.Subject);
                         cmd.Parameters.AddWithValue("@DateString", msg.DateString);
-                        cmd.Parameters.AddWithValue("@SenderName", msg.SenderName);
-                        cmd.Parameters.AddWithValue("@SenderAddress", msg.SenderAddress);
+                        cmd.Parameters.AddWithValue("@Sender", msg.Sender);
                         cmd.Parameters.AddWithValue("@Recipient", msg.Recipient);
                         cmd.Parameters.AddWithValue("@FlagString", msg.FlagString);
                         cmd.Parameters.AddWithValue("@Body", msg.Body);
@@ -645,7 +643,7 @@ namespace MinimalEmailClient.Models
                 dbConnection.Open();
                 using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
                 {
-                    cmd.CommandText = "Update Messages SET Subject = @Subject, DateString = @DateString, SenderName = @SenderName, SenderAddress = @SenderAddress, Recipient = @Recipient, FlagString = @FlagString, Body = @Body WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
+                    cmd.CommandText = "Update Messages SET Subject = @Subject, DateString = @DateString, Sender = @Sender, Recipient = @Recipient, FlagString = @FlagString, Body = @Body WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
 
                     foreach (Message message in messages)
                     {
@@ -654,8 +652,7 @@ namespace MinimalEmailClient.Models
 
                         cmd.Parameters.AddWithValue("@Subject", message.Subject);
                         cmd.Parameters.AddWithValue("@DateString", message.DateString);
-                        cmd.Parameters.AddWithValue("@SenderName", message.SenderName);
-                        cmd.Parameters.AddWithValue("@SenderAddress", message.SenderAddress);
+                        cmd.Parameters.AddWithValue("@Sender", message.Sender);
                         cmd.Parameters.AddWithValue("@Recipient", message.Recipient);
                         cmd.Parameters.AddWithValue("@FlagString", message.FlagString);
                         cmd.Parameters.AddWithValue("@Body", message.Body);
