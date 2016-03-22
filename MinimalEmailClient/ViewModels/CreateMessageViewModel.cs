@@ -25,7 +25,6 @@ namespace MinimalEmailClient.ViewModels
                     if (this.notification.CurrentAccount == null)
                     {
                         Trace.WriteLine("No user account selected as the sending account.");
-
                     }
                     else
                     {

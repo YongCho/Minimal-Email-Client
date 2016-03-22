@@ -14,7 +14,11 @@ namespace MinimalEmailClient.Views
         private int smtpPortNumber;
         private string smtpLoginName;
         private string smtpLoginPassword;
-        
+        private string to;
+        private string cc;
+        private string subject;
+        private string messageBody;
+
         public CreateMessageView()
         {
             this.DataContext = new CreateMessageViewModel();
@@ -27,20 +31,24 @@ namespace MinimalEmailClient.Views
             if (accountManager.Accounts.Count > 0)
             {
                 Account account = accountManager.Accounts[0];
-                this.From.Text = account.EmailAddress;
-                this.smtpServerName = account.SmtpServerName;
-                this.smtpPortNumber = account.SmtpPortNumber;
-                this.smtpLoginName = account.SmtpLoginName;
-                this.smtpLoginPassword = account.SmtpLoginPassword;
+                From.Text = account.EmailAddress;
+                smtpServerName = account.SmtpServerName;
+                smtpPortNumber = account.SmtpPortNumber;
+                smtpLoginName = account.SmtpLoginName;
+                smtpLoginPassword = account.SmtpLoginPassword;
 
-                Trace.WriteLine("Smtp Server Name: " + this.smtpServerName);
-                Trace.WriteLine("Smtp Port Number: " + this.smtpPortNumber);
-                Trace.WriteLine("Smtp Login Name: " + this.smtpLoginName);
+                Trace.WriteLine("Smtp Server Name: " + smtpServerName);
+                Trace.WriteLine("Smtp Port Number: " + smtpPortNumber);
+                Trace.WriteLine("Smtp Login Name: " + smtpLoginName);
             }
         }
 
         private void SendButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            to = To_TextBox.Text;
+            cc = Cc_TextBox.Text;
+            subject = Subject_TextBox.Text;
+            messageBody = Body_TextBox.Text;
             Trace.WriteLine("Sending...");
         }
     }
