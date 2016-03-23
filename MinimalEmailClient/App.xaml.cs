@@ -10,7 +10,11 @@ namespace MinimalEmailClient
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            DatabaseManager.CreateDatabase();
+            if (!DatabaseManager.IsSchemaCurrent())
+            {
+                DatabaseManager.CreateDatabase();
+            }
+
             base.OnStartup(e);
 
             var bs = new Bootstrapper();
