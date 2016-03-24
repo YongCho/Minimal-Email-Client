@@ -39,6 +39,7 @@ namespace MinimalEmailClient.ViewModels
         {
             LoadMessages();
             messageManager.MessageAdded += OnMessageAdded;
+            messageManager.MessageRemoved += OnMessageRemoved;
 
             OpenSelectedMessagePopupRequest = new InteractionRequest<SelectedMessageNotification>();
             OpenSelectedMessageCommand = new DelegateCommand(RaiseOpenSelectedMessagePopupRequest);
@@ -56,6 +57,11 @@ namespace MinimalEmailClient.ViewModels
         public void OnMessageAdded(object sender, Message newMessage)
         {
             Application.Current.Dispatcher.Invoke(() => { Messages.Add(newMessage); });
+        }
+
+        public void OnMessageRemoved(object sender, Message removedMessage)
+        {
+            Application.Current.Dispatcher.Invoke(() => { Messages.Remove(removedMessage); });
         }
 
         public async void LoadMessages()
@@ -124,28 +130,5 @@ namespace MinimalEmailClient.ViewModels
         {
             this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
-
-        public void DeleteMessages(List<Message> messages)
-        {
-            // Delete from view.
-            foreach (Message msg in messages)
-            {
-                Messages.Remove(msg);
-            }
-
-            // Delete from database.
-            DatabaseManager.DeleteMessages(messages);
-
-            // Delete from server.
-            Task.Run(() => {
-                ImapClient imapClient = new ImapClient(this.selectedAccount);
-                if (imapClient.Connect())
-                {
-                    imapClient.DeleteMessages(messages);
-                    imapClient.Disconnect();
-                }
-            });
-        }
-
     }
 }

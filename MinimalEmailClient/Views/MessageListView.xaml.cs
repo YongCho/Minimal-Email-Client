@@ -13,6 +13,7 @@ namespace MinimalEmailClient.Views
     public partial class MessageListView : UserControl
     {
         private MessageListViewModel viewModel;
+        private MessageManager messageManager = MessageManager.Instance();
         private IEventAggregator eventAggregator;
 
         public MessageListView()
@@ -33,7 +34,7 @@ namespace MinimalEmailClient.Views
                 selectedMessages.Add(message);
             }
 
-            viewModel.DeleteMessages(selectedMessages);
+            messageManager.DeleteMessages(selectedMessages);
         }
     }
 }

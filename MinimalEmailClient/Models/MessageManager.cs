@@ -10,6 +10,7 @@ namespace MinimalEmailClient.Models
         public List<Message> Messages;
         public string Error = string.Empty;
         public event EventHandler<Message> MessageAdded;
+        public event EventHandler<Message> MessageRemoved;
 
         private static MessageManager instance;
         protected MessageManager()
@@ -30,6 +31,14 @@ namespace MinimalEmailClient.Models
             if (MessageAdded != null)
             {
                 MessageAdded(this, newMessage);
+            }
+        }
+
+        protected virtual void OnMessageRemoved(Message removedMessage)
+        {
+            if (MessageRemoved != null)
+            {
+                MessageRemoved(this, removedMessage);
             }
         }
 
@@ -153,6 +162,45 @@ namespace MinimalEmailClient.Models
                 endUid = startUid - 1;
                 startUid = endUid - downloadChunk + 1;
             }
+        }
+
+        public void DeleteMessages(List<Message> messages)
+        {
+            // Delete from memory.
+            foreach (Message msg in messages)
+            {
+                Messages.Remove(msg);
+                OnMessageRemoved(msg);
+            }
+
+            // Delete from database.
+            DatabaseManager.DeleteMessages(messages);
+
+            // Delete from server.
+            Task.Run(() => {
+                while (messages.Count > 0)
+                {
+                    Account account = AccountManager.Instance().GetAccountByName(messages[0].AccountName);
+
+                    List<Message> accountMessages = new List<Message>();
+                    for (int i = messages.Count - 1; i >= 0; --i)
+                    {
+                        Message msg = messages[i];
+                        if (msg.AccountName == account.AccountName)
+                        {
+                            accountMessages.Add(msg);
+                            messages.RemoveAt(i);
+                        }
+                    }
+
+                    ImapClient imapClient = new ImapClient(account);
+                    if (imapClient.Connect())
+                    {
+                        imapClient.DeleteMessages(accountMessages);
+                        imapClient.Disconnect();
+                    }
+                }
+            });
         }
 
     }
