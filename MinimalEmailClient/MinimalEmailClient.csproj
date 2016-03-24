@@ -148,6 +148,7 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\DatabaseManager.cs" />
+    <Compile Include="Models\MessageManager.cs" />
     <Compile Include="Models\MimeUtility.cs" />
     <Compile Include="Models\ResponseParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
