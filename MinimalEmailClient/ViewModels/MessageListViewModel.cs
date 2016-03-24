@@ -32,12 +32,14 @@ namespace MinimalEmailClient.ViewModels
         private IEventAggregator eventAggregator;
         public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
         public ICommand OpenSelectedMessageCommand { get; set; }
+        public ICommand DeleteMessageCommand { get; set; }
 
         public MessageListViewModel()
         {
             Messages = new ObservableCollection<Message>();
             OpenSelectedMessagePopupRequest = new InteractionRequest<SelectedMessageNotification>();
             OpenSelectedMessageCommand = new DelegateCommand(RaiseOpenSelectedMessagePopupRequest);
+            DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
             this.messagesCv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
             this.messagesCv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
 
@@ -194,6 +196,11 @@ namespace MinimalEmailClient.ViewModels
                 endUid = startUid - 1;
                 startUid = endUid - downloadChunk + 1;
             }
+        }
+
+        private void RaiseDeleteMessagesEvent()
+        {
+            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
 
         public void DeleteMessages(List<Message> messages)
