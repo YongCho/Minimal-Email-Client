@@ -22,7 +22,7 @@ namespace MinimalEmailClient.Views
             viewModel.SelectedTreeViewItem = e.NewValue;
         }
 
-        private void AccountMenuItem_Click(object sender, RoutedEventArgs e)
+        private void DeleteAccountMenu_Click(object sender, RoutedEventArgs e)
         {
             MenuItem mi = sender as MenuItem;
             if (mi != null)
