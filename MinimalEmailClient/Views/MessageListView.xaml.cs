@@ -21,10 +21,10 @@ namespace MinimalEmailClient.Views
 
             viewModel = (MessageListViewModel)this.DataContext;
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Subscribe(DeleteMessages);
+            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent);
         }
 
-        private void DeleteMessages(string ignoredEventPayload)
+        private void HandleDeleteMessagesEvent(string ignoredEventPayload)
         {
             List<Message> selectedMessages = new List<Message>();
 
