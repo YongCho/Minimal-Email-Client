@@ -28,7 +28,7 @@ namespace MinimalEmailClient.ViewModels
         }
         private Account selectedAccount;
         private Mailbox selectedMailbox;
-        private MessageManager messageManager = MessageManager.Instance();
+        private MessageManager messageManager = MessageManager.Instance;
 
         private IEventAggregator eventAggregator;
         public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
@@ -101,7 +101,7 @@ namespace MinimalEmailClient.ViewModels
             this.selectedMailbox = selectedMailbox;
             if (this.selectedMailbox != null)
             {
-                this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
+                this.selectedAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
             }
             this.messagesCv.Filter = new Predicate<object>(MessageFilter);
         }

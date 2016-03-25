@@ -13,7 +13,7 @@ namespace MinimalEmailClient.Views
     public partial class MessageListView : UserControl
     {
         private MessageListViewModel viewModel;
-        private MessageManager messageManager = MessageManager.Instance();
+        private MessageManager messageManager = MessageManager.Instance;
         private IEventAggregator eventAggregator;
 
         public MessageListView()

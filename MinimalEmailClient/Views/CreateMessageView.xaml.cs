@@ -27,7 +27,7 @@ namespace MinimalEmailClient.Views
 
         private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            AccountManager accountManager = AccountManager.Instance();
+            AccountManager accountManager = AccountManager.Instance;
             if (accountManager.Accounts.Count > 0)
             {
                 Account account = accountManager.Accounts[0];

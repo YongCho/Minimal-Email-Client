@@ -12,18 +12,15 @@ namespace MinimalEmailClient.Models
         public event EventHandler<Message> MessageAdded;
         public event EventHandler<Message> MessageRemoved;
 
-        private static MessageManager instance;
+        private static readonly MessageManager instance = new MessageManager();
+        public static MessageManager Instance
+        {
+            get { return instance; }
+        }
+
         protected MessageManager()
         {
             LoadMessagesFromDb();
-        }
-        public static MessageManager Instance()
-        {
-            if (instance == null)
-            {
-                instance = new MessageManager();
-            }
-            return instance;
         }
 
         protected virtual void OnMessageAdded(Message newMessage)
@@ -180,7 +177,7 @@ namespace MinimalEmailClient.Models
             Task.Run(() => {
                 while (messages.Count > 0)
                 {
-                    Account account = AccountManager.Instance().GetAccountByName(messages[0].AccountName);
+                    Account account = AccountManager.Instance.GetAccountByName(messages[0].AccountName);
 
                     List<Message> accountMessages = new List<Message>();
                     for (int i = messages.Count - 1; i >= 0; --i)

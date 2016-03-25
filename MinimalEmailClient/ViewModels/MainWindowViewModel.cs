@@ -38,9 +38,9 @@ namespace MinimalEmailClient.ViewModels
             Account currentAccount;
             if (this.selectedAccount == null)
             {
-                if (AccountManager.Instance().Accounts.Count > 0)
+                if (AccountManager.Instance.Accounts.Count > 0)
                 {
-                    currentAccount = AccountManager.Instance().Accounts[0];
+                    currentAccount = AccountManager.Instance.Accounts[0];
                 }
                 else
                 {
@@ -70,7 +70,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
         {
-            this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
+            this.selectedAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
             this.selectedMailbox = selectedMailbox;
         }
 
