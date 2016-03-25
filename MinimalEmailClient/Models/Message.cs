@@ -147,30 +147,24 @@ namespace MinimalEmailClient.Models
                 SetProperty(ref this.body, value);
                 if (this.body != string.Empty)
                 {
-                    string textBody = MimeUtility.GetTextBody(this.body);
-                    string htmlBody = MimeUtility.GetHtmlBody(this.body);
-
-                    if (!string.IsNullOrEmpty(textBody))
-                    {
-                        DisplayBody = textBody;
-                    }
-                    else if (!string.IsNullOrEmpty(htmlBody))
-                    {
-                        DisplayBody = htmlBody;
-                    }
-                    else
-                    {
-                        DisplayBody = this.body;
-                    }
+                    TextBody = MimeUtility.GetTextBody(this.body);
+                    HtmlBody = MimeUtility.GetHtmlBody(this.body);
                 }
             }
         }
 
-        private string displayBody = string.Empty;
-        public string DisplayBody
+        private string textBody = string.Empty;
+        public string TextBody
         {
-            get { return this.displayBody; }
-            private set { SetProperty(ref this.displayBody, value); }
+            get { return this.textBody; }
+            private set { SetProperty(ref this.textBody, value); }
+        }
+
+        private string htmlBody = string.Empty;
+        public string HtmlBody
+        {
+            get { return this.htmlBody; }
+            private set { SetProperty(ref this.htmlBody, value); }
         }
 
         public override string ToString()
