@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
+             xmlns:views="clr-namespace:MinimalEmailClient.Views"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" Background="White" Loaded="UserControl_Loaded">
@@ -13,12 +14,18 @@
         <viewModels:SelectedMessageViewModel />
     </UserControl.DataContext>
 
+    <UserControl.Resources>
+        <views:BoolToVisibilityConverter x:Key="InverseBoolToHiddenConverter" TrueValue="Hidden" FalseValue="Visible" />
+    </UserControl.Resources>
+
     <DockPanel>
         <!-- Menu Bar -->
         <Menu DockPanel.Dock="Top" BorderThickness="0" Background="White" BorderBrush="AliceBlue">
             <MenuItem Header="View">
+                <MenuItem x:Name="defaultViewMenuItem" Header="Default" IsCheckable="True" Click="defaultViewMenuItem_Click" />
                 <MenuItem x:Name="textViewMenuItem" Header="Text" IsCheckable="True" Click="textViewMenuItem_Click" />
                 <MenuItem x:Name="htmlViewMenuItem" Header="HTML" IsCheckable="True" Click="htmlViewMenuItem_Click" />
+                <MenuItem x:Name="browserContentViewMenuItem" Header="Browser Content" IsCheckable="True" Click="browserContentViewMenuItem_Click" />
                 <MenuItem x:Name="sourceViewMenuItem" Header="Source" IsCheckable="True" Click="sourceViewMenuItem_Click" />
             </MenuItem>
         </Menu>
@@ -59,8 +66,12 @@
 
             <!-- Message body -->
             <Border Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
-                <xctk:BusyIndicator IsBusy="{Binding Downloading}" BusyContent="Downloading message ..." >
+                <xctk:BusyIndicator IsBusy="{Binding Loading}" BusyContent="Downloading message ..." >
                     <TabControl x:Name="msgTabControl" SelectedIndex="{Binding ElementName=userControl, Path=SelectedTabIndex}" TabStripPlacement="Bottom" BorderThickness="0" >
+                        <TabItem Header="Text" Visibility="Collapsed">
+                            <!-- Visibility: Need to hide the WebBrowser control while busy indicator is on because it kills the busy indicator for some reason. -->
+                            <WebBrowser views:WebBrowserHelper.Html="{Binding BrowserContent}" Visibility="{Binding Loading, Converter={StaticResource InverseBoolToHiddenConverter}}" />
+                        </TabItem>
                         <TabItem Header="Text" Visibility="Collapsed">
                             <ScrollViewer>
                                 <TextBox BorderThickness="0" Text="{Binding Message.TextBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
@@ -69,6 +80,11 @@
                         <TabItem Header="Html" Visibility="Collapsed">
                             <ScrollViewer>
                                 <TextBox BorderThickness="0" Text="{Binding Message.HtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                            </ScrollViewer>
+                        </TabItem>
+                        <TabItem Header="Browser Content" Visibility="Collapsed">
+                            <ScrollViewer>
+                                <TextBox BorderThickness="0" Text="{Binding BrowserContent, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Source" Visibility="Collapsed">

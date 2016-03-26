@@ -10,12 +10,6 @@ namespace MinimalEmailClient.Views
             InitializeComponent();
         }
 
-        private void btnCancel_Click(object sender, RoutedEventArgs e)
-        {
-            Window parentWindow = Window.GetWindow(this);
-            parentWindow.Close();
-        }
-
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             Window parentWindow = Window.GetWindow(this);
@@ -23,6 +17,18 @@ namespace MinimalEmailClient.Views
             parentWindow.MinWidth = fixecWidth;
             parentWindow.MaxWidth = fixecWidth;
             MessagePanel.Width = fixecWidth - 20;
+
+            ResetForm();
+        }
+
+        private void ResetForm()
+        {
+            emailAddressTextBox.Clear();
+            loginNameTextBox.Clear();
+            loginPasswordBox.Clear();
+            imapServerNameTextBox.Clear();
+            smtpServerNameTextBox.Clear();
+            messageTextBlock.Text = string.Empty;
         }
     }
 }

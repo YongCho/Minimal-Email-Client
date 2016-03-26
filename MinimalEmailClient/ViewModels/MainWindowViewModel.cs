@@ -1,7 +1,6 @@
 ﻿using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using System.Windows.Input;
@@ -15,10 +14,8 @@ namespace MinimalEmailClient.ViewModels
         public ICommand WriteNewMessageCommand { get; set; }
         public ICommand AddNewAccountCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
-        private IEventAggregator eventAggregator;
 
         private Account selectedAccount;
-        private Mailbox selectedMailbox;
 
         public MainWindowViewModel()
         {
@@ -28,32 +25,30 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
             DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
 
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
-            this.eventAggregator.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection);
+            GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection);
         }
 
         private void RaiseWriteNewMessagePopupRequest()
         {
-            Account currentAccount;
+            Account sendingAccount;
             if (this.selectedAccount == null)
             {
                 if (AccountManager.Instance.Accounts.Count > 0)
                 {
-                    currentAccount = AccountManager.Instance.Accounts[0];
+                    sendingAccount = AccountManager.Instance.Accounts[0];
                 }
                 else
                 {
                     // We should not get here because we should only allow sending a message
                     // when there exists at least one user account to be used as the sender address.
-                    currentAccount = null;
+                    sendingAccount = null;
                 }
             }
             else
             {
-                currentAccount = this.selectedAccount;
+                sendingAccount = this.selectedAccount;
             }
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(currentAccount);
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount);
             notification.Title = "New Message";
             WriteNewMessagePopupRequest.Raise(notification);
         }
@@ -65,13 +60,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void RaiseDeleteMessagesEvent()
         {
-            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
-        }
-
-        private void HandleMailboxSelection(Mailbox selectedMailbox)
-        {
-            this.selectedAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
-            this.selectedMailbox = selectedMailbox;
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
 
         private void HandleAccountSelection(Account selectedAccount)

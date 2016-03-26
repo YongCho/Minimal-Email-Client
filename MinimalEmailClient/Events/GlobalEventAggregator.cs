@@ -4,20 +4,19 @@ namespace MinimalEmailClient.Events
 {
     // I'm using this class to create a singleton instance of an IEventAggregator throughout the program.
     // There is probably a better way to do this.
-    public class GlobalEventAggregator
+    public static class GlobalEventAggregator
     {
-        public IEventAggregator EventAggregator { get; set; }
-
-        private static GlobalEventAggregator instance;
-        protected GlobalEventAggregator() { EventAggregator = new EventAggregator(); }
-        public static GlobalEventAggregator Instance()
+        private static IEventAggregator instance = new EventAggregator();
+        public static IEventAggregator Instance
         {
-            if (instance == null)
+            get { return instance; }
+            set
             {
-                instance = new GlobalEventAggregator();
+                if (instance != value)
+                {
+                    instance = value;
+                }
             }
-
-            return instance;
         }
     }
 }

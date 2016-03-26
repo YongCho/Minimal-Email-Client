@@ -15,7 +15,6 @@ namespace MinimalEmailClient.Models
         public List<Account> Accounts;
         public string Error = string.Empty;
         public readonly int MaxAccountNameLength = 30;
-        private IEventAggregator eventAggregator;
 
         private static readonly AccountManager instance = new AccountManager();
         public static AccountManager Instance
@@ -25,7 +24,6 @@ namespace MinimalEmailClient.Models
 
         protected AccountManager()
         {
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             LoadAccounts();
         }
 
@@ -88,7 +86,7 @@ namespace MinimalEmailClient.Models
                     imapClient.Disconnect();
                 }
 
-                this.eventAggregator.GetEvent<MailboxListSyncFinishedEvent>().Publish(account);
+                GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Publish(account);
             });
         }
 
@@ -195,7 +193,7 @@ namespace MinimalEmailClient.Models
             {
                 BeginSyncMailboxList(account);
                 Accounts.Add(account);
-                this.eventAggregator.GetEvent<NewAccountAddedEvent>().Publish(account);
+                GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Publish(account);
             }
             else
             {
@@ -217,7 +215,7 @@ namespace MinimalEmailClient.Models
 
             Account ac = GetAccountByName(account.AccountName);
             Accounts.Remove(ac);
-            this.eventAggregator.GetEvent<AccountDeletedEvent>().Publish(account.AccountName);
+            GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Publish(account.AccountName);
 
             return true;
         }

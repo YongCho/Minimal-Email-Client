@@ -1,6 +1,5 @@
 ﻿using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
-using Prism.Events;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -26,11 +25,14 @@ namespace MinimalEmailClient.ViewModels
             get { return this.selectedMessage; }
             set { SetProperty(ref this.selectedMessage, value); }
         }
-        private Account selectedAccount;
-        private Mailbox selectedMailbox;
+        private Mailbox currentMailbox;
+        public Mailbox CurrentMailbox
+        {
+            get { return this.currentMailbox; }
+            set { SetProperty(ref this.currentMailbox, value); }
+        }
         private MessageManager messageManager = MessageManager.Instance;
 
-        private IEventAggregator eventAggregator;
         public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
         public ICommand OpenSelectedMessageCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
@@ -49,9 +51,7 @@ namespace MinimalEmailClient.ViewModels
 
             HandleMailboxSelectionChange(null);
 
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
-            this.eventAggregator.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
+            GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
         }
 
         public void OnMessageAdded(object sender, Message newMessage)
@@ -85,31 +85,28 @@ namespace MinimalEmailClient.ViewModels
         {
             if (SelectedMessage != null)
             {
-                SelectedMessageNotification notification = new SelectedMessageNotification(this.selectedAccount, this.selectedMailbox, SelectedMessage);
+                Account currentMailboxAccount = AccountManager.Instance.GetAccountByName(CurrentMailbox.AccountName);
+                SelectedMessageNotification notification = new SelectedMessageNotification(currentMailboxAccount, CurrentMailbox, SelectedMessage);
                 notification.Title = SelectedMessage.Subject;
                 OpenSelectedMessagePopupRequest.Raise(notification);
             }
         }
 
-        private void HandleMailboxListSyncFinished(Account account)
-        {
-            messageManager.BeginSyncMessages(account);
-        }
-
         private void HandleMailboxSelectionChange(Mailbox selectedMailbox)
         {
-            this.selectedMailbox = selectedMailbox;
-            if (this.selectedMailbox != null)
+            // Mailbox with \Noselect tag has no message to display. Ignore that mailbox.
+            if (selectedMailbox == null || !selectedMailbox.Flags.Contains(@"\Noselect"))
             {
-                this.selectedAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
+                CurrentMailbox = selectedMailbox;
             }
+
             this.messagesCv.Filter = new Predicate<object>(MessageFilter);
         }
 
         private bool MessageFilter(object item)
         {
             // Do not display any messages when no mailbox is selected.
-            if (this.selectedMailbox == null)
+            if (CurrentMailbox == null)
             {
                 return false;
             }
@@ -117,8 +114,8 @@ namespace MinimalEmailClient.ViewModels
             Message message = item as Message;
             bool showMsg = false;
 
-            if (message.AccountName == this.selectedAccount.AccountName &&
-                message.MailboxPath == this.selectedMailbox.DirectoryPath)
+            if (message.AccountName == CurrentMailbox.AccountName &&
+                message.MailboxPath == CurrentMailbox.DirectoryPath)
             {
                 showMsg = true;
             }
@@ -128,7 +125,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void RaiseDeleteMessagesEvent()
         {
-            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
     }
 }

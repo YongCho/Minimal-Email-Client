@@ -67,7 +67,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Email:" />
-                <TextBox Grid.Column="1" Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox x:Name="emailAddressTextBox" Grid.Column="1" Text="{Binding EmailAddress, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
@@ -94,7 +94,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Login name:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Password:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding LoginName, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox x:Name="loginNameTextBox" Grid.Column="1" Grid.Row="0" Text="{Binding LoginName, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
@@ -105,7 +105,7 @@
                         </Style>
                     </TextBox.Style>
                 </TextBox>
-                <PasswordBox Grid.Column="1" Grid.Row="1" viewModels:PasswordBindingHelper.Attach="True" viewModels:PasswordBindingHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
+                <PasswordBox x:Name="loginPasswordBox" Grid.Column="1" Grid.Row="1" viewModels:PasswordBindingHelper.Attach="True" viewModels:PasswordBindingHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
                     <PasswordBox.Style>
                         <Style BasedOn="{StaticResource PasswordBoxStyle}" TargetType="{x:Type PasswordBox}">
                             <Style.Triggers>
@@ -133,7 +133,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Host:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Port:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding ImapServerName, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox x:Name="imapServerNameTextBox" Grid.Column="1" Grid.Row="0" Text="{Binding ImapServerName, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
@@ -171,7 +171,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Host:" />
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Port:" />
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding SmtpServerName, UpdateSourceTrigger=PropertyChanged}">
+                <TextBox x:Name="smtpServerNameTextBox" Grid.Column="1" Grid.Row="0" Text="{Binding SmtpServerName, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="{x:Type TextBox}">
                             <Style.Triggers>
@@ -200,7 +200,7 @@
         <StackPanel Name="MessagePanel" Grid.Row="5" MinHeight="30" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image Source="/Resources/Images/validate.png" Height="30" Visibility="{Binding AccountValidated, Converter={StaticResource BoolToHiddenConverter}}" />
             <Image Source="/Resources/Images/no.png" Height="30" Visibility="{Binding ValidationFailed, Converter={StaticResource BoolToHiddenConverter}}" />
-            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+            <TextBlock x:Name="messageTextBlock" Text="{Binding Message, NotifyOnSourceUpdated=True, Mode=TwoWay}" TextWrapping="Wrap" />
         </StackPanel>
 
         <!-- Buttons -->
