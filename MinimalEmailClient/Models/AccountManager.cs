@@ -17,19 +17,16 @@ namespace MinimalEmailClient.Models
         public readonly int MaxAccountNameLength = 30;
         private IEventAggregator eventAggregator;
 
-        private static AccountManager instance;
+        private static readonly AccountManager instance = new AccountManager();
+        public static AccountManager Instance
+        {
+            get { return instance; }
+        }
+
         protected AccountManager()
         {
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             LoadAccounts();
-        }
-        public static AccountManager Instance()
-        {
-            if (instance == null)
-            {
-                instance = new AccountManager();
-            }
-            return instance;
         }
 
         // Loads all accounts from database.

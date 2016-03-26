@@ -30,7 +30,7 @@
                     <TextBlock.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Delete Account"
-                                      Click="AccountMenuItem_Click"
+                                      Click="DeleteAccountMenu_Click"
                                       CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" />
                         </ContextMenu>
                     </TextBlock.ContextMenu>

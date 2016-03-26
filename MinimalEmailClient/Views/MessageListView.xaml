@@ -54,6 +54,12 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
 
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Delete" Command="{Binding DeleteMessageCommand}" />
+                </ContextMenu>
+            </ListView.ContextMenu>
+
             <ListView.View>
                 <GridView>
                     <!-- 'IsSeen' column -->

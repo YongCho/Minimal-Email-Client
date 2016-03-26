@@ -148,6 +148,7 @@
     <Compile Include="Models\Account.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\DatabaseManager.cs" />
+    <Compile Include="Models\MessageManager.cs" />
     <Compile Include="Models\MimeUtility.cs" />
     <Compile Include="Models\ResponseParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="Views\SelectedMessageView.xaml.cs">
       <DependentUpon>SelectedMessageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\WebBrowserHelper.cs" />
     <Page Include="Resources\MECResourceDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

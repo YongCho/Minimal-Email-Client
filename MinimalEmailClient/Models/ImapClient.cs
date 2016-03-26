@@ -315,7 +315,7 @@ namespace MinimalEmailClient.Models
                     if (responseCount > 0)
                     {
                         ReadResponse(tag, out response);
-                        Trace.WriteLine("Response: " + response);
+                        Trace.WriteLine("Response:\n" + response);
                         responseCount = 0;
                     }
 

@@ -62,7 +62,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void DeleteAccount(Account ac)
         {
-            Task.Run(() => { AccountManager.Instance().DeleteAccount(ac); });
+            Task.Run(() => { AccountManager.Instance.DeleteAccount(ac); });
         }
 
         private void HandleNewAccountAddedEvent(Account newAccount)
@@ -93,12 +93,12 @@ namespace MinimalEmailClient.ViewModels
             }
 
             List<Account> accounts = await Task.Run<List<Account>>(() => {
-                return AccountManager.Instance().Accounts;
+                return AccountManager.Instance.Accounts;
             });
             foreach (Account acc in accounts)
             {
                 Accounts.Add(acc);
-                AccountManager.Instance().BeginSyncMailboxList(acc);
+                AccountManager.Instance.BeginSyncMailboxList(acc);
             }
         }
     }

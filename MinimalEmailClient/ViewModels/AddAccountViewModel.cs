@@ -246,7 +246,7 @@ namespace MinimalEmailClient.ViewModels
                 account.SmtpServerName = SmtpServerName;
                 account.SmtpPortNumber = Convert.ToInt32(SmtpPortString);
 
-                AccountManager accountManager = AccountManager.Instance();
+                AccountManager accountManager = AccountManager.Instance;
                 bool success = accountManager.AddAccount(account);
                 if (success)
                 {

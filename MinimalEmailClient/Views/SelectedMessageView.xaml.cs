@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace MinimalEmailClient.Views
@@ -6,11 +7,39 @@ namespace MinimalEmailClient.Views
     /// <summary>
     /// Interaction logic for SelectedMessageView.xaml
     /// </summary>
-    public partial class SelectedMessageView : UserControl
+    public partial class SelectedMessageView : UserControl, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private int selectedTabIndex;
+        public int SelectedTabIndex
+        {
+            get { return selectedTabIndex; }
+            set
+            {
+                if (this.selectedTabIndex != value)
+                {
+                    this.selectedTabIndex = value;
+                    NotifyPropertyChanged("SelectedTabIndex");
+                }
+
+                textViewMenuItem.IsChecked = this.selectedTabIndex == 0;
+                htmlViewMenuItem.IsChecked = this.selectedTabIndex == 1;
+                sourceViewMenuItem.IsChecked = this.selectedTabIndex == 2;
+            }
+        }
+
         public SelectedMessageView()
         {
             InitializeComponent();
+        }
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -36,6 +65,21 @@ namespace MinimalEmailClient.Views
 
             // Do not let the controls grow the window any more.
             parentWindow.SizeToContent = SizeToContent.Manual;
+        }
+
+        private void textViewMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedTabIndex = 0;
+        }
+
+        private void htmlViewMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedTabIndex = 1;
+        }
+
+        private void sourceViewMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedTabIndex = 2;
         }
     }
 }

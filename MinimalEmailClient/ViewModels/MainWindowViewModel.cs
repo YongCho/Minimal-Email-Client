@@ -26,7 +26,7 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountPopupRequest = new InteractionRequest<INotification>();
             WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest);
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
-            DeleteMessageCommand = new DelegateCommand(RequestDeleteMessage);
+            DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
 
             this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
             this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
@@ -38,9 +38,9 @@ namespace MinimalEmailClient.ViewModels
             Account currentAccount;
             if (this.selectedAccount == null)
             {
-                if (AccountManager.Instance().Accounts.Count > 0)
+                if (AccountManager.Instance.Accounts.Count > 0)
                 {
-                    currentAccount = AccountManager.Instance().Accounts[0];
+                    currentAccount = AccountManager.Instance.Accounts[0];
                 }
                 else
                 {
@@ -63,14 +63,14 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountPopupRequest.Raise(new Notification{ Content = "", Title = "New Account"});
         }
 
-        private void RequestDeleteMessage()
+        private void RaiseDeleteMessagesEvent()
         {
             this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
         {
-            this.selectedAccount = AccountManager.Instance().GetAccountByName(selectedMailbox.AccountName);
+            this.selectedAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
             this.selectedMailbox = selectedMailbox;
         }
 
