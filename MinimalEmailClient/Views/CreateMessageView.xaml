@@ -22,14 +22,14 @@
             <ToolBarPanel DockPanel.Dock="Top" Background="White">
                 <ToolBar ToolBarTray.IsLocked="True" Background="White">
                     <!-- 'Send' button -->
-                    <Button Click="SendButton_Click">
+                    <Button Command="{Binding SendCommand}">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Resources/Images/send.png" Stretch="Uniform" Height="20" Width="20" Margin="0,0,3,0" />
                             <TextBlock Text="Send" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <!-- 'Attachment' button -->
-                    <Button>
+                    <Button Click="AttachButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Resources/Images/attachment.png" Stretch="Uniform" Height="20" Width="20" />
                             <TextBlock Text="Attach" VerticalAlignment="Center" />
@@ -40,16 +40,16 @@
                 <WrapPanel HorizontalAlignment="Left" Height="545" Width="800">
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="From" VerticalAlignment="Center" Width="54" Height="14" />
+                            <TextBlock Text="From" VerticalAlignment="Center" Width="54" Height="14"/>
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
+                    <TextBox Text="{Binding CurrentAccount.EmailAddress}" x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="To..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="742"/>
+                    <TextBox x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="742" TextChanged="To_TextBox_TextChanged"/>
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Cc..." VerticalAlignment="Center" Width="54" Height="14" />

@@ -153,6 +153,8 @@
     <Compile Include="Models\Mailbox.cs" />
     <Compile Include="Models\NewAccountValidator.cs" />
     <Compile Include="Models\SelectedMessageNotification.cs" />
+    <Compile Include="Commands\SendMail.cs" />
+    <Compile Include="Models\SmtpClient.cs" />
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageListViewModel.cs" />

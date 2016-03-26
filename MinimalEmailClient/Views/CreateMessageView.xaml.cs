@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using System.Collections.Generic;
 using MinimalEmailClient.ViewModels;
 using MinimalEmailClient.Models;
 using System.Diagnostics;
@@ -10,18 +11,27 @@ namespace MinimalEmailClient.Views
     /// </summary>
     public partial class CreateMessageView : UserControl
     {
-        private string smtpServerName;
+        private string smtpServerName = string.Empty;
         private int smtpPortNumber;
-        private string smtpLoginName;
-        private string smtpLoginPassword;
-        private string to;
-        private string cc;
-        private string subject;
-        private string messageBody;
+        private string smtpLoginName = string.Empty;
+        private string smtpLoginPassword = string.Empty;
+        private List<string> receivers;
+        private string subject = string.Empty;
+        private string messageBody = string.Empty;
+        private CreateMessageViewModel viewModel;
+        private Account currentAccount;
+
+        public Account CurrentAccount
+        {
+            get { return currentAccount; }
+        }
 
         public CreateMessageView()
         {
-            this.DataContext = new CreateMessageViewModel();
+            viewModel = new CreateMessageViewModel();
+            this.DataContext = viewModel;
+            currentAccount = viewModel.CurrentAccount;
+
             InitializeComponent();
         }
 
@@ -30,26 +40,36 @@ namespace MinimalEmailClient.Views
             AccountManager accountManager = AccountManager.Instance();
             if (accountManager.Accounts.Count > 0)
             {
-                Account account = accountManager.Accounts[0];
-                From.Text = account.EmailAddress;
-                smtpServerName = account.SmtpServerName;
-                smtpPortNumber = account.SmtpPortNumber;
-                smtpLoginName = account.SmtpLoginName;
-                smtpLoginPassword = account.SmtpLoginPassword;
+                //From.Text = currentAccount.EmailAddress;
+                this.smtpServerName = currentAccount.SmtpServerName;
+                this.smtpPortNumber = currentAccount.SmtpPortNumber;
+                this.smtpLoginName = currentAccount.SmtpLoginName;
+                this.smtpLoginPassword = currentAccount.SmtpLoginPassword;
 
-                Trace.WriteLine("Smtp Server Name: " + smtpServerName);
-                Trace.WriteLine("Smtp Port Number: " + smtpPortNumber);
-                Trace.WriteLine("Smtp Login Name: " + smtpLoginName);
+                Trace.WriteLine("Smtp Server Name: " + this.smtpServerName);
+                Trace.WriteLine("Smtp Port Number: " + this.smtpPortNumber);
+                Trace.WriteLine("Smtp Login Name: " + this.smtpLoginName);
             }
         }
 
         private void SendButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            to = To_TextBox.Text;
-            cc = Cc_TextBox.Text;
-            subject = Subject_TextBox.Text;
-            messageBody = Body_TextBox.Text;
+            this.receivers = new List<string>();
+            this.receivers.Add(To_TextBox.Text);
+            this.receivers.Add(Cc_TextBox.Text);
+            this.subject = Subject_TextBox.Text;
+            this.messageBody = Body_TextBox.Text;
             Trace.WriteLine("Sending...");
+        }
+
+        private void AttachButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void To_TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }
