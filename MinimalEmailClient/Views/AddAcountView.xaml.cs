@@ -10,12 +10,6 @@ namespace MinimalEmailClient.Views
             InitializeComponent();
         }
 
-        private void btnCancel_Click(object sender, RoutedEventArgs e)
-        {
-            Window parentWindow = Window.GetWindow(this);
-            parentWindow.Close();
-        }
-
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             Window parentWindow = Window.GetWindow(this);
