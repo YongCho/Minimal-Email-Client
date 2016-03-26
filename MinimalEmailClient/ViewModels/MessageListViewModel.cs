@@ -12,6 +12,7 @@ using System.Windows.Input;
 using Prism.Commands;
 using System;
 using System.Windows;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -51,7 +52,7 @@ namespace MinimalEmailClient.ViewModels
 
             HandleMailboxSelectionChange(null);
 
-            GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
+            GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange, ThreadOption.UIThread);
         }
 
         public void OnMessageAdded(object sender, Message newMessage)

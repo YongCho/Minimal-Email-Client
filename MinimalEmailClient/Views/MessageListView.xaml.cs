@@ -20,7 +20,7 @@ namespace MinimalEmailClient.Views
             InitializeComponent();
 
             viewModel = (MessageListViewModel)this.DataContext;
-            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent);
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent, ThreadOption.UIThread);
         }
 
         private void HandleDeleteMessagesEvent(string ignoredEventPayload)
