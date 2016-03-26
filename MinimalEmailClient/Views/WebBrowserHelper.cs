@@ -30,7 +30,17 @@ namespace MinimalEmailClient.Views
         {
             WebBrowser webBrowser = dependencyObject as WebBrowser;
             if (webBrowser != null)
-                webBrowser.NavigateToString(e.NewValue as string ?? "&nbsp;");
+            {
+                string newContent = e.NewValue as string;
+                if (!string.IsNullOrEmpty(newContent))
+                {
+                    webBrowser.NavigateToString(newContent);
+                }
+                else
+                {
+                    webBrowser.NavigateToString("&nbsp;");
+                }
+            }
         }
     }
 }

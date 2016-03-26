@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -23,9 +24,11 @@ namespace MinimalEmailClient.Views
                     NotifyPropertyChanged("SelectedTabIndex");
                 }
 
-                textViewMenuItem.IsChecked = this.selectedTabIndex == 0;
-                htmlViewMenuItem.IsChecked = this.selectedTabIndex == 1;
-                sourceViewMenuItem.IsChecked = this.selectedTabIndex == 2;
+                defaultViewMenuItem.IsChecked = this.selectedTabIndex == 0;
+                textViewMenuItem.IsChecked = this.selectedTabIndex == 1;
+                htmlViewMenuItem.IsChecked = this.selectedTabIndex == 2;
+                browserContentViewMenuItem.IsChecked = this.selectedTabIndex == 3;
+                sourceViewMenuItem.IsChecked = this.selectedTabIndex == 4;
             }
         }
 
@@ -44,11 +47,13 @@ namespace MinimalEmailClient.Views
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
+            SelectedTabIndex = 0;
+
             // Hack to enforce initial window size without making it grow with content.
             // Seriously, there's gotta be a better way to achieve this.
 
-            int recommendedWidth = 800;
-            int recommendedHeight = 600;
+            int recommendedWidth = 1200;
+            int recommendedHeight = 800;
             Window parentWindow = Window.GetWindow(this);
 
             // Force the initial size here.
@@ -67,19 +72,29 @@ namespace MinimalEmailClient.Views
             parentWindow.SizeToContent = SizeToContent.Manual;
         }
 
-        private void textViewMenuItem_Click(object sender, RoutedEventArgs e)
+        private void defaultViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
             SelectedTabIndex = 0;
         }
 
-        private void htmlViewMenuItem_Click(object sender, RoutedEventArgs e)
+        private void textViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
             SelectedTabIndex = 1;
         }
 
-        private void sourceViewMenuItem_Click(object sender, RoutedEventArgs e)
+        private void htmlViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
             SelectedTabIndex = 2;
+        }
+
+        private void browserContentViewMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedTabIndex = 3;
+        }
+
+        private void sourceViewMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SelectedTabIndex = 4;
         }
     }
 }
