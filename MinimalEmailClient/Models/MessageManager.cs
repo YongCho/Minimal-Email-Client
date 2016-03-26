@@ -1,5 +1,7 @@
-﻿using MinimalEmailClient.Events;
+﻿// #undef TRACE
+using MinimalEmailClient.Events;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -10,6 +12,8 @@ namespace MinimalEmailClient.Models
     {
         public List<Message> Messages;
         public string Error = string.Empty;
+        private ConcurrentDictionary<string, int> abortLatches = new ConcurrentDictionary<string, int>();  // set to 1 to abort sync
+        private ConcurrentDictionary<string, int> openSyncOps = new ConcurrentDictionary<string, int>();  // # of sync methods running
         public event EventHandler<Message> MessageAdded;
         public event EventHandler<Message> MessageRemoved;
 
@@ -23,6 +27,40 @@ namespace MinimalEmailClient.Models
         {
             LoadMessagesFromDb();
             GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
+            GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeleted);
+        }
+
+        private async void HandleAccountDeleted(string accountName)
+        {
+            abortLatches.AddOrUpdate(accountName, 1, (k, v) => v = 1);
+
+            // Wait until all sync operations are stopped.
+            // TODO: Is there a better way to check this?
+            int syncOpsCount;
+            int waitedMilisec = 0;
+            while (openSyncOps.TryGetValue(accountName, out syncOpsCount) && syncOpsCount > 0)
+            {
+                Trace.WriteLine("# of open sync ops: " + syncOpsCount);
+                await Task.Delay(1000);
+                waitedMilisec += 1000;
+                if (waitedMilisec > 10000)
+                {
+                    Trace.WriteLine("Timeout");
+                    break;
+                }
+            }
+
+            // Remove all messages associated with this account.
+            Trace.WriteLine("Deleting messages for account " + accountName);
+            for (int i = Messages.Count - 1; i >= 0; --i)
+            {
+                if (Messages[i].AccountName == accountName)
+                {
+                    Message removedMsg = Messages[i];
+                    Messages.RemoveAt(i);
+                    OnMessageRemoved(removedMsg);
+                }
+            }
         }
 
         private void LoadMessagesFromDb()
@@ -62,6 +100,9 @@ namespace MinimalEmailClient.Models
 
         public void BeginSyncMessages(Account account)
         {
+            Trace.WriteLine("BeginSyncMessages: " + account.AccountName);
+            abortLatches.AddOrUpdate(account.AccountName, 0, (k, v) => v = 0);
+
             List<Mailbox> mailboxes = DatabaseManager.GetMailboxes(account.AccountName);
 
             for (int i = mailboxes.Count - 1; i >= 0; --i)
@@ -103,6 +144,13 @@ namespace MinimalEmailClient.Models
 
         private void SyncMessage(Account account, string mailboxName)
         {
+            int abort = 0;
+            if (abortLatches.TryGetValue(account.AccountName, out abort) && abort == 1)
+            {
+                // Abort sync.
+                return;
+            }
+
             ImapClient imapClient = new ImapClient(account);
             if (!imapClient.Connect())
             {
@@ -139,6 +187,11 @@ namespace MinimalEmailClient.Models
 
         private void SyncHelper(Account account, string mailboxName, ImapClient imapClient, int firstUid, int lastUid)
         {
+            Trace.WriteLine("SyncHelper: Mailbox(" + mailboxName + "), UIDs(" + firstUid + ", " + lastUid + ")");
+
+            // Decrement this at every exit point.
+            openSyncOps.AddOrUpdate(account.AccountName, 1, (k, v) => v + 1);
+
             int messagesCount = lastUid - firstUid + 1;
             int downloadChunk = 30;
             int startUid = lastUid - downloadChunk + 1;
@@ -146,6 +199,14 @@ namespace MinimalEmailClient.Models
 
             while (endUid >= firstUid)
             {
+                int abort = 0;
+                if (abortLatches.TryGetValue(account.AccountName, out abort) && abort == 1)
+                {
+                    Trace.WriteLine("Aborting sync...");
+                    openSyncOps.AddOrUpdate(account.AccountName, 0, (k, v) => v - 1);
+                    return;
+                }
+
                 if (startUid < firstUid)
                 {
                     startUid = firstUid;
@@ -166,6 +227,8 @@ namespace MinimalEmailClient.Models
                 endUid = startUid - 1;
                 startUid = endUid - downloadChunk + 1;
             }
+
+            openSyncOps.AddOrUpdate(account.AccountName, 0, (k, v) => v - 1);
         }
 
         public void DeleteMessages(List<Message> messages)
