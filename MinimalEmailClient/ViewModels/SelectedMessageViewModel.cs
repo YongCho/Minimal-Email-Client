@@ -78,8 +78,6 @@ namespace MinimalEmailClient.ViewModels
 
         private string PrepareDisplayHtml(string htmlBody)
         {
-            Loading = true;
-
             DirectoryInfo di = new DirectoryInfo(this.attachmentPath);
             foreach (FileInfo file in di.GetFiles())
             {
@@ -115,8 +113,6 @@ namespace MinimalEmailClient.ViewModels
                     }
                 }
             }
-
-            Loading = false;
 
             return root.InnerHtml;
         }
