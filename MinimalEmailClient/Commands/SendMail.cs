@@ -16,12 +16,6 @@ namespace MinimalEmailClient.Commands
             _newMessage = newMessage;
         }
 
-        public void EstablishConection(Account account)
-        {
-            SmtpClient newClient = new SmtpClient(account);
-            newClient.Connect();
-        }
-
         #region ICommand Members
 
         public event EventHandler CanExecuteChanged

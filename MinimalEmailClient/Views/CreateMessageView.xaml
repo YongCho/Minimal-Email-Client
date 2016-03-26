@@ -49,19 +49,19 @@
                             <TextBlock Text="To..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="742"/>
+                    <TextBox Text="{Binding ToAccounts, UpdateSourceTrigger=PropertyChanged}" x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="742"/>
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Cc..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="Cc_TextBox" Height="20" TextWrapping="Wrap" Width="742"/>
+                    <TextBox Text="{Binding CcAccounts, UpdateSourceTrigger=PropertyChanged}" x:Name="Cc_TextBox" Height="20" TextWrapping="Wrap" Width="742"/>
                     <Border BorderThickness="1" BorderBrush="Black">
                         <TextBlock x:Name="Subject" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Subject" Width="56"/>
                     </Border>
-                    <TextBox x:Name="Subject_TextBox" Height="17" TextWrapping="Wrap" Width="742"/>
-                        <!-- Message Body -->                 
-                    <TextBox x:Name="Body_TextBox" Height="474" TextWrapping="Wrap" Width="802"/>
+                    <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" x:Name="Subject_TextBox" Height="17" TextWrapping="Wrap" Width="742"/>
+                        <!-- Message Body -->
+                    <TextBox Text="{Binding MessageBody, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" x:Name="Body_TextBox" Height="474" TextWrapping="Wrap" Width="802"/>
                 </WrapPanel>
             </ToolBarPanel>
         </DockPanel>
