@@ -213,8 +213,7 @@ namespace MinimalEmailClient.Models
                 return false;
             }
 
-            Account ac = GetAccountByName(account.AccountName);
-            Accounts.Remove(ac);
+            Accounts.Remove(account);
             GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Publish(account.AccountName);
 
             return true;
