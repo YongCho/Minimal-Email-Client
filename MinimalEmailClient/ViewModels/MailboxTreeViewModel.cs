@@ -15,7 +15,6 @@ namespace MinimalEmailClient.ViewModels
     public class MailboxTreeViewModel : BindableBase
     {
         public ObservableCollection<Account> Accounts { get; set; }
-        private IEventAggregator eventAggregator;
         public ICommand DeleteAccountCommand { get; set; }
 
         // This could be a Mailbox or an Account.
@@ -31,20 +30,20 @@ namespace MinimalEmailClient.ViewModels
                     Mailbox selectedMailbox = value as Mailbox;
                     if (!selectedMailbox.Flags.Contains(@"\Noselect"))
                     {
-                        this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(selectedMailbox);
+                        GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Publish(selectedMailbox);
                     }
                 }
                 else if (value is Account)
                 {
                     Account selectedAccount = value as Account;
-                    this.eventAggregator.GetEvent<AccountSelectionEvent>().Publish(selectedAccount);
+                    GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Publish(selectedAccount);
                 }
                 else if (value == null)
                 {
                     if (Accounts.Count == 0)
                     {
-                        this.eventAggregator.GetEvent<AccountSelectionEvent>().Publish(null);
-                        this.eventAggregator.GetEvent<MailboxSelectionEvent>().Publish(null);
+                        GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Publish(null);
+                        GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Publish(null);
                     }
                 }
             }
@@ -52,9 +51,8 @@ namespace MinimalEmailClient.ViewModels
 
         public MailboxTreeViewModel()
         {
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
-            this.eventAggregator.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent);
+            GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
+            GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent);
             DeleteAccountCommand = new DelegateCommand<Account>(DeleteAccount);
 
             LoadAccounts();

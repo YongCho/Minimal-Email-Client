@@ -30,7 +30,6 @@ namespace MinimalEmailClient.ViewModels
         private Mailbox selectedMailbox;
         private MessageManager messageManager = MessageManager.Instance;
 
-        private IEventAggregator eventAggregator;
         public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
         public ICommand OpenSelectedMessageCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
@@ -49,9 +48,8 @@ namespace MinimalEmailClient.ViewModels
 
             HandleMailboxSelectionChange(null);
 
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
-            this.eventAggregator.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
+            GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
+            GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
         }
 
         public void OnMessageAdded(object sender, Message newMessage)
@@ -128,7 +126,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void RaiseDeleteMessagesEvent()
         {
-            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
     }
 }

@@ -14,15 +14,13 @@ namespace MinimalEmailClient.Views
     {
         private MessageListViewModel viewModel;
         private MessageManager messageManager = MessageManager.Instance;
-        private IEventAggregator eventAggregator;
 
         public MessageListView()
         {
             InitializeComponent();
 
             viewModel = (MessageListViewModel)this.DataContext;
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent);
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent);
         }
 
         private void HandleDeleteMessagesEvent(string ignoredEventPayload)

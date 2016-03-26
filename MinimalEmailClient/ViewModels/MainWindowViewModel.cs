@@ -15,7 +15,6 @@ namespace MinimalEmailClient.ViewModels
         public ICommand WriteNewMessageCommand { get; set; }
         public ICommand AddNewAccountCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
-        private IEventAggregator eventAggregator;
 
         private Account selectedAccount;
         private Mailbox selectedMailbox;
@@ -28,9 +27,8 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
             DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
 
-            this.eventAggregator = GlobalEventAggregator.Instance().EventAggregator;
-            this.eventAggregator.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
-            this.eventAggregator.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection);
+            GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelection);
+            GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection);
         }
 
         private void RaiseWriteNewMessagePopupRequest()
@@ -65,7 +63,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void RaiseDeleteMessagesEvent()
         {
-            this.eventAggregator.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Publish("Dummy Payload");
         }
 
         private void HandleMailboxSelection(Mailbox selectedMailbox)
