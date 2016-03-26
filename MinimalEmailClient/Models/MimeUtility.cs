@@ -15,7 +15,6 @@ namespace MinimalEmailClient.Models
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
-            Trace.WriteLine(body);
             return ParseFromMime(mimeMsg, "text/plain");
         }
 
@@ -23,7 +22,6 @@ namespace MinimalEmailClient.Models
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
-            Trace.WriteLine(body);
             return ParseFromMime(mimeMsg, "text/html");
         }
 
@@ -83,7 +81,6 @@ namespace MinimalEmailClient.Models
             textBody.WriteTo(memStream);
             memStream.Seek(0, SeekOrigin.Begin);
             string encoding = mimeBody.ContentTransferEncoding.ToLower();
-            Trace.WriteLine("ContentTransferEncoding: " + encoding);
             byte[] buffer = new byte[memStream.Length];
             int bytesRead;
             if (encoding == "quoted-printable")
@@ -111,6 +108,7 @@ namespace MinimalEmailClient.Models
 
             SaveAttachments(m, savePath, savedFiles);
         }
+
         // Extracts binary contents from mime and saves them to given location.
         // Inserts <content-ID, saved file name> pairs to the dictionary.
         private static void SaveAttachments(Entity mimeEntity, string savePath, Dictionary<string, string> savedFiles)
@@ -124,7 +122,6 @@ namespace MinimalEmailClient.Models
 
                     if (part.Body is MimeMessage)
                     {
-                        Trace.WriteLine("Attached email found!");
                         SaveAttachments((MimeMessage)part.Body, savePath, savedFiles);
                     }
                     else if (part.IsMultipart)
@@ -133,8 +130,6 @@ namespace MinimalEmailClient.Models
                     }
                     else if (!(part.Body is ITextBody))
                     {
-                        Trace.WriteLine("Attachment found: " + part.Header.GetField(MimeField.ContentType).Raw);
-
                         string fileName;
                         if (contentType.Parameters.Contains("name"))
                         {
@@ -155,7 +150,6 @@ namespace MinimalEmailClient.Models
 
                         string filePath = Path.Combine(savePath, fileName);
 
-                        Trace.WriteLine("Writing attachment to file: " + filePath);
                         FileStream outFileStream = new FileStream(filePath, FileMode.Create);
                         BinaryReader rdr = ((IBinaryBody)part.Body).Reader;
 
