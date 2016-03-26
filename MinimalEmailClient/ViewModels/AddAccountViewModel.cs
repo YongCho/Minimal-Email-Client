@@ -186,11 +186,11 @@ namespace MinimalEmailClient.ViewModels
             get { return this.message; }
             set { SetProperty(ref this.message, value); }
         }
-        private bool isFormComplete = false;
-        public bool IsFormComplete
+        private bool allInputValidated = false;
+        public bool AllInputValidated
         {
-            get { return this.isFormComplete; }
-            set { SetProperty(ref this.isFormComplete, value); }
+            get { return this.allInputValidated; }
+            set { SetProperty(ref this.allInputValidated, value); }
         }
 
         public ICommand SubmitCommand { get; set; }
@@ -227,7 +227,6 @@ namespace MinimalEmailClient.ViewModels
         private void Cancel()
         {
             FinishInteraction();
-            ResetForm();
         }
 
         private void Submit()
@@ -251,7 +250,6 @@ namespace MinimalEmailClient.ViewModels
                 if (success)
                 {
                     FinishInteraction();
-                    ResetForm();
                 }
                 else
                 {
@@ -284,7 +282,7 @@ namespace MinimalEmailClient.ViewModels
                 }
             }
 
-            if (IsFormComplete)
+            if (AllInputValidated)
             {
                 Account tempAccount = new Account()
                 {
@@ -318,7 +316,10 @@ namespace MinimalEmailClient.ViewModels
         {
             AccountValidated = false;
             ValidationFailed = false;
-            Message = string.Empty;
+            if (Message != string.Empty)
+            {
+                Message = string.Empty;
+            }
 
             if ((bool)EmailAddressValidated &&
                 (bool)LoginNameValidated &&
@@ -328,25 +329,12 @@ namespace MinimalEmailClient.ViewModels
                 (bool)ImapPortStringValidated &&
                 (bool)SmtpPortStringValidated)
             {
-                IsFormComplete = true;
+                AllInputValidated = true;
             }
             else
             {
-                IsFormComplete = false;
+                AllInputValidated = false;
             }
-        }
-
-        private void ResetForm()
-        {
-            AccountName = string.Empty;
-            EmailAddress = string.Empty;
-            LoginName = string.Empty;
-            LoginPassword = string.Empty;
-            ImapServerName = string.Empty;
-            ImapPortString = this.defaultImapPortString;
-            SmtpServerName = string.Empty;
-            SmtpPortString = this.defaultSmtpPortString;
-            Message = string.Empty;
         }
     }
 }
