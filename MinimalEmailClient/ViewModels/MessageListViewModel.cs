@@ -1,6 +1,5 @@
 ﻿using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
-using Prism.Events;
 using Prism.Mvvm;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -26,8 +25,12 @@ namespace MinimalEmailClient.ViewModels
             get { return this.selectedMessage; }
             set { SetProperty(ref this.selectedMessage, value); }
         }
-        private Account selectedAccount;
-        private Mailbox selectedMailbox;
+        private Mailbox currentMailbox;
+        public Mailbox CurrentMailbox
+        {
+            get { return this.currentMailbox; }
+            set { SetProperty(ref this.currentMailbox, value); }
+        }
         private MessageManager messageManager = MessageManager.Instance;
 
         public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
@@ -83,7 +86,8 @@ namespace MinimalEmailClient.ViewModels
         {
             if (SelectedMessage != null)
             {
-                SelectedMessageNotification notification = new SelectedMessageNotification(this.selectedAccount, this.selectedMailbox, SelectedMessage);
+                Account currentMailboxAccount = AccountManager.Instance.GetAccountByName(CurrentMailbox.AccountName);
+                SelectedMessageNotification notification = new SelectedMessageNotification(currentMailboxAccount, CurrentMailbox, SelectedMessage);
                 notification.Title = SelectedMessage.Subject;
                 OpenSelectedMessagePopupRequest.Raise(notification);
             }
@@ -96,18 +100,19 @@ namespace MinimalEmailClient.ViewModels
 
         private void HandleMailboxSelectionChange(Mailbox selectedMailbox)
         {
-            this.selectedMailbox = selectedMailbox;
-            if (this.selectedMailbox != null)
+            // Mailbox with \Noselect tag has no message to display. Ignore that mailbox.
+            if (selectedMailbox == null || !selectedMailbox.Flags.Contains(@"\Noselect"))
             {
-                this.selectedAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
+                CurrentMailbox = selectedMailbox;
             }
+
             this.messagesCv.Filter = new Predicate<object>(MessageFilter);
         }
 
         private bool MessageFilter(object item)
         {
             // Do not display any messages when no mailbox is selected.
-            if (this.selectedMailbox == null)
+            if (CurrentMailbox == null)
             {
                 return false;
             }
@@ -115,8 +120,8 @@ namespace MinimalEmailClient.ViewModels
             Message message = item as Message;
             bool showMsg = false;
 
-            if (message.AccountName == this.selectedAccount.AccountName &&
-                message.MailboxPath == this.selectedMailbox.DirectoryPath)
+            if (message.AccountName == CurrentMailbox.AccountName &&
+                message.MailboxPath == CurrentMailbox.DirectoryPath)
             {
                 showMsg = true;
             }

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using MinimalEmailClient.Models;
 using MinimalEmailClient.Events;
 using System.Collections.ObjectModel;
-using Prism.Events;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Prism.Commands;
@@ -16,6 +15,26 @@ namespace MinimalEmailClient.ViewModels
     {
         public ObservableCollection<Account> Accounts { get; set; }
         public ICommand DeleteAccountCommand { get; set; }
+        private Mailbox currentMailbox;
+        public Mailbox CurrentMailbox
+        {
+            get { return this.currentMailbox; }
+            private set
+            {
+                SetProperty(ref this.currentMailbox, value);
+                GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Publish(this.currentMailbox);
+            }
+        }
+        private Account currentAccount;
+        public Account CurrentAccount
+        {
+            get { return this.currentAccount; }
+            private set
+            {
+                SetProperty(ref this.currentAccount, value);
+                GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Publish(this.currentAccount);
+            }
+        }
 
         // This could be a Mailbox or an Account.
         private object selectedTreeViewItem;
@@ -25,26 +44,34 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.selectedTreeViewItem, value);
+
                 if (value is Mailbox)
                 {
                     Mailbox selectedMailbox = value as Mailbox;
-                    if (!selectedMailbox.Flags.Contains(@"\Noselect"))
+                    if (selectedMailbox != CurrentMailbox)
                     {
-                        GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Publish(selectedMailbox);
+                        CurrentMailbox = selectedMailbox;
+                    }
+
+                    Account selectedMailboxAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
+                    if (selectedMailboxAccount != CurrentAccount)
+                    {
+                        CurrentAccount = selectedMailboxAccount;
                     }
                 }
                 else if (value is Account)
                 {
                     Account selectedAccount = value as Account;
-                    GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Publish(selectedAccount);
+                    if (selectedAccount != CurrentAccount)
+                    {
+                        CurrentAccount = selectedAccount;
+                        CurrentMailbox = null;
+                    }
                 }
                 else if (value == null)
                 {
-                    if (Accounts.Count == 0)
-                    {
-                        GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Publish(null);
-                        GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Publish(null);
-                    }
+                    CurrentAccount = null;
+                    CurrentMailbox = null;
                 }
             }
         }
