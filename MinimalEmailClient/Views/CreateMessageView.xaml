@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MinimalEmailClient.Views"
         mc:Ignorable="d"
-        Height="600" Width="800" Loaded="UserControl_Loaded" >
+        Height="600" Width="800">
 
     <Grid>
         <DockPanel>
@@ -29,7 +29,7 @@
                         </StackPanel>
                     </Button>
                     <!-- 'Attachment' button -->
-                    <Button Click="AttachButton_Click">
+                    <Button>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="/Resources/Images/attachment.png" Stretch="Uniform" Height="20" Width="20" />
                             <TextBlock Text="Attach" VerticalAlignment="Center" />
@@ -43,13 +43,13 @@
                             <TextBlock Text="From" VerticalAlignment="Center" Width="54" Height="14"/>
                         </StackPanel>
                     </Button>
-                    <TextBox Text="{Binding CurrentAccount.EmailAddress}" x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
+                    <TextBox Text="{Binding FromAccount.SmtpServerName}" x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="To..." VerticalAlignment="Center" Width="54" Height="14" />
                         </StackPanel>
                     </Button>
-                    <TextBox x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="742" TextChanged="To_TextBox_TextChanged"/>
+                    <TextBox x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="742"/>
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Cc..." VerticalAlignment="Center" Width="54" Height="14" />
