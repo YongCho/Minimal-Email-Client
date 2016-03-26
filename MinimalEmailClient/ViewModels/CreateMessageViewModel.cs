@@ -15,13 +15,17 @@ namespace MinimalEmailClient.ViewModels
         {
             SendCommand = new SendMailCommand(this);
         }
-        
-        private Account _fromAccount = new Account();
+
+        private Account _fromAccount;
         public Account FromAccount
         {
             get
             {
                 return _fromAccount;
+            }
+            private set
+            {
+                SetProperty(ref this._fromAccount, value);
             }
         }
         private WriteNewMessageNotification notification;
@@ -57,7 +61,7 @@ namespace MinimalEmailClient.ViewModels
                     else
                     {
                         Trace.WriteLine(this.notification.CurrentAccount);
-                        _fromAccount = this.notification.CurrentAccount;
+                        FromAccount = this.notification.CurrentAccount;
                     }
                 }
             }
@@ -67,7 +71,7 @@ namespace MinimalEmailClient.ViewModels
 
         public void SendEmail()
         {
-            Trace.WriteLine("Sending from server: " + _fromAccount.SmtpServerName);
+            Trace.WriteLine("Sending from server: " + FromAccount.SmtpServerName);
         }
     }
 }

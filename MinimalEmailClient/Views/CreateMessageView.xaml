@@ -43,7 +43,7 @@
                             <TextBlock Text="From" VerticalAlignment="Center" Width="54" Height="14"/>
                         </StackPanel>
                     </Button>
-                    <TextBox Text="{Binding FromAccount.SmtpServerName}" x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
+                    <TextBox Text="{Binding FromAccount.EmailAddress}" x:Name="From" Height="20" TextWrapping="Wrap" Width="742"/>
                     <Button Background="White">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="To..." VerticalAlignment="Center" Width="54" Height="14" />
