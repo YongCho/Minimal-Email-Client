@@ -52,7 +52,6 @@ namespace MinimalEmailClient.ViewModels
             HandleMailboxSelectionChange(null);
 
             GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange);
-            GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
         }
 
         public void OnMessageAdded(object sender, Message newMessage)
@@ -91,11 +90,6 @@ namespace MinimalEmailClient.ViewModels
                 notification.Title = SelectedMessage.Subject;
                 OpenSelectedMessagePopupRequest.Raise(notification);
             }
-        }
-
-        private void HandleMailboxListSyncFinished(Account account)
-        {
-            messageManager.BeginSyncMessages(account);
         }
 
         private void HandleMailboxSelectionChange(Mailbox selectedMailbox)

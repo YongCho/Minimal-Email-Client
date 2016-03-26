@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinimalEmailClient.Events;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -21,6 +22,26 @@ namespace MinimalEmailClient.Models
         protected MessageManager()
         {
             LoadMessagesFromDb();
+            GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
+        }
+
+        private void LoadMessagesFromDb()
+        {
+            if (Messages == null)
+            {
+                Messages = new List<Message>();
+            }
+            else
+            {
+                Messages.Clear();
+            }
+
+            Messages = DatabaseManager.GetMessages();
+        }
+
+        private void HandleMailboxListSyncFinished(Account account)
+        {
+            BeginSyncMessages(account);
         }
 
         protected virtual void OnMessageAdded(Message newMessage)
@@ -37,20 +58,6 @@ namespace MinimalEmailClient.Models
             {
                 MessageRemoved(this, removedMessage);
             }
-        }
-
-        private void LoadMessagesFromDb()
-        {
-            if (Messages == null)
-            {
-                Messages = new List<Message>();
-            }
-            else
-            {
-                Messages.Clear();
-            }
-
-            Messages = DatabaseManager.GetMessages();
         }
 
         public void BeginSyncMessages(Account account)
