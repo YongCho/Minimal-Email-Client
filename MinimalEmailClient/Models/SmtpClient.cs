@@ -5,11 +5,28 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace MinimalEmailClient.Models
 {
     public class SmtpClient
     {
+        #region Constructor
+
+        public SmtpClient(Account account)
+        {
+            Account = account;
+        }
+
+        #endregion
+        #region Members
+
+        public string Error = string.Empty;
+        SslStream sslStream;
+
+        #endregion
+        #region Account(s)
+
         private Account account;
         public Account Account
         {
@@ -22,58 +39,44 @@ namespace MinimalEmailClient.Models
                 }
             }
         }
-        public string Error = string.Empty;
-        private byte[] buffer = new byte[65536];
-        private int nextTagSequence = 0;
 
-        SslStream sslStream;
-
-        public SmtpClient(Account account)
-        {
-            Account = account;
-        }
+        #endregion        
+        #region TCP Connection(s)
 
         public bool Connect()
         {
-            TcpClient newTcpClient = new TcpClient();
-            try
+            using (var newTcpClient = new TcpClient(account.SmtpServerName, account.SmtpPortNumber))
             {
-                var result = newTcpClient.BeginConnect(account.SmtpServerName, account.SmtpPortNumber, null, null);
-                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
-                if (!success || !newTcpClient.Connected)
+                using (var stream = newTcpClient.GetStream())
+                using (var streamReader = new StreamReader(stream))
+                using (var streamWriter = new StreamWriter(stream) { AutoFlush = true })
+                using (var newSslStream = new SslStream(stream))
                 {
-                    Error = "Unable to connect to " + account.SmtpServerName + ":" + account.SmtpPortNumber;
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                Error = e.Message;
-                return false;
-            }
+                    var connectResponse = streamReader.ReadLine();
+                    if (!connectResponse.StartsWith("220"))
+                        Error = "SMTP Server did not respond to connection request";
 
-            try
-            {
-                SslStream newSslStream = new SslStream(newTcpClient.GetStream(), false);
-                newSslStream.AuthenticateAsClient(account.SmtpServerName);
-                newSslStream.ReadTimeout = 5000;  // For synchronous read calls.
+                    streamWriter.WriteLine("HELO");
+                    var helloResponse = streamReader.ReadLine();
+                    if (!helloResponse.StartsWith("250"))
+                        Error = "SMTP Server did not respond to HELO request";
 
-                if (TryLogin(newSslStream))
-                {
+                    streamWriter.WriteLine("STARTTLS");
+                    var startTlsResponse = streamReader.ReadLine();
+                    if (!startTlsResponse.StartsWith("220"))
+                        Error = "SMTP Server did not respond to STARTTLS request";
+                    try
+                    {
+                        newSslStream.AuthenticateAsClient(account.SmtpServerName);
+                    }
+                    catch (Exception e)
+                    {
+                        Error = e.Message;
+                        return false;
+                    }
                     this.sslStream = newSslStream;
-                }
-                else
-                {
-                    Error = "Could not log in to server. Check credentials.";
-                    return false;
-                }
+                }                
             }
-            catch (Exception e)
-            {
-                Error = e.Message;
-                return false;
-            }
-
             return true;
         }
 
@@ -81,264 +84,15 @@ namespace MinimalEmailClient.Models
         {
             if (this.sslStream != null)
             {
+                Trace.WriteLine("Connection to " + account.SmtpServerName + " has been disconnected.");
                 this.sslStream.Dispose();
             }
         }
 
-        private bool TryLogin(SslStream stream)
-        {
-            string tag = NextTag();
-            string command = tag + " LOGIN " + account.SmtpLoginName + " " + account.SmtpLoginPassword + "\r\n";
-            stream.Write(Encoding.ASCII.GetBytes(command));
+        #endregion
+        #region ReadResponse
 
-            string response = string.Empty;
-            return ReadResponse(tag, out response, stream);
-        }
-
-        // Sends LIST command and returns the result as a list of Mailbox objects.
-        // Each Mailbox object is populated with the result of the LIST command.
-        public List<Mailbox> ListMailboxes()
-        {
-            string tag = NextTag();
-            SendString(tag + " LIST \"\" *");
-
-            string response;
-            List<Mailbox> mailboxes = new List<Mailbox>();
-            if (ReadResponse(tag, out response))
-            {
-                // Matches
-                // * LIST (\HasChildren \Noselect) "/" "INBOX"
-                // * LIST (\HasNoChildren) "\" INBOX/test1/test2/test3
-                string untaggedResponsePattern = "^\\* LIST \\((?<flags>.*)\\) \"(?<separator>.+)\" (?<mailboxName>[^\r\n]+)\r\n";
-                Regex regex = new Regex(untaggedResponsePattern, RegexOptions.Multiline);
-                MatchCollection matches = regex.Matches(response);
-                foreach (Match m in matches)
-                {
-                    Mailbox mailbox = new Mailbox()
-                    {
-                        AccountName = account.AccountName,
-                        DirectoryPath = m.Groups["mailboxName"].ToString(),
-                        PathSeparator = m.Groups["separator"].ToString(),
-                        FlagString = m.Groups["flags"].ToString(),
-                    };
-                    mailboxes.Add(mailbox);
-                }
-            }
-
-            return mailboxes;
-        }
-
-        public bool SelectMailbox(string mailboxPath, bool readOnly)
-        {
-            ExamineResult result = new ExamineResult();
-            return SelectMailbox(mailboxPath, readOnly, out result);
-        }
-        // Sends 'EXAMINE' command to the server with the specified mailbox.
-        public bool SelectMailbox(string mailboxPath, bool readOnly, out ExamineResult status)
-        {
-            status = new ExamineResult();
-
-            string tag = NextTag();
-            if (readOnly)
-            {
-                SendString(tag + " EXAMINE " + mailboxPath);
-            }
-            else
-            {
-                SendString(tag + " SELECT " + mailboxPath);
-            }
-
-            string response = string.Empty;
-            if (!ReadResponse(tag, out response))
-            {
-                Error = response;
-                return false;
-            }
-
-            status = ResponseParser.ParseExamine(response);
-            return true;
-        }
-
-        // Fetches body of a message.
-        // ExamineMailbox must be called to select the mailbox before calling this method.
-        public string FetchBody(int uid)
-        {
-            string tag = NextTag();
-            SendString(string.Format("{0} UID FETCH {1} BODY[]", tag, uid));
-
-            string response = string.Empty;
-            if (ReadResponse(tag, out response))
-            {
-                // Trim the leading and trailing Smtp strings.
-                string bodyPattern = "^\\*[^\r\n]*\r\n(?<body>[\\s\\S]*)\r\n.*\\)\r\n" + tag + " OK";
-                Match m = Regex.Match(response, bodyPattern);
-                if (m.Success)
-                {
-                    response = m.Groups["body"].ToString();
-                }
-            }
-
-            return response;
-        }
-
-        // Fetches message headers and returns them as a list of Message objects.
-        public List<Message> FetchHeaders(int startSeqNum, int count, bool useUid)
-        {
-            var messages = new List<Message>(count);
-
-            if (startSeqNum < 1 || count < 1)
-            {
-                return messages;
-            }
-
-            string tag = NextTag();
-            string command;
-            if (useUid)
-            {
-                command = "{0} UID FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
-            }
-            else
-            {
-                command = "{0} FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
-            }
-            SendString(string.Format(command, tag, startSeqNum, startSeqNum + count - 1));
-
-            int bytesInBuffer = 0;
-            bool doneFetching = false;
-
-            while (!doneFetching)
-            {
-                // Read the next chunk from the stream.
-                int bytesRead = this.sslStream.Read(this.buffer, bytesInBuffer, this.buffer.Length - bytesInBuffer);
-
-                string strBuffer = Encoding.ASCII.GetString(this.buffer, 0, bytesInBuffer + bytesRead);
-                Match match;
-                string remainder = strBuffer;
-                bool doneMatching = false;
-                while (!doneMatching)
-                {
-                    // Each untagged response item represents one message.
-                    string unTaggedResponsePattern = "(^|\r\n)(\\* (.*\r\n)*?)(\\*|" + tag + ") ";
-                    match = Regex.Match(remainder, unTaggedResponsePattern);
-                    if (match.Success)
-                    {
-                        string untaggedResponse = match.Groups[2].ToString();
-                        Message message = ResponseParser.ParseFetchHeader(untaggedResponse);
-
-                        if (message != null)
-                        {
-                            messages.Add(message);
-                        }
-
-                        remainder = remainder.Substring(match.Groups[2].ToString().Length);
-                    }
-                    else
-                    {
-                        // Did not find an untagged response. Check if it is a tagged response.
-                        string taggedResponsePattern = "^" + tag + " .*\r\n";
-                        match = Regex.Match(remainder, taggedResponsePattern);
-                        if (match.Success)
-                        {
-                            doneMatching = true;
-                            doneFetching = true;
-                        }
-                        else
-                        {
-                            // Neither untagged nor tagged response was found. Maybe only a portion of
-                            // the response was read. Move the dangling bytes to the front of the buffer
-                            // for the next read.
-                            doneMatching = true;
-                            if (remainder.Length > 0)
-                            {
-                                for (int i = 0; i < remainder.Length; ++i)
-                                {
-                                    this.buffer[i] = (byte)remainder[i];
-                                }
-                                bytesInBuffer = remainder.Length;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return messages;
-        }
-
-        public void DeleteMessages(List<Message> messages)
-        {
-            bool selectOk = true;
-
-            while (messages.Count > 0 && selectOk)
-            {
-                string mailboxPath = messages[0].MailboxPath;
-                bool readOnly = false;
-                selectOk = SelectMailbox(mailboxPath, readOnly);
-                if (selectOk)
-                {
-                    int responseCount = 0;
-                    string response = string.Empty;
-                    string tag = string.Empty;
-
-                    // Delete all messages in this mailbox.
-                    for (int i = messages.Count - 1; i >= 0; --i)
-                    {
-                        Message msg = messages[i];
-                        if (msg.MailboxPath == mailboxPath)
-                        {
-                            tag = NextTag();
-                            SendString(tag + " UID STORE " + msg.Uid + " +FLAGS (\\Seen \\Deleted)");
-                            ++responseCount;
-
-                            // Empty the socket buffer every 10 commands.
-                            if (responseCount == 10)
-                            {
-                                ReadResponse(tag, out response);
-                                Trace.WriteLine("Response:\n" + response);
-                                responseCount = 0;
-                            }
-
-                            messages.RemoveAt(i);
-                        }
-                    }
-
-                    // Read the remaining responses.
-                    if (responseCount > 0)
-                    {
-                        ReadResponse(tag, out response);
-                        Trace.WriteLine("Response: " + response);
-                        responseCount = 0;
-                    }
-
-                    // Expunge the tagged messages and move out of the currently selected mailbox.
-                    tag = NextTag();
-                    SendString(tag + " CLOSE");
-                    ReadResponse(tag, out response);
-                    Trace.WriteLine(response);
-                }
-            }
-        }
-
-        private void Logout()
-        {
-            string tag = NextTag();
-            SendString(tag + " LOGOUT");
-            ReadResponse(tag);
-        }
-
-        private string NextTag()
-        {
-            return "A" + (++this.nextTagSequence);
-        }
-
-        private void SendString(string str, SslStream stream)
-        {
-            stream.Write(Encoding.ASCII.GetBytes(str + "\r\n"));
-        }
-
-        private void SendString(string str)
-        {
-            SendString(str, this.sslStream);
-        }
+        private byte[] buffer = new byte[65536];
 
         private bool ReadResponse(string tag)
         {
@@ -378,10 +132,12 @@ namespace MinimalEmailClient.Models
                         tagOk = false;
                     }
                 }
-            }
+            }           
 
             // Debug.Write("Response:\n" + response);
             return (bool)tagOk;
         }
+
+        #endregion
     }
 }

@@ -2,6 +2,7 @@
 using Prism.Mvvm;
 using System;
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 using MinimalEmailClient.Models;
 using MinimalEmailClient.Commands;
@@ -44,7 +45,7 @@ namespace MinimalEmailClient.ViewModels
         {
             get
             {
-                if (FromAccount == null)
+                if (FromAccount == null || String.IsNullOrEmpty(ToAccounts) || String.IsNullOrEmpty(CcAccounts) || String.IsNullOrEmpty(Subject) || String.IsNullOrEmpty(MessageBody))
                     return false;
                 return true;
             }
@@ -143,12 +144,23 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
+        #region SendEmail
+
+        public string Error = string.Empty;
 
         public void SendEmail()
         {
-
-            Trace.WriteLine("Sending from server: " + FromAccount.SmtpServerName);
+            SmtpClient NewConnection = new SmtpClient(FromAccount);
+            if (!NewConnection.Connect())
+            {
+                Trace.WriteLine(NewConnection.Error);
+                MessageBoxResult result = MessageBox.Show(NewConnection.Error);
+                return;
+            }
+            NewConnection.Disconnect();
         }
+
+        #endregion
 
         public Action FinishInteraction { get; set; }
     }
