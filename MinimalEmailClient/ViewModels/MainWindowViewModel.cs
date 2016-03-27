@@ -4,6 +4,8 @@ using Prism.Commands;
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using System.Windows.Input;
+using System.Diagnostics;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -21,11 +23,13 @@ namespace MinimalEmailClient.ViewModels
         {
             WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
             AddNewAccountPopupRequest = new InteractionRequest<INotification>();
-            WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest);
+            WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest, CanWrite);
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
             DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
 
-            GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection);
+            GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleAccountAdded, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeleted, ThreadOption.UIThread);
         }
 
         private void RaiseWriteNewMessagePopupRequest()
@@ -53,6 +57,11 @@ namespace MinimalEmailClient.ViewModels
             WriteNewMessagePopupRequest.Raise(notification);
         }
 
+        private bool CanWrite()
+        {
+            return AccountManager.Instance.Accounts.Count > 0;
+        }
+
         private void RaiseAddNewAccountPopupRequest()
         {
             AddNewAccountPopupRequest.Raise(new Notification{ Content = "", Title = "New Account"});
@@ -66,6 +75,21 @@ namespace MinimalEmailClient.ViewModels
         private void HandleAccountSelection(Account selectedAccount)
         {
             this.selectedAccount = selectedAccount;
+        }
+
+        private void HandleAccountDeleted(string obj)
+        {
+            RaiseCanExecuteChanged();
+        }
+
+        private void HandleAccountAdded(Account obj)
+        {
+            RaiseCanExecuteChanged();
+        }
+
+        private void RaiseCanExecuteChanged()
+        {
+            (WriteNewMessageCommand as DelegateCommand).RaiseCanExecuteChanged();
         }
     }
 }

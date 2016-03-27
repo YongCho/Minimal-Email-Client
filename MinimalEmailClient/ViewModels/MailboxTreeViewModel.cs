@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Prism.Commands;
 using System.Windows;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -78,8 +79,8 @@ namespace MinimalEmailClient.ViewModels
 
         public MailboxTreeViewModel()
         {
-            GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent);
-            GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent);
+            GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent, ThreadOption.UIThread);
             DeleteAccountCommand = new DelegateCommand<Account>(DeleteAccount);
 
             LoadAccounts();
@@ -93,6 +94,7 @@ namespace MinimalEmailClient.ViewModels
         private void HandleNewAccountAddedEvent(Account newAccount)
         {
             Accounts.Add(newAccount);
+            SelectedTreeViewItem = newAccount;
         }
 
         private void HandleAccountDeletedEvent(string accountName)
@@ -102,6 +104,7 @@ namespace MinimalEmailClient.ViewModels
                 if (ac.AccountName == accountName)
                 {
                     Application.Current.Dispatcher.Invoke(() => { Accounts.Remove(ac); });
+                    break;
                 }
             }
         }
