@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MinimalEmailClient.ViewModels
 {
-    public class SelectedMessageViewModel : BindableBase, IInteractionRequestAware
+    public class MessageContentViewModel : BindableBase, IInteractionRequestAware
     {
         private SelectedMessageNotification notification;
         public INotification Notification
@@ -67,7 +67,7 @@ namespace MinimalEmailClient.ViewModels
         private string attachmentPath;
         Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
 
-        public SelectedMessageViewModel()
+        public MessageContentViewModel()
         {
             this.attachmentPath = Path.Combine(Globals.UserSettingsFolder, "Attachments");
             if (!Directory.Exists(this.attachmentPath))

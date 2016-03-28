@@ -163,7 +163,7 @@
     <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
     <Compile Include="ViewModels\MessageListViewModel.cs" />
-    <Compile Include="ViewModels\SelectedMessageViewModel.cs" />
+    <Compile Include="ViewModels\MessageContentViewModel.cs" />
     <Compile Include="Views\BooleanToEnvelopImageSourceConverter.cs" />
     <Compile Include="Views\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
@@ -179,8 +179,8 @@
     <Compile Include="Views\MessageListView.xaml.cs">
       <DependentUpon>MessageListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SelectedMessageView.xaml.cs">
-      <DependentUpon>SelectedMessageView.xaml</DependentUpon>
+    <Compile Include="Views\MessageContentView.xaml.cs">
+      <DependentUpon>MessageContentView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WebBrowserHelper.cs" />
     <Page Include="Resources\MECResourceDictionary.xaml">
@@ -222,7 +222,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SelectedMessageView.xaml">
+    <Page Include="Views\MessageContentView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
