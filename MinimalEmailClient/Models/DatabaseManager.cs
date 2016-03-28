@@ -5,28 +5,35 @@ using System.Data.SqlServerCe;
 using System;
 using MinimalEmailClient.Common;
 using System.Diagnostics;
-using System.Windows;
 
 namespace MinimalEmailClient.Models
 {
-    public class DatabaseManager
+    public static class DatabaseManager
     {
         public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
         public static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
 
+        private static string connString;
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
-        private static readonly int schemaVersion = 10;
+        private static readonly int schemaVersion = 11;
 
-        private static string ConnString()
+        public static bool Initialize()
         {
             SqlCeConnectionStringBuilder connBuilder = new SqlCeConnectionStringBuilder();
             connBuilder["Data Source"] = DatabasePath;
             connBuilder["Case Sensitive"] = true;
 
-            return connBuilder.ConnectionString;
+            connString = connBuilder.ConnectionString;
+
+            if (!IsSchemaCurrent())
+            {
+                return CreateDatabase();
+            }
+
+            return true;
         }
 
-        public static bool DatabaseExists()
+        private static bool DatabaseExists()
         {
             return File.Exists(DatabasePath);
         }
@@ -42,7 +49,7 @@ namespace MinimalEmailClient.Models
             }
 
             bool retVal = false;
-            using (SqlCeConnection conn = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
                 conn.Open();
 
@@ -70,17 +77,27 @@ namespace MinimalEmailClient.Models
         }
 
         // Deletes the database (if it exists) and creates a new empty one.
-        public static void CreateDatabase()
+        public static bool CreateDatabase()
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
-            Directory.CreateDirectory(DatabaseFolder);
-            File.Delete(DatabasePath);
+            try
+            {
+                if (!Directory.Exists(DatabaseFolder))
+                    Directory.CreateDirectory(DatabaseFolder);
+                else
+                    File.Delete(DatabasePath);
 
-            SqlCeEngine engine = new SqlCeEngine(ConnString());
-            engine.CreateDatabase();
+                SqlCeEngine engine = new SqlCeEngine(connString);
+                engine.CreateDatabase();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.Message);
+                return false;
+            }
 
-            using (SqlCeConnection conn = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
                 using (SqlCeCommand cmd = new SqlCeCommand())
                 {
@@ -107,7 +124,8 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Unable to create database.\n\n" + ex.Message);
+                        Trace.WriteLine("Unable to create database.\n\n" + ex.Message);
+                        return false;
                     }
                     finally
                     {
@@ -115,6 +133,8 @@ namespace MinimalEmailClient.Models
                     }
                 }
             }
+
+            return true;
         }
 
         // Loads all accounts from Accounts table and returns them as a list of Account objects.
@@ -130,7 +150,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
                 {
                     dbConnection.Open();
                     string cmdString = @"SELECT * FROM Accounts;";
@@ -180,7 +200,7 @@ namespace MinimalEmailClient.Models
                 CreateDatabase();
             }
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
             {
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
@@ -229,7 +249,7 @@ namespace MinimalEmailClient.Models
                 return false;
             }
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
             {
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
@@ -300,7 +320,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
                 {
                     dbConnection.Open();
 
@@ -351,7 +371,7 @@ namespace MinimalEmailClient.Models
 
             int numRowsDeleted = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
             {
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
@@ -401,7 +421,7 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
             {
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
@@ -450,7 +470,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
                 {
                     dbConnection.Open();
 
@@ -493,7 +513,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
                 {
                     dbConnection.Open();
 
@@ -536,7 +556,7 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
                 {
                     dbConnection.Open();
 
@@ -589,7 +609,7 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
             {
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
@@ -648,7 +668,7 @@ namespace MinimalEmailClient.Models
             {
                 int numRowsDeleted = 0;
 
-                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
                 {
                     dbConnection.Open();
                     using (SqlCeCommand cmd = new SqlCeCommand())
@@ -713,7 +733,7 @@ namespace MinimalEmailClient.Models
 
             int numRowsUpdated = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
             {
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
