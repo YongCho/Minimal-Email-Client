@@ -34,8 +34,8 @@ namespace MinimalEmailClient.ViewModels
         }
         private MessageManager messageManager = MessageManager.Instance;
 
-        public InteractionRequest<SelectedMessageNotification> OpenSelectedMessagePopupRequest { get; set; }
-        public ICommand OpenSelectedMessageCommand { get; set; }
+        public InteractionRequest<SelectedMessageNotification> MessageContentViewPopupRequest { get; set; }
+        public ICommand OpenMessageContentViewCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
 
         public MessageListViewModel()
@@ -44,8 +44,8 @@ namespace MinimalEmailClient.ViewModels
             messageManager.MessageAdded += OnMessageAdded;
             messageManager.MessageRemoved += OnMessageRemoved;
 
-            OpenSelectedMessagePopupRequest = new InteractionRequest<SelectedMessageNotification>();
-            OpenSelectedMessageCommand = new DelegateCommand(RaiseOpenSelectedMessagePopupRequest);
+            MessageContentViewPopupRequest = new InteractionRequest<SelectedMessageNotification>();
+            OpenMessageContentViewCommand = new DelegateCommand(RaiseMessageContentViewPopupRequest);
             DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
             this.messagesCv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
             this.messagesCv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
@@ -82,14 +82,14 @@ namespace MinimalEmailClient.ViewModels
             Messages.AddRange(messages);
         }
 
-        private void RaiseOpenSelectedMessagePopupRequest()
+        private void RaiseMessageContentViewPopupRequest()
         {
             if (SelectedMessage != null)
             {
                 Account currentMailboxAccount = AccountManager.Instance.GetAccountByName(CurrentMailbox.AccountName);
                 SelectedMessageNotification notification = new SelectedMessageNotification(currentMailboxAccount, CurrentMailbox, SelectedMessage);
                 notification.Title = SelectedMessage.Subject;
-                OpenSelectedMessagePopupRequest.Raise(notification);
+                MessageContentViewPopupRequest.Raise(notification);
             }
         }
 

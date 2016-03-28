@@ -12,10 +12,10 @@
 
     <i:Interaction.Triggers>
         <!-- Popup for opening the selected message -->
-        <prism:InteractionRequestTrigger SourceObject="{Binding OpenSelectedMessagePopupRequest, Mode=OneWay}">
+        <prism:InteractionRequestTrigger SourceObject="{Binding MessageContentViewPopupRequest, Mode=OneWay}">
             <prism:PopupWindowAction>
                 <prism:PopupWindowAction.WindowContent>
-                    <views:SelectedMessageView />
+                    <views:MessageContentView />
                 </prism:PopupWindowAction.WindowContent>
             </prism:PopupWindowAction>
         </prism:InteractionRequestTrigger>
@@ -50,7 +50,7 @@
 
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction Command="{Binding OpenSelectedMessageCommand}" />
+                    <i:InvokeCommandAction Command="{Binding OpenMessageContentViewCommand}" />
                 </i:EventTrigger>
             </i:Interaction.Triggers>
 

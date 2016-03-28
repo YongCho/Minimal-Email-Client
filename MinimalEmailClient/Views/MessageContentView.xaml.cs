@@ -8,7 +8,7 @@ namespace MinimalEmailClient.Views
     /// <summary>
     /// Interaction logic for SelectedMessageView.xaml
     /// </summary>
-    public partial class SelectedMessageView : UserControl, INotifyPropertyChanged
+    public partial class MessageContentView : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -32,7 +32,7 @@ namespace MinimalEmailClient.Views
             }
         }
 
-        public SelectedMessageView()
+        public MessageContentView()
         {
             InitializeComponent();
         }
