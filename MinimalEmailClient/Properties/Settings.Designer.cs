@@ -34,7 +34,7 @@ namespace MinimalEmailClient.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ec.db")]
+        [global::System.Configuration.DefaultSettingValueAttribute("ec.sdf")]
         public string DatabaseFileName {
             get {
                 return ((string)(this["DatabaseFileName"]));

@@ -1,10 +1,11 @@
 ﻿#undef TRACE
 using System.Collections.Generic;
 using System.IO;
-using System.Data.SQLite;
+using System.Data.SqlServerCe;
 using System;
 using MinimalEmailClient.Common;
 using System.Diagnostics;
+using System.Windows;
 
 namespace MinimalEmailClient.Models
 {
@@ -14,21 +15,15 @@ namespace MinimalEmailClient.Models
         public static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
 
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
-        private static readonly int schemaVersion = 7;
+        private static readonly int schemaVersion = 10;
 
         private static string ConnString()
         {
-            SQLiteConnectionStringBuilder connBuilder = new SQLiteConnectionStringBuilder();
-            connBuilder.DataSource = DatabasePath;
-            connBuilder.Version = 3;
-            connBuilder.ForeignKeys = true;
-            connBuilder.UseUTF16Encoding = true;
+            SqlCeConnectionStringBuilder connBuilder = new SqlCeConnectionStringBuilder();
+            connBuilder["Data Source"] = DatabasePath;
+            connBuilder["Case Sensitive"] = true;
 
-            // Having not enough BusyTimeout seems to cause "SQLite error (5): database is locked" error
-            // in some asynchronous read/write operation.
-            connBuilder.BusyTimeout = 400;
-
-            return connBuilder.ToString();
+            return connBuilder.ConnectionString;
         }
 
         public static bool DatabaseExists()
@@ -46,61 +41,79 @@ namespace MinimalEmailClient.Models
                 return false;
             }
 
-            int userVersion = -1;
-
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            bool retVal = false;
+            using (SqlCeConnection conn = new SqlCeConnection(ConnString()))
             {
-                dbConnection.Open();
+                conn.Open();
 
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
-                    cmd.CommandText = @"pragma user_version;";
                     try
                     {
+                        cmd.Connection = conn;
+                        cmd.CommandText = @"SELECT EntryValue FROM DbInfo WHERE EntryName = 'SchemaVersion';";
                         object result = cmd.ExecuteScalar();
-                        if (result is long)
-                        {
-                            userVersion = Convert.ToInt32(result);
-                        }
+                        retVal = schemaVersion == Convert.ToInt32(result);
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        Trace.WriteLine(e.Message);
+                        Trace.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
-                dbConnection.Close();
             }
 
-            return userVersion == schemaVersion;
+            return retVal;
         }
 
         // Deletes the database (if it exists) and creates a new empty one.
         public static void CreateDatabase()
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             Directory.CreateDirectory(DatabaseFolder);
             File.Delete(DatabasePath);
-            SQLiteConnection.CreateFile(DatabasePath);
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+
+            SqlCeEngine engine = new SqlCeEngine(ConnString());
+            engine.CreateDatabase();
+
+            using (SqlCeConnection conn = new SqlCeConnection(ConnString()))
             {
-                dbConnection.Open();
-
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
-                    cmd.CommandText = @"CREATE TABLE Accounts (AccountName TEXT PRIMARY KEY, EmailAddress TEXT, ImapLoginName TEXT, ImapLoginPassword TEXT, ImapServerName TEXT, ImapPortNumber INT, SmtpLoginName TEXT, SmtpLoginPassword TEXT, SmtpServerName TEXT, SmtpPortNumber INT);";
-                    cmd.ExecuteNonQuery();
+                    try
+                    {
+                        conn.Open();
+                        cmd.Connection = conn;
 
-                    cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName TEXT REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path TEXT, Separator TEXT, UidNext INT, UidValidity INT, FlagString TEXT, PRIMARY KEY (AccountName, Path));";
-                    cmd.ExecuteNonQuery();
+                        cmd.CommandText = @"CREATE TABLE Accounts (AccountName NVARCHAR(50) PRIMARY KEY, EmailAddress NVARCHAR(50), ImapLoginName NVARCHAR(50), ImapLoginPassword NVARCHAR(50), ImapServerName NVARCHAR(50), ImapPortNumber INT, SmtpLoginName NVARCHAR(50), SmtpLoginPassword NVARCHAR(50), SmtpServerName NVARCHAR(50), SmtpPortNumber INT);";
+                        cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"CREATE TABLE Messages (AccountName TEXT, MailboxPath TEXT, Uid INT, Subject TEXT, DateString TEXT, Sender TEXT, Recipient TEXT, FlagString TEXT, Body TEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
-                    cmd.ExecuteNonQuery();
+                        cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName NVARCHAR(50) REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path NVARCHAR(100), Separator NVARCHAR(5), UidNext INT, UidValidity INT, FlagString NVARCHAR(500), PRIMARY KEY (AccountName, Path));";
+                        cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = @"pragma user_version = " + schemaVersion + ";";
-                    cmd.ExecuteNonQuery();
+                        cmd.CommandText = @"CREATE TABLE Messages (AccountName NVARCHAR(50), MailboxPath NVARCHAR(100), Uid INT, Subject NVARCHAR(500), DateString NVARCHAR(500), Sender NVARCHAR(500), Recipient NVARCHAR(500), FlagString NVARCHAR(500), Body NTEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
+                        cmd.ExecuteNonQuery();
+
+                        cmd.CommandText = @"CREATE TABLE DbInfo (EntryName NVARCHAR(50) PRIMARY KEY, EntryValue NVARCHAR(500));";
+                        cmd.ExecuteNonQuery();
+
+                        cmd.CommandText = @"INSERT INTO DbInfo VALUES('SchemaVersion', @SchemaVersion);";
+                        cmd.Parameters.AddWithValue("@SchemaVersion", schemaVersion);
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Unable to create database.\n\n" + ex.Message);
+                    }
+                    finally
+                    {
+                        conn.Close();
+                    }
                 }
-
-                dbConnection.Close();
             }
         }
 
@@ -108,6 +121,7 @@ namespace MinimalEmailClient.Models
         public static List<Account> GetAccounts()
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             List<Account> accounts = new List<Account>();
 
             if (!DatabaseExists())
@@ -116,13 +130,13 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
                 {
                     dbConnection.Open();
                     string cmdString = @"SELECT * FROM Accounts;";
-                    using (SQLiteCommand cmd = new SQLiteCommand(cmdString, dbConnection))
+                    using (SqlCeCommand cmd = new SqlCeCommand(cmdString, dbConnection))
                     {
-                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        using (SqlCeDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -166,11 +180,12 @@ namespace MinimalEmailClient.Models
                 CreateDatabase();
             }
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
             {
                 dbConnection.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
+                    cmd.Connection = dbConnection;
                     cmd.CommandText = @"INSERT INTO Accounts VALUES(@AccountName, @EmailAddress, @ImapLoginName, @ImapLoginPassword, @ImapServerName, @ImapPortNumber, @SmtpLoginName, @SmtpLoginPassword, @SmtpServerName, @SmtpPortNumber);";
                     cmd.Prepare();
 
@@ -191,6 +206,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
+                        Trace.WriteLine(ex.Message);
                         errorMsg = ex.Message;
                     }
                 }
@@ -213,11 +229,12 @@ namespace MinimalEmailClient.Models
                 return false;
             }
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
             {
                 dbConnection.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
+                    cmd.Connection = dbConnection;
                     cmd.CommandText = "DELETE FROM Accounts WHERE AccountName = @AccountName;";
                     cmd.Prepare();
                     cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
@@ -227,6 +244,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
+                        Trace.WriteLine(ex.Message);
                         errorMsg = ex.Message;
                         return false;
                     }
@@ -243,6 +261,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
+                        Trace.WriteLine(ex.Message);
                         errorMsg = ex.Message;
                         return false;
                     }
@@ -256,6 +275,7 @@ namespace MinimalEmailClient.Models
                     }
                     catch (Exception ex)
                     {
+                        Trace.WriteLine(ex.Message);
                         errorMsg = ex.Message;
                         return false;
                     }
@@ -280,16 +300,17 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
                 {
                     dbConnection.Open();
 
-                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    using (SqlCeCommand cmd = new SqlCeCommand())
                     {
+                        cmd.Connection = dbConnection;
                         cmd.CommandText = @"SELECT * FROM Mailboxes WHERE AccountName = @AccountName ORDER BY Path;";
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", accountName);
-                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        using (SqlCeDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -330,11 +351,12 @@ namespace MinimalEmailClient.Models
 
             int numRowsDeleted = 0;
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
             {
                 dbConnection.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
+                    cmd.Connection = dbConnection;
                     cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName AND Path = @DirectoryPath;";
                     foreach (Mailbox mbox in mailboxes)
                     {
@@ -348,6 +370,7 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
+                            Trace.WriteLine(ex.Message);
                             errorMsg = ex.Message;
                             return numRowsDeleted;
                         }
@@ -378,11 +401,12 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
             {
                 dbConnection.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
+                    cmd.Connection = dbConnection;
                     cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @UidNext, @UidValidity, @FlagString);";
                     foreach (Mailbox mailbox in mailboxes)
                     {
@@ -401,6 +425,7 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
+                            Trace.WriteLine(ex.Message);
                             errorMsg = ex.Message;
                             return numRowsInserted;
                         }
@@ -425,12 +450,13 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
                 {
                     dbConnection.Open();
 
-                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    using (SqlCeCommand cmd = new SqlCeCommand())
                     {
+                        cmd.Connection = dbConnection;
                         cmd.CommandText = @"SELECT MAX(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", accountName);
@@ -438,14 +464,14 @@ namespace MinimalEmailClient.Models
                         try
                         {
                             object result = cmd.ExecuteScalar();
-                            if (result is long)
+                            if (result != null && result != DBNull.Value)
                             {
                                 maxUid = Convert.ToInt32(result);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            maxUid = 0;
+                            Trace.WriteLine(ex.Message);
                         }
                     }
                     dbConnection.Close();
@@ -467,12 +493,13 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
                 {
                     dbConnection.Open();
 
-                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    using (SqlCeCommand cmd = new SqlCeCommand())
                     {
+                        cmd.Connection = dbConnection;
                         cmd.CommandText = @"SELECT MIN(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", accountName);
@@ -480,14 +507,14 @@ namespace MinimalEmailClient.Models
                         try
                         {
                             object result = cmd.ExecuteScalar();
-                            if (result is long)
+                            if (result != null && result != DBNull.Value)
                             {
                                 minUid = Convert.ToInt32(result);
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
-                            minUid = 0;
+                            Trace.WriteLine(ex.Message);
                         }
                     }
                     dbConnection.Close();
@@ -509,15 +536,16 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
                 {
                     dbConnection.Open();
 
-                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    using (SqlCeCommand cmd = new SqlCeCommand())
                     {
+                        cmd.Connection = dbConnection;
                         cmd.CommandText = @"SELECT * FROM Messages;";
                         cmd.Prepare();
-                        using (SQLiteDataReader reader = cmd.ExecuteReader())
+                        using (SqlCeDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
@@ -561,11 +589,12 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
             {
                 dbConnection.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
+                    cmd.Connection = dbConnection;
                     cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @Sender, @Recipient, @FlagString, @Body);";
 
                     foreach (Message msg in messages)
@@ -588,6 +617,7 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
+                            Trace.WriteLine(ex.Message);
                             errorMsg = ex.Message;
                         }
                     }
@@ -618,11 +648,12 @@ namespace MinimalEmailClient.Models
             {
                 int numRowsDeleted = 0;
 
-                using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+                using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
                 {
                     dbConnection.Open();
-                    using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                    using (SqlCeCommand cmd = new SqlCeCommand())
                     {
+                        cmd.Connection = dbConnection;
                         cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
                         foreach (Message message in messages)
                         {
@@ -637,6 +668,7 @@ namespace MinimalEmailClient.Models
                             }
                             catch (Exception ex)
                             {
+                                Trace.WriteLine(ex.Message);
                                 errorMsg = ex.Message;
                                 return numRowsDeleted;
                             }
@@ -681,11 +713,12 @@ namespace MinimalEmailClient.Models
 
             int numRowsUpdated = 0;
 
-            using (SQLiteConnection dbConnection = new SQLiteConnection(ConnString()))
+            using (SqlCeConnection dbConnection = new SqlCeConnection(ConnString()))
             {
                 dbConnection.Open();
-                using (SQLiteCommand cmd = new SQLiteCommand(dbConnection))
+                using (SqlCeCommand cmd = new SqlCeCommand())
                 {
+                    cmd.Connection = dbConnection;
                     cmd.CommandText = "Update Messages SET Subject = @Subject, DateString = @DateString, Sender = @Sender, Recipient = @Recipient, FlagString = @FlagString, Body = @Body WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
 
                     foreach (Message message in messages)
@@ -710,6 +743,7 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
+                            Trace.WriteLine(ex.Message);
                             errorMsg = ex.Message;
                             return numRowsUpdated;
                         }

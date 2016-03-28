@@ -6,7 +6,7 @@
       <Value Profile="(Default)">Minimal Email Client</Value>
     </Setting>
     <Setting Name="DatabaseFileName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">ec.db</Value>
+      <Value Profile="(Default)">ec.sdf</Value>
     </Setting>
   </Settings>
 </SettingsFile>
