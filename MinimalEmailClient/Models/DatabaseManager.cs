@@ -15,7 +15,7 @@ namespace MinimalEmailClient.Models
 
         private static string connString;
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
-        private static readonly int schemaVersion = 11;
+        private static readonly int schemaVersion = 13;
 
         public static bool Initialize()
         {
@@ -112,7 +112,8 @@ namespace MinimalEmailClient.Models
                         cmd.CommandText = @"CREATE TABLE Mailboxes (AccountName NVARCHAR(50) REFERENCES Accounts(AccountName) ON DELETE CASCADE ON UPDATE CASCADE, Path NVARCHAR(100), Separator NVARCHAR(5), UidNext INT, UidValidity INT, FlagString NVARCHAR(500), PRIMARY KEY (AccountName, Path));";
                         cmd.ExecuteNonQuery();
 
-                        cmd.CommandText = @"CREATE TABLE Messages (AccountName NVARCHAR(50), MailboxPath NVARCHAR(100), Uid INT, Subject NVARCHAR(500), DateString NVARCHAR(500), Sender NVARCHAR(500), Recipient NVARCHAR(500), FlagString NVARCHAR(500), Body NTEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
+                        // NVARCHAR would not work for the Recipient column because some email messages have many recipients. I've seen messages with 'Recipient' header containing up to 26000+ characters.
+                        cmd.CommandText = @"CREATE TABLE Messages (AccountName NVARCHAR(50), MailboxPath NVARCHAR(100), Uid INT, Subject NVARCHAR(500), DateString NVARCHAR(500), Sender NVARCHAR(500), Recipient NTEXT, FlagString NVARCHAR(500), Body NTEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
                         cmd.ExecuteNonQuery();
 
                         cmd.CommandText = @"CREATE TABLE DbInfo (EntryName NVARCHAR(50) PRIMARY KEY, EntryValue NVARCHAR(500));";
