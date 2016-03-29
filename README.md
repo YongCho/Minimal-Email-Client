@@ -1,7 +1,9 @@
 # MinimalEmailClient
-Add project description here
+A Windows based email client that provides basic IMAP/SMTP functionality.
 
 # Contributor
+- Yong Cho
+- Yoomin Cha
 
 # Progress (Week 03/29)
 
