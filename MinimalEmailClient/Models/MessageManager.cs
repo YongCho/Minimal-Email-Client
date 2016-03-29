@@ -12,8 +12,8 @@ namespace MinimalEmailClient.Models
     {
         public List<Message> Messages;
         public string Error = string.Empty;
-        private ConcurrentDictionary<string, int> abortLatches = new ConcurrentDictionary<string, int>();  // set to 1 to abort sync
-        private ConcurrentDictionary<string, int> openSyncOps = new ConcurrentDictionary<string, int>();  // # of sync methods running
+        private ConcurrentDictionary<string, int> abortLatches = new ConcurrentDictionary<string, int>();  // <account name, 0 or 1>; set to 1 to abort sync
+        private ConcurrentDictionary<string, int> openSyncOps = new ConcurrentDictionary<string, int>();  // <account name, # of sync methods running>
         public event EventHandler<Message> MessageAdded;
         public event EventHandler<Message> MessageRemoved;
 
@@ -45,7 +45,7 @@ namespace MinimalEmailClient.Models
                 waitedMilisec += 1000;
                 if (waitedMilisec > 10000)
                 {
-                    Trace.WriteLine("Timeout");
+                    Trace.WriteLine("Sync Abort Timeout");
                     break;
                 }
             }
