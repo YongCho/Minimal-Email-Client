@@ -1,4 +1,9 @@
 # MinimalEmailClient
+Add project description here
+
+# Contributor
+
+# Progress (Week 03/29)
 
 ### Setting up the environment.
 
