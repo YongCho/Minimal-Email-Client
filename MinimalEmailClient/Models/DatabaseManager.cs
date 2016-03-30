@@ -52,19 +52,17 @@ namespace MinimalEmailClient.Models
             using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
                 conn.Open();
-
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
                     try
                     {
-                        cmd.Connection = conn;
                         cmd.CommandText = @"SELECT EntryValue FROM DbInfo WHERE EntryName = 'SchemaVersion';";
                         object result = cmd.ExecuteScalar();
                         retVal = schemaVersion == Convert.ToInt32(result);
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex.Message);
+                        Debug.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -93,19 +91,19 @@ namespace MinimalEmailClient.Models
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
                 return false;
             }
 
+            bool success = true;
+
             using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
                     try
                     {
-                        conn.Open();
-                        cmd.Connection = conn;
-
                         cmd.CommandText = @"CREATE TABLE Accounts (AccountName NVARCHAR(50) PRIMARY KEY, EmailAddress NVARCHAR(50), ImapLoginName NVARCHAR(50), ImapLoginPassword NVARCHAR(50), ImapServerName NVARCHAR(50), ImapPortNumber INT, SmtpLoginName NVARCHAR(50), SmtpLoginPassword NVARCHAR(50), SmtpServerName NVARCHAR(50), SmtpPortNumber INT);";
                         cmd.ExecuteNonQuery();
 
@@ -121,12 +119,16 @@ namespace MinimalEmailClient.Models
 
                         cmd.CommandText = @"INSERT INTO DbInfo VALUES('SchemaVersion', @SchemaVersion);";
                         cmd.Parameters.AddWithValue("@SchemaVersion", schemaVersion);
-                        cmd.ExecuteNonQuery();
+                        cmd.Prepare();
+                        if (cmd.ExecuteNonQuery() != 1)
+                        {
+                            success = false;
+                        }
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine("Unable to create database.\n\n" + ex.Message);
-                        return false;
+                        Debug.WriteLine("Unable to create database.\n\n" + ex.Message);
+                        success = false;
                     }
                     finally
                     {
@@ -135,7 +137,7 @@ namespace MinimalEmailClient.Models
                 }
             }
 
-            return true;
+            return success;
         }
 
         // Loads all accounts from Accounts table and returns them as a list of Account objects.
@@ -151,32 +153,42 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
                 {
-                    dbConnection.Open();
-                    string cmdString = @"SELECT * FROM Accounts;";
-                    using (SqlCeCommand cmd = new SqlCeCommand(cmdString, dbConnection))
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
                     {
-                        using (SqlCeDataReader reader = cmd.ExecuteReader())
+                        try
                         {
-                            while (reader.Read())
+                            cmd.CommandText = @"SELECT * FROM Accounts;";
+                            using (SqlCeDataReader reader = cmd.ExecuteReader())
                             {
-                                Account account = new Account();
-                                account.AccountName = (string)reader["AccountName"];
-                                account.EmailAddress = (string)reader["EmailAddress"];
-                                account.ImapLoginName = (string)reader["ImapLoginName"];
-                                account.ImapLoginPassword = (string)reader["ImapLoginPassword"];
-                                account.ImapServerName = (string)reader["ImapServerName"];
-                                account.ImapPortNumber = (int)reader["ImapPortNumber"];
-                                account.SmtpLoginName = (string)reader["SmtpLoginName"];
-                                account.SmtpLoginPassword = (string)reader["SmtpLoginPassword"];
-                                account.SmtpServerName = (string)reader["SmtpServerName"];
-                                account.SmtpPortNumber = (int)reader["SmtpPortNumber"];
-                                accounts.Add(account);
+                                while (reader.Read())
+                                {
+                                    Account account = new Account();
+                                    account.AccountName = (string)reader["AccountName"];
+                                    account.EmailAddress = (string)reader["EmailAddress"];
+                                    account.ImapLoginName = (string)reader["ImapLoginName"];
+                                    account.ImapLoginPassword = (string)reader["ImapLoginPassword"];
+                                    account.ImapServerName = (string)reader["ImapServerName"];
+                                    account.ImapPortNumber = (int)reader["ImapPortNumber"];
+                                    account.SmtpLoginName = (string)reader["SmtpLoginName"];
+                                    account.SmtpLoginPassword = (string)reader["SmtpLoginPassword"];
+                                    account.SmtpServerName = (string)reader["SmtpServerName"];
+                                    account.SmtpPortNumber = (int)reader["SmtpPortNumber"];
+                                    accounts.Add(account);
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
+                        }
                     }
-                    dbConnection.Close();
                 }
             }
 
@@ -193,46 +205,49 @@ namespace MinimalEmailClient.Models
         public static bool InsertAccount(Account account, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
-            int numRowsInserted = 0;
 
             if (!DatabaseExists())
             {
                 CreateDatabase();
             }
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            int numRowsInserted = 0;
+
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                dbConnection.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
-                    cmd.Connection = dbConnection;
-                    cmd.CommandText = @"INSERT INTO Accounts VALUES(@AccountName, @EmailAddress, @ImapLoginName, @ImapLoginPassword, @ImapServerName, @ImapPortNumber, @SmtpLoginName, @SmtpLoginPassword, @SmtpServerName, @SmtpPortNumber);";
-                    cmd.Prepare();
-
-                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
-                    cmd.Parameters.AddWithValue("@EmailAddress", account.EmailAddress);
-                    cmd.Parameters.AddWithValue("@ImapLoginName", account.ImapLoginName);
-                    cmd.Parameters.AddWithValue("@ImapLoginPassword", account.ImapLoginPassword);
-                    cmd.Parameters.AddWithValue("@ImapServerName", account.ImapServerName);
-                    cmd.Parameters.AddWithValue("@ImapPortNumber", account.ImapPortNumber);
-                    cmd.Parameters.AddWithValue("@SmtpLoginName", account.SmtpLoginName);
-                    cmd.Parameters.AddWithValue("@SmtpLoginPassword", account.SmtpLoginPassword);
-                    cmd.Parameters.AddWithValue("@SmtpServerName", account.SmtpServerName);
-                    cmd.Parameters.AddWithValue("@SmtpPortNumber", account.SmtpPortNumber);
-
                     try
                     {
+                        cmd.CommandText = @"INSERT INTO Accounts VALUES(@AccountName, @EmailAddress, @ImapLoginName, @ImapLoginPassword, @ImapServerName, @ImapPortNumber, @SmtpLoginName, @SmtpLoginPassword, @SmtpServerName, @SmtpPortNumber);";
+
+                        cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
+                        cmd.Parameters.AddWithValue("@EmailAddress", account.EmailAddress);
+                        cmd.Parameters.AddWithValue("@ImapLoginName", account.ImapLoginName);
+                        cmd.Parameters.AddWithValue("@ImapLoginPassword", account.ImapLoginPassword);
+                        cmd.Parameters.AddWithValue("@ImapServerName", account.ImapServerName);
+                        cmd.Parameters.AddWithValue("@ImapPortNumber", account.ImapPortNumber);
+                        cmd.Parameters.AddWithValue("@SmtpLoginName", account.SmtpLoginName);
+                        cmd.Parameters.AddWithValue("@SmtpLoginPassword", account.SmtpLoginPassword);
+                        cmd.Parameters.AddWithValue("@SmtpServerName", account.SmtpServerName);
+                        cmd.Parameters.AddWithValue("@SmtpPortNumber", account.SmtpPortNumber);
+                        cmd.Prepare();
+
                         numRowsInserted = cmd.ExecuteNonQuery();
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex.Message);
+                        Debug.WriteLine(ex.Message);
                         errorMsg = ex.Message;
                     }
+                    finally
+                    {
+                        conn.Close();
+                    }
                 }
-
-                dbConnection.Close();
             }
 
             return numRowsInserted == 1 ? true : false;
@@ -243,6 +258,7 @@ namespace MinimalEmailClient.Models
         public static bool DeleteAccount(Account account, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
             if (!DatabaseExists())
             {
@@ -250,63 +266,47 @@ namespace MinimalEmailClient.Models
                 return false;
             }
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            int numRowsDeleted = 0;
+
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                dbConnection.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
                     try
                     {
-                        cmd.Connection = dbConnection;
                         cmd.CommandText = "DELETE FROM Accounts WHERE AccountName = @AccountName;";
-                        cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
-                        cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.Message);
-                        errorMsg = ex.Message;
-                        return false;
-                    }
+                        cmd.Prepare();
+                        numRowsDeleted = cmd.ExecuteNonQuery();
 
-                    // Following two queries should not be necessary if we are using foreign key restrictions on
-                    // Mailboxes and Messages tables' AccountName attribute. I am executing them here anyway because
-                    // they are harmless.
-                    try
-                    {
+                        // Following two queries should not be necessary since we are using foreign key restrictions on
+                        // Mailboxes and Messages tables' AccountName attributes with DELETE ON UPDATE policy.
+                        // I am executing them here anyway in case we decide to change the foreign key policy sometime later.
                         cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName;";
                         cmd.Parameters.Clear();
-                        cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
+                        cmd.Prepare();
                         cmd.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.Message);
-                        errorMsg = ex.Message;
-                        return false;
-                    }
 
-                    try
-                    {
                         cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName;";
                         cmd.Parameters.Clear();
-                        cmd.Prepare();
                         cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
+                        cmd.Prepare();
                         cmd.ExecuteNonQuery();
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex.Message);
+                        Debug.WriteLine(ex.Message);
                         errorMsg = ex.Message;
-                        return false;
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
 
-                dbConnection.Close();
-
-                return true;
+                return numRowsDeleted == 1;
             }
         }
 
@@ -314,6 +314,7 @@ namespace MinimalEmailClient.Models
         public static List<Mailbox> GetMailboxes(string accountName)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             List<Mailbox> mailboxes = new List<Mailbox>();
 
             if (!DatabaseExists())
@@ -323,33 +324,41 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
                 {
-                    dbConnection.Open();
-
-                    using (SqlCeCommand cmd = new SqlCeCommand())
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
                     {
-                        cmd.Connection = dbConnection;
-                        cmd.CommandText = @"SELECT * FROM Mailboxes WHERE AccountName = @AccountName ORDER BY Path;";
-                        cmd.Prepare();
-                        cmd.Parameters.AddWithValue("@AccountName", accountName);
-                        using (SqlCeDataReader reader = cmd.ExecuteReader())
+                        try
                         {
-                            while (reader.Read())
+                            cmd.CommandText = @"SELECT * FROM Mailboxes WHERE AccountName = @AccountName ORDER BY Path;";
+                            cmd.Parameters.AddWithValue("@AccountName", accountName);
+                            cmd.Prepare();
+                            using (SqlCeDataReader reader = cmd.ExecuteReader())
                             {
-                                Mailbox mailbox = new Mailbox();
-                                mailbox.AccountName = accountName;
-                                mailbox.DirectoryPath = (string)reader["Path"];
-                                mailbox.PathSeparator = (string)reader["Separator"];
-                                mailbox.UidNext = (int)reader["UidNext"];
-                                mailbox.UidValidity = (int)reader["UidValidity"];
-                                mailbox.FlagString = (string)reader["FlagString"];
+                                while (reader.Read())
+                                {
+                                    Mailbox mailbox = new Mailbox();
+                                    mailbox.AccountName = accountName;
+                                    mailbox.DirectoryPath = (string)reader["Path"];
+                                    mailbox.PathSeparator = (string)reader["Separator"];
+                                    mailbox.UidNext = (int)reader["UidNext"];
+                                    mailbox.UidValidity = (int)reader["UidValidity"];
+                                    mailbox.FlagString = (string)reader["FlagString"];
 
-                                mailboxes.Add(mailbox);
+                                    mailboxes.Add(mailbox);
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
+                        }
                     }
-                    dbConnection.Close();
                 }
             }
 
@@ -366,6 +375,7 @@ namespace MinimalEmailClient.Models
         public static int DeleteMailboxes(List<Mailbox> mailboxes, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
             if (!DatabaseExists())
             {
@@ -374,33 +384,33 @@ namespace MinimalEmailClient.Models
 
             int numRowsDeleted = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                dbConnection.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
-                    cmd.Connection = dbConnection;
-                    cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName AND Path = @DirectoryPath;";
-                    foreach (Mailbox mbox in mailboxes)
+                    try
                     {
-                        cmd.Parameters.Clear();
-                        cmd.Prepare();
-                        cmd.Parameters.AddWithValue("@AccountName", mbox.AccountName);
-                        cmd.Parameters.AddWithValue("@DirectoryPath", mbox.DirectoryPath);
-                        try
+                        cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName AND Path = @DirectoryPath;";
+                        foreach (Mailbox mbox in mailboxes)
                         {
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.AddWithValue("@AccountName", mbox.AccountName);
+                            cmd.Parameters.AddWithValue("@DirectoryPath", mbox.DirectoryPath);
+                            cmd.Prepare();
                             numRowsDeleted += cmd.ExecuteNonQuery();
                         }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine(ex.Message);
-                            errorMsg = ex.Message;
-                            return numRowsDeleted;
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        errorMsg = ex.Message;
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
-
-                dbConnection.Close();
 
                 return numRowsDeleted;
             }
@@ -416,6 +426,7 @@ namespace MinimalEmailClient.Models
         public static int InsertMailboxes(List<Mailbox> mailboxes, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
             if (!DatabaseExists())
             {
@@ -424,38 +435,39 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                dbConnection.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
-                    cmd.Connection = dbConnection;
-                    cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @UidNext, @UidValidity, @FlagString);";
-                    foreach (Mailbox mailbox in mailboxes)
+                    try
                     {
-                        cmd.Parameters.Clear();
-                        cmd.Prepare();
-                        cmd.Parameters.AddWithValue("@AccountName", mailbox.AccountName);
-                        cmd.Parameters.AddWithValue("@Path", mailbox.DirectoryPath);
-                        cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
-                        cmd.Parameters.AddWithValue("@UidNext", mailbox.UidNext);
-                        cmd.Parameters.AddWithValue("@UidValidity", mailbox.UidValidity);
-                        cmd.Parameters.AddWithValue("@FlagString", mailbox.FlagString);
+                        cmd.CommandText = "INSERT INTO Mailboxes VALUES(@AccountName, @Path, @Separator, @UidNext, @UidValidity, @FlagString);";
 
-                        try
+                        foreach (Mailbox mailbox in mailboxes)
                         {
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.AddWithValue("@AccountName", mailbox.AccountName);
+                            cmd.Parameters.AddWithValue("@Path", mailbox.DirectoryPath);
+                            cmd.Parameters.AddWithValue("@Separator", mailbox.PathSeparator);
+                            cmd.Parameters.AddWithValue("@UidNext", mailbox.UidNext);
+                            cmd.Parameters.AddWithValue("@UidValidity", mailbox.UidValidity);
+                            cmd.Parameters.AddWithValue("@FlagString", mailbox.FlagString);
+                            cmd.Prepare();
+
                             numRowsInserted += cmd.ExecuteNonQuery();
                         }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine(ex.Message);
-                            errorMsg = ex.Message;
-                            return numRowsInserted;
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        errorMsg = ex.Message;
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
-
-                dbConnection.Close();
 
                 return numRowsInserted;
             }
@@ -464,28 +476,28 @@ namespace MinimalEmailClient.Models
         public static int GetMaxUid(string accountName, string mailboxPath)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             int maxUid = 0;
 
             if (!DatabaseExists())
             {
                 CreateDatabase();
-                return maxUid;
+                return 0;
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
                 {
-                    dbConnection.Open();
-
-                    using (SqlCeCommand cmd = new SqlCeCommand())
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
                     {
-                        cmd.Connection = dbConnection;
-                        cmd.CommandText = @"SELECT MAX(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
-                        cmd.Prepare();
-                        cmd.Parameters.AddWithValue("@AccountName", accountName);
-                        cmd.Parameters.AddWithValue("@MailboxPath", mailboxPath);
                         try
                         {
+                            cmd.CommandText = @"SELECT MAX(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
+                            cmd.Parameters.AddWithValue("@AccountName", accountName);
+                            cmd.Parameters.AddWithValue("@MailboxPath", mailboxPath);
+                            cmd.Prepare();
+
                             object result = cmd.ExecuteScalar();
                             if (result != null && result != DBNull.Value)
                             {
@@ -494,10 +506,13 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
-                            Trace.WriteLine(ex.Message);
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
                         }
                     }
-                    dbConnection.Close();
                 }
             }
 
@@ -507,28 +522,28 @@ namespace MinimalEmailClient.Models
         public static int GetMinUid(string accountName, string mailboxPath)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             int minUid = 0;
 
             if (!DatabaseExists())
             {
                 CreateDatabase();
-                return minUid;
+                return 0;
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
                 {
-                    dbConnection.Open();
-
-                    using (SqlCeCommand cmd = new SqlCeCommand())
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
                     {
-                        cmd.Connection = dbConnection;
-                        cmd.CommandText = @"SELECT MIN(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
-                        cmd.Prepare();
-                        cmd.Parameters.AddWithValue("@AccountName", accountName);
-                        cmd.Parameters.AddWithValue("@MailboxPath", mailboxPath);
                         try
                         {
+                            cmd.CommandText = @"SELECT MIN(Uid) from Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath;";
+                            cmd.Parameters.AddWithValue("@AccountName", accountName);
+                            cmd.Parameters.AddWithValue("@MailboxPath", mailboxPath);
+                            cmd.Prepare();
+
                             object result = cmd.ExecuteScalar();
                             if (result != null && result != DBNull.Value)
                             {
@@ -537,10 +552,13 @@ namespace MinimalEmailClient.Models
                         }
                         catch (Exception ex)
                         {
-                            Trace.WriteLine(ex.Message);
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
                         }
                     }
-                    dbConnection.Close();
                 }
             }
 
@@ -551,6 +569,7 @@ namespace MinimalEmailClient.Models
         public static List<Message> GetMessages()
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             List<Message> messages = new List<Message>();
 
             if (!DatabaseExists())
@@ -559,35 +578,43 @@ namespace MinimalEmailClient.Models
             }
             else
             {
-                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
                 {
-                    dbConnection.Open();
-
-                    using (SqlCeCommand cmd = new SqlCeCommand())
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
                     {
-                        cmd.Connection = dbConnection;
-                        cmd.CommandText = @"SELECT * FROM Messages;";
-                        cmd.Prepare();
-                        using (SqlCeDataReader reader = cmd.ExecuteReader())
+                        try
                         {
-                            while (reader.Read())
+                            cmd.CommandText = @"SELECT * FROM Messages;";
+                            cmd.Prepare();
+                            using (SqlCeDataReader reader = cmd.ExecuteReader())
                             {
-                                Message message = new Message();
-                                message.AccountName = (string)reader["AccountName"];
-                                message.MailboxPath = (string)reader["MailboxPath"];
-                                message.Uid = (int)reader["Uid"];
-                                message.Subject = (string)reader["Subject"];
-                                message.DateString = (string)reader["DateString"];
-                                message.Sender = (string)reader["Sender"];
-                                message.Recipient = (string)reader["Recipient"];
-                                message.FlagString = (string)reader["FlagString"];
-                                message.Body = (string)reader["Body"];
+                                while (reader.Read())
+                                {
+                                    Message message = new Message();
+                                    message.AccountName = (string)reader["AccountName"];
+                                    message.MailboxPath = (string)reader["MailboxPath"];
+                                    message.Uid = (int)reader["Uid"];
+                                    message.Subject = (string)reader["Subject"];
+                                    message.DateString = (string)reader["DateString"];
+                                    message.Sender = (string)reader["Sender"];
+                                    message.Recipient = (string)reader["Recipient"];
+                                    message.FlagString = (string)reader["FlagString"];
+                                    message.Body = (string)reader["Body"];
 
-                                messages.Add(message);
+                                    messages.Add(message);
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
+                        }
                     }
-                    dbConnection.Close();
                 }
             }
 
@@ -604,6 +631,7 @@ namespace MinimalEmailClient.Models
         public static int StoreMessages(List<Message> messages, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
             if (!DatabaseExists())
             {
@@ -612,41 +640,42 @@ namespace MinimalEmailClient.Models
 
             int numRowsInserted = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                dbConnection.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
-                    cmd.Connection = dbConnection;
-                    cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @Sender, @Recipient, @FlagString, @Body);";
-
-                    foreach (Message msg in messages)
+                    try
                     {
-                        cmd.Prepare();
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.AddWithValue("@AccountName", msg.AccountName);
-                        cmd.Parameters.AddWithValue("@MailboxPath", msg.MailboxPath);
-                        cmd.Parameters.AddWithValue("@Uid", msg.Uid);
-                        cmd.Parameters.AddWithValue("@Subject", msg.Subject);
-                        cmd.Parameters.AddWithValue("@DateString", msg.DateString);
-                        cmd.Parameters.AddWithValue("@Sender", msg.Sender);
-                        cmd.Parameters.AddWithValue("@Recipient", msg.Recipient);
-                        cmd.Parameters.AddWithValue("@FlagString", msg.FlagString);
-                        cmd.Parameters.AddWithValue("@Body", msg.Body);
+                        cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @Sender, @Recipient, @FlagString, @Body);";
 
-                        try
+                        foreach (Message msg in messages)
                         {
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.AddWithValue("@AccountName", msg.AccountName);
+                            cmd.Parameters.AddWithValue("@MailboxPath", msg.MailboxPath);
+                            cmd.Parameters.AddWithValue("@Uid", msg.Uid);
+                            cmd.Parameters.AddWithValue("@Subject", msg.Subject);
+                            cmd.Parameters.AddWithValue("@DateString", msg.DateString);
+                            cmd.Parameters.AddWithValue("@Sender", msg.Sender);
+                            cmd.Parameters.AddWithValue("@Recipient", msg.Recipient);
+                            cmd.Parameters.AddWithValue("@FlagString", msg.FlagString);
+                            cmd.Parameters.AddWithValue("@Body", msg.Body);
+                            cmd.Prepare();
+
                             numRowsInserted = cmd.ExecuteNonQuery();
                         }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine(ex.Message);
-                            errorMsg = ex.Message;
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        errorMsg = ex.Message;
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
-
-                dbConnection.Close();
             }
 
             return numRowsInserted;
@@ -661,48 +690,49 @@ namespace MinimalEmailClient.Models
         public static int DeleteMessages(List<Message> messages, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
+
             if (!DatabaseExists())
             {
                 CreateDatabase();
                 return 0;
             }
-            else
-            {
-                int numRowsDeleted = 0;
 
-                using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            int numRowsDeleted = 0;
+
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
+            {
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
-                    dbConnection.Open();
-                    using (SqlCeCommand cmd = new SqlCeCommand())
+                    try
                     {
-                        cmd.Connection = dbConnection;
                         cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
+
                         foreach (Message message in messages)
                         {
                             cmd.Parameters.Clear();
-                            cmd.Prepare();
                             cmd.Parameters.AddWithValue("@AccountName", message.AccountName);
                             cmd.Parameters.AddWithValue("@MailboxPath", message.MailboxPath);
                             cmd.Parameters.AddWithValue("@Uid", message.Uid);
-                            try
-                            {
-                                numRowsDeleted += cmd.ExecuteNonQuery();
-                            }
-                            catch (Exception ex)
-                            {
-                                Trace.WriteLine(ex.Message);
-                                errorMsg = ex.Message;
-                                return numRowsDeleted;
-                            }
+                            cmd.Prepare();
+                            numRowsDeleted += cmd.ExecuteNonQuery();
                         }
                     }
-
-                    dbConnection.Close();
-
-                    return numRowsDeleted;
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        errorMsg = ex.Message;
+                    }
+                    finally
+                    {
+                        conn.Close();
+                    }
                 }
             }
+
+            return numRowsDeleted;
         }
 
         public static int Update(Message message)
@@ -727,6 +757,7 @@ namespace MinimalEmailClient.Models
         public static int Update(List<Message> messages, out string errorMsg)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
             errorMsg = string.Empty;
             if (!DatabaseExists())
             {
@@ -736,44 +767,44 @@ namespace MinimalEmailClient.Models
 
             int numRowsUpdated = 0;
 
-            using (SqlCeConnection dbConnection = new SqlCeConnection(connString))
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
             {
-                dbConnection.Open();
-                using (SqlCeCommand cmd = new SqlCeCommand())
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
                 {
-                    cmd.Connection = dbConnection;
-                    cmd.CommandText = "Update Messages SET Subject = @Subject, DateString = @DateString, Sender = @Sender, Recipient = @Recipient, FlagString = @FlagString, Body = @Body WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
-
-                    foreach (Message message in messages)
+                    try
                     {
-                        cmd.Parameters.Clear();
-                        cmd.Prepare();
+                        cmd.CommandText = "Update Messages SET Subject = @Subject, DateString = @DateString, Sender = @Sender, Recipient = @Recipient, FlagString = @FlagString, Body = @Body WHERE AccountName = @AccountName AND MailboxPath = @MailboxPath AND Uid = @Uid;";
 
-                        cmd.Parameters.AddWithValue("@Subject", message.Subject);
-                        cmd.Parameters.AddWithValue("@DateString", message.DateString);
-                        cmd.Parameters.AddWithValue("@Sender", message.Sender);
-                        cmd.Parameters.AddWithValue("@Recipient", message.Recipient);
-                        cmd.Parameters.AddWithValue("@FlagString", message.FlagString);
-                        cmd.Parameters.AddWithValue("@Body", message.Body);
-
-                        cmd.Parameters.AddWithValue("@AccountName", message.AccountName);
-                        cmd.Parameters.AddWithValue("@MailboxPath", message.MailboxPath);
-                        cmd.Parameters.AddWithValue("@Uid", message.Uid);
-
-                        try
+                        foreach (Message message in messages)
                         {
+                            cmd.Parameters.Clear();
+
+                            cmd.Parameters.AddWithValue("@Subject", message.Subject);
+                            cmd.Parameters.AddWithValue("@DateString", message.DateString);
+                            cmd.Parameters.AddWithValue("@Sender", message.Sender);
+                            cmd.Parameters.AddWithValue("@Recipient", message.Recipient);
+                            cmd.Parameters.AddWithValue("@FlagString", message.FlagString);
+                            cmd.Parameters.AddWithValue("@Body", message.Body);
+
+                            cmd.Parameters.AddWithValue("@AccountName", message.AccountName);
+                            cmd.Parameters.AddWithValue("@MailboxPath", message.MailboxPath);
+                            cmd.Parameters.AddWithValue("@Uid", message.Uid);
+                            cmd.Prepare();
+
                             numRowsUpdated += cmd.ExecuteNonQuery();
                         }
-                        catch (Exception ex)
-                        {
-                            Trace.WriteLine(ex.Message);
-                            errorMsg = ex.Message;
-                            return numRowsUpdated;
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        errorMsg = ex.Message;
+                    }
+                    finally
+                    {
+                        conn.Close();
                     }
                 }
-
-                dbConnection.Close();
 
                 return numRowsUpdated;
             }
