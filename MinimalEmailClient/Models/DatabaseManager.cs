@@ -255,12 +255,12 @@ namespace MinimalEmailClient.Models
                 dbConnection.Open();
                 using (SqlCeCommand cmd = new SqlCeCommand())
                 {
-                    cmd.Connection = dbConnection;
-                    cmd.CommandText = "DELETE FROM Accounts WHERE AccountName = @AccountName;";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
                     try
                     {
+                        cmd.Connection = dbConnection;
+                        cmd.CommandText = "DELETE FROM Accounts WHERE AccountName = @AccountName;";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
                         cmd.ExecuteNonQuery();
                     }
                     catch (Exception ex)
@@ -273,11 +273,12 @@ namespace MinimalEmailClient.Models
                     // Following two queries should not be necessary if we are using foreign key restrictions on
                     // Mailboxes and Messages tables' AccountName attribute. I am executing them here anyway because
                     // they are harmless.
-                    cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName;";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
                     try
                     {
+                        cmd.CommandText = "DELETE FROM Mailboxes WHERE AccountName = @AccountName;";
+                        cmd.Parameters.Clear();
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
                         cmd.ExecuteNonQuery();
                     }
                     catch (Exception ex)
@@ -287,11 +288,12 @@ namespace MinimalEmailClient.Models
                         return false;
                     }
 
-                    cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName;";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
                     try
                     {
+                        cmd.CommandText = "DELETE FROM Messages WHERE AccountName = @AccountName;";
+                        cmd.Parameters.Clear();
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@AccountName", account.AccountName);
                         cmd.ExecuteNonQuery();
                     }
                     catch (Exception ex)
