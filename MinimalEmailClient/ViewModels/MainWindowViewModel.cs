@@ -6,6 +6,8 @@ using Prism.Mvvm;
 using System.Windows.Input;
 using System.Diagnostics;
 using Prism.Events;
+using MinimalEmailClient.Services;
+using MinimalEmailClient.Notifications;
 
 namespace MinimalEmailClient.ViewModels
 {

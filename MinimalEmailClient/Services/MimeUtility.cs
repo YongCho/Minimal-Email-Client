@@ -7,7 +7,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public class MimeUtility
     {

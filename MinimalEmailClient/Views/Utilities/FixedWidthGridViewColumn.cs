@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace MinimalEmailClient.Views
+namespace MinimalEmailClient.Views.Utilities
 {
     // Helper class to make GridViewColumn not resizable in listview.
     // Source: https://blogs.msdn.microsoft.com/atc_avalon_team/2006/04/10/fixed-width-column-in-listview-a-column-that-cannot-be-resized/

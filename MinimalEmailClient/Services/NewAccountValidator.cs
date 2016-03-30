@@ -1,4 +1,6 @@
-﻿namespace MinimalEmailClient.Models
+﻿using MinimalEmailClient.Models;
+
+namespace MinimalEmailClient.Services
 {
     public class NewAccountValidator
     {

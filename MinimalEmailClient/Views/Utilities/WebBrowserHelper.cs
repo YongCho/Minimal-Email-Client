@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace MinimalEmailClient.Views
+namespace MinimalEmailClient.Views.Utilities
 {
     // This class is used to create a binding property to a WebBrowser control.
     // Source: http://stackoverflow.com/questions/4202961/can-i-bind-html-to-a-wpf-web-browser-control

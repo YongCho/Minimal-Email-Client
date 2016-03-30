@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using MinimalEmailClient.Models;
+using MinimalEmailClient.Services;
 
 namespace MinimalEmailClient
 {

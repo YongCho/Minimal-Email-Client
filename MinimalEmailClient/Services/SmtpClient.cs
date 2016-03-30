@@ -6,8 +6,9 @@ using System.Net.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
+using MinimalEmailClient.Models;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public class SmtpClient
     {

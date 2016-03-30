@@ -5,8 +5,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using MinimalEmailClient.Models;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public class MessageManager
     {

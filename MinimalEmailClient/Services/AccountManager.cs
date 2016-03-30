@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using MinimalEmailClient.Events;
+using MinimalEmailClient.Models;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public class AccountManager
     {

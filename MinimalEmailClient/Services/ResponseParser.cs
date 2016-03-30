@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using MinimalEmailClient.Models;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public class ResponseParser
     {

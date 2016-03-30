@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Input;
 using MinimalEmailClient.Models;
 using MinimalEmailClient.Commands;
+using MinimalEmailClient.Services;
+using MinimalEmailClient.Notifications;
 
 namespace MinimalEmailClient.ViewModels
 {

@@ -6,6 +6,7 @@ using MinimalEmailClient.Models;
 using System;
 using System.Text.RegularExpressions;
 using Prism.Interactivity.InteractionRequest;
+using MinimalEmailClient.Services;
 
 namespace MinimalEmailClient.ViewModels
 {

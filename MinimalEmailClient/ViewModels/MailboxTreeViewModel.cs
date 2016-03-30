@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Prism.Commands;
 using System.Windows;
 using Prism.Events;
+using MinimalEmailClient.Services;
 
 namespace MinimalEmailClient.ViewModels
 {

@@ -5,8 +5,9 @@ using System.Data.SqlServerCe;
 using System;
 using MinimalEmailClient.Common;
 using System.Diagnostics;
+using MinimalEmailClient.Models;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public static class DatabaseManager
     {

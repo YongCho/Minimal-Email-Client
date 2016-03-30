@@ -1,14 +1,15 @@
 ﻿using Prism.Interactivity.InteractionRequest;
+using MinimalEmailClient.Models;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Notifications
 {
-    public class SelectedMessageNotification : Notification
+    public class MessageContentsViewNotification : Notification
     {
         public Account SelectedAccount;
         public Mailbox SelectedMailbox;
         public Message SelectedMessage;
 
-        public SelectedMessageNotification(Account account, Mailbox mailbox, Message message)
+        public MessageContentsViewNotification(Account account, Mailbox mailbox, Message message)
         {
             SelectedAccount = account;
             SelectedMailbox = mailbox;

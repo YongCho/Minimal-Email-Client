@@ -5,8 +5,9 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Text;
 using System.Text.RegularExpressions;
+using MinimalEmailClient.Models;
 
-namespace MinimalEmailClient.Models
+namespace MinimalEmailClient.Services
 {
     public struct ExamineResult
     {

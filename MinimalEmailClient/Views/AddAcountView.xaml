@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MinimalEmailClient.Views"
+             xmlns:converters="clr-namespace:MinimalEmailClient.Views.Converters"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
              mc:Ignorable="d" Padding="8" Loaded="UserControl_Loaded">
 
@@ -12,7 +13,8 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Collapsed" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Collapsed" />
+
         <Style TargetType="GroupBox">
             <Setter Property="Padding" Value="5" />
         </Style>

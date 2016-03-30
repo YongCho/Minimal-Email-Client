@@ -8,12 +8,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MinimalEmailClient.Services;
+using MinimalEmailClient.Notifications;
 
 namespace MinimalEmailClient.ViewModels
 {
     public class MessageContentViewModel : BindableBase, IInteractionRequestAware
     {
-        private SelectedMessageNotification notification;
+        private MessageContentsViewNotification notification;
         public INotification Notification
         {
             get
@@ -22,11 +24,11 @@ namespace MinimalEmailClient.ViewModels
             }
             set
             {
-                if (value is SelectedMessageNotification)
+                if (value is MessageContentsViewNotification)
                 {
-                    this.notification = value as SelectedMessageNotification;
+                    this.notification = value as MessageContentsViewNotification;
                     this.OnPropertyChanged(() => this.Notification);
-                    Message = (value as SelectedMessageNotification).SelectedMessage;
+                    Message = (value as MessageContentsViewNotification).SelectedMessage;
                 }
             }
         }

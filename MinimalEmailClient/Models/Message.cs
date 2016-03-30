@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using MinimalEmailClient.Services;
 
 namespace MinimalEmailClient.Models
 {

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MinimalEmailClient.Views
+namespace MinimalEmailClient.Views.Converters
 {
     public class BooleanToEnvelopImageSourceConverter : IValueConverter
     {

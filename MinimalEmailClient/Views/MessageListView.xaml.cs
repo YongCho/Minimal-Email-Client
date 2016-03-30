@@ -4,6 +4,7 @@ using MinimalEmailClient.ViewModels;
 using Prism.Events;
 using System.Collections.Generic;
 using System.Windows.Controls;
+using MinimalEmailClient.Services;
 
 namespace MinimalEmailClient.Views
 {

@@ -6,6 +6,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
              xmlns:views="clr-namespace:MinimalEmailClient.Views"
+             xmlns:converters="clr-namespace:MinimalEmailClient.Views.Converters"
+             xmlns:viewUtilities="clr-namespace:MinimalEmailClient.Views.Utilities"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" Background="White" Loaded="UserControl_Loaded">
@@ -15,7 +17,7 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <views:BoolToVisibilityConverter x:Key="InverseBoolToHiddenConverter" TrueValue="Hidden" FalseValue="Visible" />
+        <converters:BoolToVisibilityConverter x:Key="InverseBoolToHiddenConverter" TrueValue="Hidden" FalseValue="Visible" />
     </UserControl.Resources>
 
     <DockPanel>
@@ -82,7 +84,7 @@
                     <TabControl x:Name="msgTabControl" SelectedIndex="{Binding ElementName=userControl, Path=SelectedTabIndex}" TabStripPlacement="Bottom" BorderThickness="0" >
                         <TabItem Header="Text" Visibility="Collapsed">
                             <!-- Visibility: Need to hide the WebBrowser control while busy indicator is on because it kills the busy indicator for some reason. -->
-                            <WebBrowser views:WebBrowserHelper.Html="{Binding BrowserContent}" Visibility="{Binding Loading, Converter={StaticResource InverseBoolToHiddenConverter}}" />
+                            <WebBrowser viewUtilities:WebBrowserHelper.Html="{Binding BrowserContent}" Visibility="{Binding Loading, Converter={StaticResource InverseBoolToHiddenConverter}}" />
                         </TabItem>
                         <TabItem Header="Text" Visibility="Collapsed">
                             <ScrollViewer>

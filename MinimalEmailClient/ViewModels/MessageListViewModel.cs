@@ -14,6 +14,8 @@ using System;
 using System.Windows;
 using Prism.Events;
 using System.Linq;
+using MinimalEmailClient.Services;
+using MinimalEmailClient.Notifications;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -35,7 +37,7 @@ namespace MinimalEmailClient.ViewModels
         }
         private MessageManager messageManager = MessageManager.Instance;
 
-        public InteractionRequest<SelectedMessageNotification> MessageContentViewPopupRequest { get; set; }
+        public InteractionRequest<MessageContentsViewNotification> MessageContentViewPopupRequest { get; set; }
         public ICommand OpenMessageContentViewCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
 
@@ -45,7 +47,7 @@ namespace MinimalEmailClient.ViewModels
             messageManager.MessageAdded += OnMessageAdded;
             messageManager.MessageRemoved += OnMessageRemoved;
 
-            MessageContentViewPopupRequest = new InteractionRequest<SelectedMessageNotification>();
+            MessageContentViewPopupRequest = new InteractionRequest<MessageContentsViewNotification>();
             OpenMessageContentViewCommand = new DelegateCommand(RaiseMessageContentViewPopupRequest);
             DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
             this.messagesCv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
@@ -87,7 +89,7 @@ namespace MinimalEmailClient.ViewModels
             if (SelectedMessage != null)
             {
                 Account currentMailboxAccount = AccountManager.Instance.GetAccountByName(CurrentMailbox.AccountName);
-                SelectedMessageNotification notification = new SelectedMessageNotification(currentMailboxAccount, CurrentMailbox, SelectedMessage);
+                MessageContentsViewNotification notification = new MessageContentsViewNotification(currentMailboxAccount, CurrentMailbox, SelectedMessage);
                 notification.Title = SelectedMessage.Subject;
                 MessageContentViewPopupRequest.Raise(notification);
             }
