@@ -7,14 +7,37 @@ namespace MinimalEmailClient.Models
 {
     public class Message : BindableBase
     {
-        public string AccountName = string.Empty;
-        public string MailboxPath = string.Empty;
+        private string accountName = string.Empty;
+        public string AccountName
+        {
+            get { return this.accountName; }
+            set
+            {
+                SetProperty(ref this.accountName, value);
+                UniqueKeyString = CreateUniqueKeyString();
+            }
+        }
+
+        private string mailboxPath = string.Empty;
+        public string MailboxPath
+        {
+            get { return this.mailboxPath; }
+            set
+            {
+                SetProperty(ref this.mailboxPath, value);
+                UniqueKeyString = CreateUniqueKeyString();
+            }
+        }
 
         private int uid = 0;
         public int Uid
         {
             get { return this.uid; }
-            set { SetProperty(ref this.uid, value); }
+            set
+            {
+                SetProperty(ref this.uid, value);
+                UniqueKeyString = CreateUniqueKeyString();
+            }
         }
 
         private string subject = string.Empty;
@@ -33,34 +56,6 @@ namespace MinimalEmailClient.Models
                 SetProperty(ref this.sender, value);
                 SetSenderNameAndAddress(this.sender);
             }
-        }
-
-        private void SetSenderNameAndAddress(string sender)
-        {
-            string name = string.Empty;
-            string address = string.Empty;
-            string senderPattern = "(?<name>[^<>]*)(<(?<address>[^<>]*)>)?";
-            Match m = Regex.Match(sender, senderPattern);
-            if (m.Success)
-            {
-                name = m.Groups["name"].ToString().Trim(' ', '"');
-                address = m.Groups["address"].ToString().Trim(' ', '"');
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    name = address;
-                }
-                else if (name.Contains("@") && string.IsNullOrWhiteSpace(address))
-                {
-                    address = name;
-                }
-            }
-            else
-            {
-                name = sender;
-            }
-
-            SenderName = name.Trim('"', ' ');
-            SenderAddress = address.Trim('"', ' ');
         }
 
         private string senderName = string.Empty;
@@ -165,6 +160,51 @@ namespace MinimalEmailClient.Models
         {
             get { return this.htmlBody; }
             private set { SetProperty(ref this.htmlBody, value); }
+        }
+
+        public string UniqueKeyString { get; private set; }
+
+        private void SetSenderNameAndAddress(string sender)
+        {
+            string name = string.Empty;
+            string address = string.Empty;
+            string senderPattern = "(?<name>[^<>]*)(<(?<address>[^<>]*)>)?";
+            Match m = Regex.Match(sender, senderPattern);
+            if (m.Success)
+            {
+                name = m.Groups["name"].ToString().Trim(' ', '"');
+                address = m.Groups["address"].ToString().Trim(' ', '"');
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    name = address;
+                }
+                else if (name.Contains("@") && string.IsNullOrWhiteSpace(address))
+                {
+                    address = name;
+                }
+            }
+            else
+            {
+                name = sender;
+            }
+
+            SenderName = name.Trim('"', ' ');
+            SenderAddress = address.Trim('"', ' ');
+        }
+
+        private string CreateUniqueKeyString()
+        {
+            if (string.IsNullOrEmpty(AccountName) || string.IsNullOrEmpty(MailboxPath) || Uid == 0)
+            {
+                return string.Empty;
+            }
+
+            return CreateUniqueKeyString(AccountName, MailboxPath, Uid);
+        }
+
+        public static string CreateUniqueKeyString(string accountName, string mailboxPath, int uid)
+        {
+            return accountName + ";" + mailboxPath + ";" + uid;
         }
 
         public override string ToString()

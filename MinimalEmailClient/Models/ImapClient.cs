@@ -169,6 +169,32 @@ namespace MinimalEmailClient.Models
             return true;
         }
 
+        // Returns a sorted list of uids that match the condition.
+        // Example condition string: "ALL", "SEEN", "UNSEEN"
+        public List<int> SearchUids(string conditionString)
+        {
+            List<int> uidList = new List<int>();
+            string tag = NextTag();
+            SendString(string.Format("{0} UID SEARCH {1}", tag, conditionString));
+
+            string response = string.Empty;
+            if (ReadResponse(tag, out response))
+            {
+                Match m = Regex.Match(response, "^\\* SEARCH ([0-9 ]*)\r\n");
+                response = m.Groups[1].Value.Trim();
+                if (!string.IsNullOrEmpty(response))
+                {
+                    string[] uidStrings = response.Split(' ');
+                    foreach (string uidString in uidStrings)
+                    {
+                        uidList.Add(Convert.ToInt32(uidString));
+                    }
+                }
+            }
+
+            return uidList;
+        }
+
         // Fetches body of a message.
         // ExamineMailbox must be called to select the mailbox before calling this method.
         public string FetchBody(int uid)

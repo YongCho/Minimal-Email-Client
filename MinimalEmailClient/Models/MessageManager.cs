@@ -10,12 +10,15 @@ namespace MinimalEmailClient.Models
 {
     public class MessageManager
     {
-        public List<Message> Messages;
-        public string Error = string.Empty;
+        public Dictionary<string, Message> MessagesDico;  // Key is the Message object unique id.
         private ConcurrentDictionary<string, int> abortLatches = new ConcurrentDictionary<string, int>();  // <account name, 0 or 1>; set to 1 to abort sync
         private ConcurrentDictionary<string, int> openSyncOps = new ConcurrentDictionary<string, int>();  // <account name, # of sync methods running>
         public event EventHandler<Message> MessageAdded;
         public event EventHandler<Message> MessageRemoved;
+        public event EventHandler<Message> MessageModified;
+
+        public string Error = string.Empty;
+        private int downloadChunkSize = 50;
 
         private static readonly MessageManager instance = new MessageManager();
         public static MessageManager Instance
@@ -51,30 +54,38 @@ namespace MinimalEmailClient.Models
             }
 
             // Remove all messages associated with this account.
-            Trace.WriteLine("Deleting messages for account " + accountName);
-            for (int i = Messages.Count - 1; i >= 0; --i)
+            List<string> keysToRemove = new List<string>();
+            foreach (KeyValuePair<string, Message> pair in MessagesDico)
             {
-                if (Messages[i].AccountName == accountName)
+                if (pair.Value.AccountName == accountName)
                 {
-                    Message removedMsg = Messages[i];
-                    Messages.RemoveAt(i);
-                    OnMessageRemoved(removedMsg);
+                    keysToRemove.Add(pair.Key);
                 }
+            }
+            foreach (string key in keysToRemove)
+            {
+                Message removedMsg = MessagesDico[key];
+                MessagesDico.Remove(key);
+                OnMessageRemoved(removedMsg);
             }
         }
 
         private void LoadMessagesFromDb()
         {
-            if (Messages == null)
+            if (MessagesDico == null)
             {
-                Messages = new List<Message>();
+                MessagesDico = new Dictionary<string, Message>();
             }
             else
             {
-                Messages.Clear();
+                MessagesDico.Clear();
             }
 
-            Messages = DatabaseManager.GetMessages();
+            List<Message> dbMessages = DatabaseManager.GetMessages();
+            foreach (Message msg in dbMessages)
+            {
+                MessagesDico.Add(msg.UniqueKeyString, msg);
+            }
         }
 
         private void HandleMailboxListSyncFinished(Account account)
@@ -95,6 +106,14 @@ namespace MinimalEmailClient.Models
             if (MessageRemoved != null)
             {
                 MessageRemoved(this, removedMessage);
+            }
+        }
+
+        protected virtual void OnMessageModified(Message modifiedMessage)
+        {
+            if (MessageModified != null)
+            {
+                MessageModified(this, modifiedMessage);
             }
         }
 
@@ -167,33 +186,33 @@ namespace MinimalEmailClient.Models
                 return;
             }
 
-            // Download recent messages.
             int localLargestUid = DatabaseManager.GetMaxUid(account.AccountName, mailboxName);
+
+            // Download the recent message headers that have never been downloaded yet.
             int serverLargestUid = status.UidNext - 1;
             if (serverLargestUid > localLargestUid)
             {
-                SyncHelper(account, mailboxName, imapClient, localLargestUid + 1, serverLargestUid);
+                SyncNewMessageHeaders(account, mailboxName, imapClient, localLargestUid + 1, serverLargestUid);
             }
 
-            // Download old messages. (Maybe the program shut down previously in the middle of downloading?)
-            int localSmallestUid = DatabaseManager.GetMinUid(account.AccountName, mailboxName);
-            if (localSmallestUid > 1)
+            // Sync changes to the existing message headers (flags, etc.).
+            if (localLargestUid > 0)
             {
-                SyncHelper(account, mailboxName, imapClient, 1, localSmallestUid - 1);
+                SyncExistingMessageHeaders(account, mailboxName, imapClient, 1, localLargestUid);
             }
 
             imapClient.Disconnect();
         }
 
-        private void SyncHelper(Account account, string mailboxName, ImapClient imapClient, int firstUid, int lastUid)
+        private void SyncNewMessageHeaders(Account account, string mailboxName, ImapClient connectedImapClient, int firstUid, int lastUid)
         {
-            Trace.WriteLine("SyncHelper: Mailbox(" + mailboxName + "), UIDs(" + firstUid + ", " + lastUid + ")");
+            Trace.WriteLine("SyncNewMessageHeaders: Mailbox(" + mailboxName + "), UIDs(" + firstUid + ", " + lastUid + ")");
 
             // Decrement this at every exit point.
             openSyncOps.AddOrUpdate(account.AccountName, 1, (k, v) => v + 1);
 
             int messagesCount = lastUid - firstUid + 1;
-            int downloadChunk = 30;
+            int downloadChunk = this.downloadChunkSize;
             int startUid = lastUid - downloadChunk + 1;
             int endUid = lastUid;
 
@@ -211,17 +230,104 @@ namespace MinimalEmailClient.Models
                 {
                     startUid = firstUid;
                 }
-                List<Message> msgs = imapClient.FetchHeaders(startUid, endUid - startUid + 1, true);
+                List<Message> msgs = connectedImapClient.FetchHeaders(startUid, endUid - startUid + 1, true);
                 if (msgs.Count > 0)
                 {
                     foreach (Message msg in msgs)
                     {
                         msg.AccountName = account.AccountName;
                         msg.MailboxPath = mailboxName;
-                        Messages.Add(msg);
+                        MessagesDico.Add(msg.UniqueKeyString, msg);
                         OnMessageAdded(msg);
                     }
                     DatabaseManager.StoreMessages(msgs);
+                }
+
+                endUid = startUid - 1;
+                startUid = endUid - downloadChunk + 1;
+            }
+
+            openSyncOps.AddOrUpdate(account.AccountName, 0, (k, v) => v - 1);
+        }
+
+        private void SyncExistingMessageHeaders(Account account, string mailboxName, ImapClient connectedImapClient, int firstUid, int lastUid)
+        {
+            Trace.WriteLine("SyncExistingMessageHeaders: Mailbox(" + mailboxName + "), UIDs(" + firstUid + ", " + lastUid + ")");
+
+            // Decrement this at every exit point.
+            openSyncOps.AddOrUpdate(account.AccountName, 1, (k, v) => v + 1);
+
+            // Delete all messages that have been deleted from server.
+            List<int> serverUids = connectedImapClient.SearchUids("ALL");
+            List<string> keysToDelete = new List<string>();
+            foreach (KeyValuePair<string, Message> entry in MessagesDico)
+            {
+                Message msg = entry.Value;
+                if (msg.AccountName == account.AccountName &&
+                    msg.MailboxPath == mailboxName &&
+                    !serverUids.Contains(msg.Uid))
+                {
+                    keysToDelete.Add(entry.Key);
+                }
+            }
+
+            List<Message> msgsDeleted = new List<Message>();
+            foreach (string key in keysToDelete)
+            {
+                Message msg = MessagesDico[key];
+                MessagesDico.Remove(key);
+                OnMessageRemoved(msg);
+                msgsDeleted.Add(msg);
+            }
+
+            DatabaseManager.DeleteMessages(msgsDeleted);
+
+            // Now synchronize the remaining messages.
+            int messagesCount = lastUid - firstUid + 1;
+            int downloadChunk = this.downloadChunkSize;
+            int startUid = lastUid - downloadChunk + 1;
+            int endUid = lastUid;
+
+            while (endUid >= firstUid)
+            {
+                int abort = 0;
+                if (abortLatches.TryGetValue(account.AccountName, out abort) && abort == 1)
+                {
+                    Trace.WriteLine("Aborting sync...");
+                    openSyncOps.AddOrUpdate(account.AccountName, 0, (k, v) => v - 1);
+                    return;
+                }
+
+                if (startUid < firstUid)
+                {
+                    startUid = firstUid;
+                }
+                List<Message> serverMsgs = connectedImapClient.FetchHeaders(startUid, endUid - startUid + 1, true);
+                if (serverMsgs.Count > 0)
+                {
+                    List<Message> messagesAdded = new List<Message>();
+                    foreach (Message serverMsg in serverMsgs)
+                    {
+                        serverMsg.AccountName = account.AccountName;
+                        serverMsg.MailboxPath = mailboxName;
+                        Message localMsg = new Message();
+                        if (MessagesDico.TryGetValue(serverMsg.UniqueKeyString, out localMsg))
+                        {
+                            // A local copy exists. Update its flags.
+                            if (localMsg.FlagString != serverMsg.FlagString)
+                            {
+                                localMsg.FlagString = serverMsg.FlagString;
+                                OnMessageModified(localMsg);
+                            }
+                        }
+                        else
+                        {
+                            MessagesDico.Add(serverMsg.UniqueKeyString, serverMsg);
+                            OnMessageAdded(serverMsg);
+                            messagesAdded.Add(serverMsg);
+                        }
+                    }
+                    DatabaseManager.StoreMessages(messagesAdded);
                 }
 
                 endUid = startUid - 1;
@@ -236,7 +342,7 @@ namespace MinimalEmailClient.Models
             // Delete from memory.
             foreach (Message msg in messages)
             {
-                Messages.Remove(msg);
+                MessagesDico.Remove(msg.UniqueKeyString);
                 OnMessageRemoved(msg);
             }
 

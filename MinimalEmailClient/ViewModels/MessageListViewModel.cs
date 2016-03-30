@@ -13,6 +13,7 @@ using Prism.Commands;
 using System;
 using System.Windows;
 using Prism.Events;
+using System.Linq;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -54,7 +55,6 @@ namespace MinimalEmailClient.ViewModels
 
             GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange, ThreadOption.UIThread);
         }
-
         public void OnMessageAdded(object sender, Message newMessage)
         {
             Application.Current.Dispatcher.Invoke(() => { Messages.Add(newMessage); });
@@ -77,7 +77,7 @@ namespace MinimalEmailClient.ViewModels
             }
 
             List<Message> messages = await Task.Run<List<Message>>(() => {
-                return messageManager.Messages;
+                return messageManager.MessagesDico.Values.ToList();
             });
             Messages.AddRange(messages);
         }
