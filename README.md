@@ -14,16 +14,15 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 
 # Summary of progress up to Week 3/29
 - Implemented some basic IMAP functionalities which include:
-    * Logging in to an IMAP server.
+    * Logging in to an IMAP server with the credentials provided by the user.
     * Retrieving a list of mailboxes in the user's email account.
     * Downloading and displaying email messages in each mailbox.
 - Created a database that stores the downloaded mailboxes and messages information.
 - Implemented a series of logic that executes at the program startup:
     * Retrieve the list of mailboxes and messages from the database (local copy).
-    * Connect to the configured IMAP server and download mailbox list.
-    * For each mailbox, check the server for any new messages and download them as necessary.
-    * Store all newly downloaded information to the database.
-- Created UI elements that collect an email account information from the user and display the mailbox list and email messages.
+    * Connect to the configured IMAP server and download the mailbox list (server copy). Update the local mailbox list if there are differences.
+    * For each mailbox, check the server for any newly arrived messages and download them as necessary.
+    * Store all downloaded messages to the database.
 
 # Setting up the environment.
 - Install Visual Studio 2015 Community. Make sure you install the components to develop C# WPF Application. This might be installed by default. If they are not installed initially, you will have an option to install them later when you open the project.
