@@ -1,11 +1,11 @@
 ﻿// #undef TRACE
 using MinimalEmailClient.Events;
+using MinimalEmailClient.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using MinimalEmailClient.Models;
 
 namespace MinimalEmailClient.Services
 {
@@ -136,7 +136,7 @@ namespace MinimalEmailClient.Services
             // Sync inbox immediately from a separate thread.
             foreach (Mailbox mailbox in mailboxes)
             {
-                if (mailbox.DisplayName.ToLower() == "inbox")
+                if (mailbox.MailboxName.ToLower() == "inbox")
                 {
                     Task.Run(() => { SyncMessage(account, mailbox.DirectoryPath); });
                     mailboxes.Remove(mailbox);
@@ -238,8 +238,11 @@ namespace MinimalEmailClient.Services
                     {
                         msg.AccountName = account.AccountName;
                         msg.MailboxPath = mailboxName;
-                        MessagesDico.Add(msg.UniqueKeyString, msg);
-                        OnMessageAdded(msg);
+                        if (!MessagesDico.ContainsKey(msg.UniqueKeyString))
+                        {
+                            MessagesDico.Add(msg.UniqueKeyString, msg);
+                            OnMessageAdded(msg);
+                        }
                     }
                     DatabaseManager.StoreMessages(msgs);
                 }

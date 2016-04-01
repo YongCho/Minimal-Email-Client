@@ -70,13 +70,6 @@ namespace MinimalEmailClient.Models
 
         public ObservableCollection<Mailbox> Mailboxes { get; set; }
 
-        private bool isExpanded = true;
-        public bool IsExpanded
-        {
-            get { return this.isExpanded; }
-            set { SetProperty(ref this.isExpanded, value); }
-        }
-
         public Account()
         {
             Mailboxes = new ObservableCollection<Mailbox>();
@@ -84,8 +77,16 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            string str = string.Format("Account:\nAccountName: {0}\nEmailAddress: {1}\nImapServerName: {2}\nImapLoginName: {3}\nImapLoginPassword: {4}\nImapPortNumber: {5}\nSmtpServerName: {6}\nSmtpLoginName: {7}\nSmtpLoginPassword: {8}\nSmtpPortNumber: {9}\n", AccountName, EmailAddress, ImapServerName, ImapLoginName, ImapLoginPassword, ImapPortNumber, SmtpServerName, SmtpLoginName, SmtpLoginPassword, SmtpPortNumber);
-            return str;
+            return
+                "Account:\n" +
+                "AccountName: " + AccountName + "\n" +
+                "EmailAddress: " + EmailAddress + "\n" +
+                "ImapServerName: " + ImapServerName + "\n" +
+                "ImapLoginName: " + ImapLoginName + "\n" +
+                "ImapPortNumber: " + ImapPortNumber + "\n" +
+                "SmtpServerName: " + SmtpServerName + "\n" +
+                "SmtpLoginName: " + SmtpLoginName + "\n" +
+                "SmtpPortNumber: " + SmtpPortNumber + "\n";
         }
     }
 }

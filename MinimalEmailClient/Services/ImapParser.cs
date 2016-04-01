@@ -6,7 +6,7 @@ using MinimalEmailClient.Models;
 
 namespace MinimalEmailClient.Services
 {
-    public class ResponseParser
+    public class ImapParser
     {
         // Constructs a Message object from an untagged response string returned by a FETCH command.
         public static Message ParseFetchHeader(string untaggedItem)

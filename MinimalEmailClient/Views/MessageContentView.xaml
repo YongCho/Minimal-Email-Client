@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
-             xmlns:views="clr-namespace:MinimalEmailClient.Views"
              xmlns:converters="clr-namespace:MinimalEmailClient.Views.Converters"
              xmlns:viewUtilities="clr-namespace:MinimalEmailClient.Views.Utilities"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
@@ -42,7 +41,7 @@
 
             <!-- Subject -->
             <Border x:Name="subjectBorder" Grid.Row="0" Margin="0,8">
-                <TextBlock Margin="0,0,0,8" Text="{Binding Message.Subject, Mode=OneWay}" FontSize="18" Width="{Binding ElementName=subjectBorder, Path=ActualWidth}" TextWrapping="Wrap" />
+                <TextBlock Margin="0,0,0,8" Text="{Binding Subject, Mode=OneWay}" FontSize="18" Width="{Binding ElementName=subjectBorder, Path=ActualWidth, Mode=OneWay}" TextWrapping="Wrap" />
             </Border>
 
             <Border Grid.Row="1" Margin="5,0,5,10">
@@ -55,20 +54,23 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- From -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <TextBlock Text="From" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                            <TextBlock Text="{Binding Message.Sender, Mode=OneWay}" FontSize="14" />
-                        </StackPanel>
+                        <TextBlock Grid.Column="0" Text="From" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding Sender, Mode=OneWay}" FontSize="14" />
 
                         <!-- Date -->
-                        <TextBlock Grid.Column="2" Text="{Binding Message.Date}" Foreground="Gray" />
+                        <TextBlock Grid.Column="2" Text="{Binding Date, Mode=OneWay}" Foreground="Gray" />
                     </Grid>
 
-                    <!-- To -->
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="to" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding Message.Recipient, Mode=OneWay}" FontSize="14" />
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- To -->
+                        <TextBlock Grid.Column="0" Text="to" FontSize="14" Foreground="#FF6A6A6A" Margin="0,0,4,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding Recipient, Mode=OneWay}" FontSize="14" />
+                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -88,12 +90,12 @@
                         </TabItem>
                         <TabItem Header="Text" Visibility="Collapsed">
                             <ScrollViewer>
-                                <TextBox BorderThickness="0" Text="{Binding Message.TextBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                                <TextBox BorderThickness="0" Text="{Binding TextBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Html" Visibility="Collapsed">
                             <ScrollViewer>
-                                <TextBox BorderThickness="0" Text="{Binding Message.HtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                                <TextBox BorderThickness="0" Text="{Binding HtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Browser Content" Visibility="Collapsed">
@@ -103,7 +105,7 @@
                         </TabItem>
                         <TabItem Header="Source" Visibility="Collapsed">
                             <ScrollViewer>
-                                <TextBox BorderThickness="0" Text="{Binding Message.Body, Mode=OneWay}" FontSize="12" FontFamily="Consolas" Background="#EEF0EF" IsReadOnly="True" TextWrapping="Wrap" />
+                                <TextBox BorderThickness="0" Text="{Binding Body, Mode=OneWay}" FontSize="12" FontFamily="Consolas" Background="#EEF0EF" IsReadOnly="True" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </TabItem>
                     </TabControl>

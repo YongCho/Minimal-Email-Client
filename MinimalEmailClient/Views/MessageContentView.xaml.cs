@@ -1,13 +1,9 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
 namespace MinimalEmailClient.Views
 {
-    /// <summary>
-    /// Interaction logic for SelectedMessageView.xaml
-    /// </summary>
     public partial class MessageContentView : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;

@@ -87,15 +87,7 @@ namespace MinimalEmailClient.Models
             set
             {
                 SetProperty(ref this.dateString, value);
-                Date = ResponseParser.ParseDate(this.dateString);
             }
-        }
-
-        private DateTime date;
-        public DateTime Date
-        {
-            get { return this.date; }
-            private set { SetProperty(ref this.date, value); }
         }
 
         private string flagString = string.Empty;
@@ -138,29 +130,7 @@ namespace MinimalEmailClient.Models
         public string Body
         {
             get { return this.body; }
-            set
-            {
-                SetProperty(ref this.body, value);
-                if (this.body != string.Empty)
-                {
-                    TextBody = MimeUtility.GetTextBody(this.body);
-                    HtmlBody = MimeUtility.GetHtmlBody(this.body);
-                }
-            }
-        }
-
-        private string textBody = string.Empty;
-        public string TextBody
-        {
-            get { return this.textBody; }
-            private set { SetProperty(ref this.textBody, value); }
-        }
-
-        private string htmlBody = string.Empty;
-        public string HtmlBody
-        {
-            get { return this.htmlBody; }
-            private set { SetProperty(ref this.htmlBody, value); }
+            set { SetProperty(ref this.body, value); }
         }
 
         public string UniqueKeyString { get; private set; }
@@ -210,8 +180,15 @@ namespace MinimalEmailClient.Models
 
         public override string ToString()
         {
-            return string.Format("Message:\nUID={0}, Subject={1}, Sender={2}<{3}>, Recipient={4}, Date={5}, FlagsString={6}, IsSeen?={7}",
-                Uid, Subject, SenderName, SenderAddress, Recipient, Date.ToString(), FlagString, IsSeen ? "Yes" : "No");
+            return
+                "Message:\n" +
+                "UID: " + Uid + "\n" +
+                "Subject: " + Subject + "\n" +
+                "Sender: " + Sender + "\n" +
+                "Recipient: " + (Recipient.Length > 50 ? Recipient.Substring(0, 46) + " ..." : Recipient) + "\n" +
+                "Date: " + DateString + "\n" +
+                "FlagsString: " + FlagString + "\n" +
+                "IsSeen?: " + (IsSeen ? "Yes" : "No") + "\n";
         }
     }
 }

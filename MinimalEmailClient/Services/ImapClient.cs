@@ -166,7 +166,7 @@ namespace MinimalEmailClient.Services
                 return false;
             }
 
-            status = ResponseParser.ParseExamine(response);
+            status = ImapParser.ParseExamine(response);
             return true;
         }
 
@@ -260,7 +260,7 @@ namespace MinimalEmailClient.Services
                     if (match.Success)
                     {
                         string untaggedResponse = match.Groups[2].ToString();
-                        Message message = ResponseParser.ParseFetchHeader(untaggedResponse);
+                        Message message = ImapParser.ParseFetchHeader(untaggedResponse);
 
                         if (message != null)
                         {

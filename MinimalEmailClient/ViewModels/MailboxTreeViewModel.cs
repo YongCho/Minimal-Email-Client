@@ -10,12 +10,13 @@ using Prism.Commands;
 using System.Windows;
 using Prism.Events;
 using MinimalEmailClient.Services;
+using System;
 
 namespace MinimalEmailClient.ViewModels
 {
     public class MailboxTreeViewModel : BindableBase
     {
-        public ObservableCollection<Account> Accounts { get; set; }
+        public ObservableCollection<AccountViewModel> AccountViewModels { get; set; }
         public ICommand DeleteAccountCommand { get; set; }
         private Mailbox currentMailbox;
         public Mailbox CurrentMailbox
@@ -47,26 +48,26 @@ namespace MinimalEmailClient.ViewModels
             {
                 SetProperty(ref this.selectedTreeViewItem, value);
 
-                if (value is Mailbox)
+                if (value is MailboxViewModel)
                 {
-                    Mailbox selectedMailbox = value as Mailbox;
-                    if (selectedMailbox != CurrentMailbox)
+                    MailboxViewModel selectedMailboxViewModel = value as MailboxViewModel;
+                    if (selectedMailboxViewModel.Mailbox != CurrentMailbox)
                     {
-                        CurrentMailbox = selectedMailbox;
+                        CurrentMailbox = selectedMailboxViewModel.Mailbox;
                     }
 
-                    Account selectedMailboxAccount = AccountManager.Instance.GetAccountByName(selectedMailbox.AccountName);
+                    Account selectedMailboxAccount = AccountManager.Instance.GetAccountByName(selectedMailboxViewModel.Mailbox.AccountName);
                     if (selectedMailboxAccount != CurrentAccount)
                     {
                         CurrentAccount = selectedMailboxAccount;
                     }
                 }
-                else if (value is Account)
+                else if (value is AccountViewModel)
                 {
-                    Account selectedAccount = value as Account;
-                    if (selectedAccount != CurrentAccount)
+                    AccountViewModel selectedAccountViewModel = value as AccountViewModel;
+                    if (selectedAccountViewModel.Account != CurrentAccount)
                     {
-                        CurrentAccount = selectedAccount;
+                        CurrentAccount = selectedAccountViewModel.Account;
                         CurrentMailbox = null;
                     }
                 }
@@ -82,52 +83,61 @@ namespace MinimalEmailClient.ViewModels
         {
             GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent, ThreadOption.UIThread);
             GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent, ThreadOption.UIThread);
-            DeleteAccountCommand = new DelegateCommand<Account>(DeleteAccount);
+            DeleteAccountCommand = new DelegateCommand<AccountViewModel>(BeginDeleteAccount);
 
             LoadAccounts();
         }
 
-        private void DeleteAccount(Account ac)
+        private void BeginDeleteAccount(AccountViewModel accountVm)
         {
-            Task.Run(() => { AccountManager.Instance.DeleteAccount(ac); });
+            if (accountVm != null)
+            {
+                Task.Run(() => { AccountManager.Instance.DeleteAccount(accountVm.Account); });
+            }
         }
 
         private void HandleNewAccountAddedEvent(Account newAccount)
         {
-            Accounts.Add(newAccount);
-            SelectedTreeViewItem = newAccount;
+            if (newAccount == null)
+            {
+                throw new ArgumentNullException("newAccount");
+            }
+
+            AccountViewModel newAccountViewModel = new AccountViewModel(newAccount);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                AccountViewModels.Add(newAccountViewModel);
+                SelectedTreeViewItem = newAccountViewModel;
+            });
         }
 
         private void HandleAccountDeletedEvent(string accountName)
         {
-            foreach (Account ac in Accounts)
+            foreach (AccountViewModel accountVm in AccountViewModels)
             {
-                if (ac.AccountName == accountName)
+                if (accountVm.Account.AccountName == accountName)
                 {
-                    Application.Current.Dispatcher.Invoke(() => { Accounts.Remove(ac); });
+                    Application.Current.Dispatcher.Invoke(() => { AccountViewModels.Remove(accountVm); });
                     break;
                 }
             }
         }
 
-        public async void LoadAccounts()
+        public void LoadAccounts()
         {
-            if (Accounts == null)
+            if (AccountViewModels == null)
             {
-                Accounts = new ObservableCollection<Account>();
+                AccountViewModels = new ObservableCollection<AccountViewModel>();
             }
             else
             {
-                Accounts.Clear();
+                AccountViewModels.Clear();
             }
 
-            List<Account> accounts = await Task.Run<List<Account>>(() => {
-                return AccountManager.Instance.Accounts;
-            });
+            List<Account> accounts = AccountManager.Instance.Accounts;
             foreach (Account acc in accounts)
             {
-                Accounts.Add(acc);
-                AccountManager.Instance.BeginSyncMailboxList(acc);
+                AccountViewModels.Add(new AccountViewModel(acc));
             }
         }
     }

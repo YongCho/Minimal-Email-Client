@@ -1,34 +1,35 @@
 ﻿using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
+using MinimalEmailClient.Notifications;
+using MinimalEmailClient.Services;
+using Prism.Commands;
+using Prism.Events;
+using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Windows.Data;
 using System.ComponentModel;
-using Prism.Interactivity.InteractionRequest;
-using System.Windows.Input;
-using Prism.Commands;
-using System;
-using System.Windows;
-using Prism.Events;
+using System.Diagnostics;
 using System.Linq;
-using MinimalEmailClient.Services;
-using MinimalEmailClient.Notifications;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace MinimalEmailClient.ViewModels
 {
     public class MessageListViewModel : BindableBase
     {
-        public ObservableCollection<Message> Messages { get; set; }
+        public ObservableCollection<MessageHeaderViewModel> MessageHeaderViewModels { get; set; }
         private CollectionView messagesCv;
-        private Message selectedMessage;  // This could be null
-        public Message SelectedMessage
+        private MessageHeaderViewModel selectedMessageHeaderViewModel;  // This could be null
+        public MessageHeaderViewModel SelectedMessageHeaderViewModel
         {
-            get { return this.selectedMessage; }
-            set { SetProperty(ref this.selectedMessage, value); }
+            get { return this.selectedMessageHeaderViewModel; }
+            set { SetProperty(ref this.selectedMessageHeaderViewModel, value); }
         }
+        public List<MessageHeaderViewModel> SelectedMessageHeaderViewModels { get; set; }  // For multiple selection. Let it set by view at selection change event.
         private Mailbox currentMailbox;
         public Mailbox CurrentMailbox
         {
@@ -37,7 +38,7 @@ namespace MinimalEmailClient.ViewModels
         }
         private MessageManager messageManager = MessageManager.Instance;
 
-        public InteractionRequest<MessageContentsViewNotification> MessageContentViewPopupRequest { get; set; }
+        public InteractionRequest<MessageContentViewNotification> MessageContentViewPopupRequest { get; set; }
         public ICommand OpenMessageContentViewCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
 
@@ -47,50 +48,63 @@ namespace MinimalEmailClient.ViewModels
             messageManager.MessageAdded += OnMessageAdded;
             messageManager.MessageRemoved += OnMessageRemoved;
 
-            MessageContentViewPopupRequest = new InteractionRequest<MessageContentsViewNotification>();
+            MessageContentViewPopupRequest = new InteractionRequest<MessageContentViewNotification>();
             OpenMessageContentViewCommand = new DelegateCommand(RaiseMessageContentViewPopupRequest);
             DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
-            this.messagesCv = (CollectionView)CollectionViewSource.GetDefaultView(Messages);
+            this.messagesCv = (CollectionView)CollectionViewSource.GetDefaultView(MessageHeaderViewModels);
             this.messagesCv.SortDescriptions.Add(new SortDescription("Date", ListSortDirection.Descending));
+            SelectedMessageHeaderViewModels = new List<MessageHeaderViewModel>();
 
             HandleMailboxSelectionChange(null);
 
             GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent, ThreadOption.UIThread);
         }
         public void OnMessageAdded(object sender, Message newMessage)
         {
-            Application.Current.Dispatcher.Invoke(() => { Messages.Add(newMessage); });
+            Application.Current.Dispatcher.Invoke(() => { MessageHeaderViewModels.Add(new MessageHeaderViewModel(newMessage)); });
         }
 
         public void OnMessageRemoved(object sender, Message removedMessage)
         {
-            Application.Current.Dispatcher.Invoke(() => { Messages.Remove(removedMessage); });
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (MessageHeaderViewModel messageVm in MessageHeaderViewModels)
+                {
+                    if (messageVm.Message == removedMessage)
+                    {
+                        MessageHeaderViewModels.Remove(messageVm);
+                        break;
+                    }
+                }
+            });
         }
 
-        public async void LoadMessages()
+        public void LoadMessages()
         {
-            if (Messages == null)
+            if (MessageHeaderViewModels == null)
             {
-                Messages = new ObservableCollection<Message>();
+                MessageHeaderViewModels = new ObservableCollection<MessageHeaderViewModel>();
             }
             else
             {
-                Messages.Clear();
+                MessageHeaderViewModels.Clear();
             }
 
-            List<Message> messages = await Task.Run<List<Message>>(() => {
-                return messageManager.MessagesDico.Values.ToList();
-            });
-            Messages.AddRange(messages);
+            List<Message> messages = messageManager.MessagesDico.Values.ToList();
+            foreach (Message msg in messages)
+            {
+                MessageHeaderViewModels.Add(new MessageHeaderViewModel(msg));
+            }
         }
 
         private void RaiseMessageContentViewPopupRequest()
         {
-            if (SelectedMessage != null)
+            if (SelectedMessageHeaderViewModel != null)
             {
                 Account currentMailboxAccount = AccountManager.Instance.GetAccountByName(CurrentMailbox.AccountName);
-                MessageContentsViewNotification notification = new MessageContentsViewNotification(currentMailboxAccount, CurrentMailbox, SelectedMessage);
-                notification.Title = SelectedMessage.Subject;
+                MessageContentViewNotification notification = new MessageContentViewNotification(currentMailboxAccount, CurrentMailbox, SelectedMessageHeaderViewModel.Message);
+                notification.Title = SelectedMessageHeaderViewModel.Message.Subject;
                 MessageContentViewPopupRequest.Raise(notification);
             }
         }
@@ -106,6 +120,16 @@ namespace MinimalEmailClient.ViewModels
             this.messagesCv.Filter = new Predicate<object>(MessageFilter);
         }
 
+        private void HandleDeleteMessagesEvent(string ignoredEventPayload)
+        {
+            List<Message> selectedMessages = new List<Message>();
+            foreach (MessageHeaderViewModel msgHeaderVm in SelectedMessageHeaderViewModels)
+            {
+                selectedMessages.Add(msgHeaderVm.Message);
+            }
+            this.messageManager.DeleteMessages(selectedMessages);
+        }
+
         private bool MessageFilter(object item)
         {
             // Do not display any messages when no mailbox is selected.
@@ -114,11 +138,11 @@ namespace MinimalEmailClient.ViewModels
                 return false;
             }
 
-            Message message = item as Message;
+            MessageHeaderViewModel messageVm = item as MessageHeaderViewModel;
             bool showMsg = false;
 
-            if (message.AccountName == CurrentMailbox.AccountName &&
-                message.MailboxPath == CurrentMailbox.DirectoryPath)
+            if (messageVm.AccountName == CurrentMailbox.AccountName &&
+                messageVm.MailboxPath == CurrentMailbox.DirectoryPath)
             {
                 showMsg = true;
             }

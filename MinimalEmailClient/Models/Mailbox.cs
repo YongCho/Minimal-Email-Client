@@ -1,6 +1,5 @@
 ﻿using Prism.Mvvm;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.Models
@@ -12,13 +11,6 @@ namespace MinimalEmailClient.Models
         {
             get { return this.accountName; }
             set { SetProperty(ref this.accountName, value); }
-        }
-
-        private string displayName = string.Empty;
-        public string DisplayName
-        {
-            get { return this.displayName; }
-            private set { SetProperty(ref this.displayName, value); }
         }
 
         private string mailboxName = string.Empty;
@@ -78,32 +70,23 @@ namespace MinimalEmailClient.Models
         }
 
         public List<string> Flags { get; set; }
-        public ObservableCollection<Mailbox> Subdirectories { get; set; }
-
-        private bool isExpanded = false;
-        public bool IsExpanded
-        {
-            get { return this.isExpanded; }
-            set { SetProperty(ref this.isExpanded, value); }
-        }
 
         public Mailbox()
         {
             Flags = new List<string>();
-            Subdirectories = new ObservableCollection<Mailbox>();
         }
 
         public override string ToString()
         {
-            string str = string.Format("AccountName: {0}\nMailboxName: {1}\nDirectoryPath: {2}\nPathSeparator: {3}\nUidNext: {4}\nUidValidity: {5}\nFlags: ", AccountName, MailboxName, DirectoryPath, PathSeparator, UidNext, UidValidity);
-            foreach (string flag in Flags)
-            {
-                str += flag;
-                str += " ";
-            }
-            str += "\n";
-
-            return str;
+            return
+                "Mailbox:\n" +
+                "AccountName: " + AccountName + "\n" +
+                "MailboxName: " + MailboxName + "\n" +
+                "DirectoryPath: " + DirectoryPath + "\n" +
+                "PathSeparator: " + PathSeparator + "\n" +
+                "UidNext: " + UidNext + "\n" +
+                "UidValidity: " + UidValidity + "\n" +
+                "FlagString: " + FlagString + "\n";
         }
 
         private void SetMailboxName()
@@ -122,16 +105,6 @@ namespace MinimalEmailClient.Models
             else
             {
                 MailboxName = DirectoryPath.Trim('"');
-            }
-
-            string displayName = MailboxName.Trim(' ');
-            if (displayName.ToLower() == "inbox")
-            {
-                DisplayName = "Inbox";
-            }
-            else
-            {
-                DisplayName = displayName;
             }
         }
     }

@@ -215,7 +215,7 @@
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="2" Content="Validate" Command="{Binding ValidateCommand}" IsEnabled="{Binding IsFormComplete}" />
+            <Button Grid.Column="2" Content="Validate" Command="{Binding ValidateCommand}" IsEnabled="{Binding AllInputValidated}" />
             <Button Grid.Column="3" Content="OK" Command="{Binding SubmitCommand}" IsEnabled="{Binding AccountValidated}" />
             <Button Grid.Column="4" Content="Cancel" Command="{Binding CancelCommand}" />
         </Grid>

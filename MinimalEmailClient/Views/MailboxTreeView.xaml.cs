@@ -1,14 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using MinimalEmailClient.ViewModels;
-using MinimalEmailClient.Models;
 using System.Diagnostics;
 
 namespace MinimalEmailClient.Views
 {
-    /// <summary>
-    /// Interaction logic for MailboxTreeView.xaml
-    /// </summary>
     public partial class MailboxTreeView : UserControl
     {
         public MailboxTreeView()
@@ -18,8 +14,11 @@ namespace MinimalEmailClient.Views
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            MailboxTreeViewModel viewModel = (MailboxTreeViewModel)this.DataContext;
-            viewModel.SelectedTreeViewItem = e.NewValue;
+            MailboxTreeViewModel viewModel = this.DataContext as MailboxTreeViewModel;
+            if (viewModel != null)
+            {
+                viewModel.SelectedTreeViewItem = e.NewValue;
+            }
         }
 
         private void DeleteAccountMenu_Click(object sender, RoutedEventArgs e)
@@ -31,13 +30,13 @@ namespace MinimalEmailClient.Views
                 if (cm != null)
                 {
                     TextBlock textBlock = cm.PlacementTarget as TextBlock;
-                    if (textBlock.DataContext is Account)
+                    if (textBlock.DataContext is AccountViewModel)
                     {
-                        Account ac = textBlock.DataContext as Account;
+                        AccountViewModel accountVm = textBlock.DataContext as AccountViewModel;
                         var viewModel = this.DataContext as MailboxTreeViewModel;
-                        if (viewModel.DeleteAccountCommand.CanExecute(ac))
+                        if (viewModel != null && viewModel.DeleteAccountCommand.CanExecute(accountVm))
                         {
-                            viewModel.DeleteAccountCommand.Execute(ac);
+                            viewModel.DeleteAccountCommand.Execute(accountVm);
                         }
                     }
                 }
