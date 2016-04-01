@@ -16,7 +16,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
     * Logging in to an IMAP server.
     * Retrieving a list of mailboxes in the user's email account.
     * Downloading and displaying email messages in each mailbox.
-- Created a database that stores the downloaded messages.
+- Created a database that stores the downloaded mailboxes and messages information.
 - Implemented a series of logic that executes at the program startup:
     * Retrieve the list of mailboxes and messages from the database (local copy).
     * Connect to the configured IMAP server and download mailbox list.
