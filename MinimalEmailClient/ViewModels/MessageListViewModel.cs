@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -23,13 +22,13 @@ namespace MinimalEmailClient.ViewModels
     {
         public ObservableCollection<MessageHeaderViewModel> MessageHeaderViewModels { get; set; }
         private CollectionView messagesCv;
-        private MessageHeaderViewModel selectedMessageHeaderViewModel;  // This could be null
+        private MessageHeaderViewModel selectedMessageHeaderViewModel;  // This could be null.
         public MessageHeaderViewModel SelectedMessageHeaderViewModel
         {
             get { return this.selectedMessageHeaderViewModel; }
             set { SetProperty(ref this.selectedMessageHeaderViewModel, value); }
         }
-        public List<MessageHeaderViewModel> SelectedMessageHeaderViewModels { get; set; }  // For multiple selection. Let it set by view at selection change event.
+        public List<MessageHeaderViewModel> SelectedMessageHeaderViewModels { get; set; }  // For multiple selection. Let it set by view on selection change events.
         private Mailbox currentMailbox;
         public Mailbox CurrentMailbox
         {
@@ -60,6 +59,7 @@ namespace MinimalEmailClient.ViewModels
             GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange, ThreadOption.UIThread);
             GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent, ThreadOption.UIThread);
         }
+
         public void OnMessageAdded(object sender, Message newMessage)
         {
             Application.Current.Dispatcher.Invoke(() => { MessageHeaderViewModels.Add(new MessageHeaderViewModel(newMessage)); });
@@ -80,7 +80,7 @@ namespace MinimalEmailClient.ViewModels
             });
         }
 
-        public void LoadMessages()
+        private void LoadMessages()
         {
             if (MessageHeaderViewModels == null)
             {
