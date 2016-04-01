@@ -90,12 +90,12 @@
                         </TabItem>
                         <TabItem Header="Text" Visibility="Collapsed">
                             <ScrollViewer>
-                                <TextBox BorderThickness="0" Text="{Binding TextBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                                <TextBox x:Name="textBodyTextBox" BorderThickness="0" Text="{Binding TextBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" TextChanged="textBodyTextBox_TextChanged" />
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Html" Visibility="Collapsed">
                             <ScrollViewer>
-                                <TextBox BorderThickness="0" Text="{Binding HtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                                <TextBox x:Name="htmlBodyTextBox" BorderThickness="0" Text="{Binding HtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" TextChanged="htmlBodyTextBox_TextChanged" />
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Browser Content" Visibility="Collapsed">

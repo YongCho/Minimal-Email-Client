@@ -7,6 +7,7 @@ namespace MinimalEmailClient.Views
     public partial class MessageContentView : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        private enum TabIndexEnum { BrowserTab = 0, TextTab, HtmlTab, BrowserContentTab, SourceTab }
 
         private int selectedTabIndex;
         public int SelectedTabIndex
@@ -20,11 +21,11 @@ namespace MinimalEmailClient.Views
                     NotifyPropertyChanged("SelectedTabIndex");
                 }
 
-                defaultViewMenuItem.IsChecked = this.selectedTabIndex == 0;
-                textViewMenuItem.IsChecked = this.selectedTabIndex == 1;
-                htmlViewMenuItem.IsChecked = this.selectedTabIndex == 2;
-                browserContentViewMenuItem.IsChecked = this.selectedTabIndex == 3;
-                sourceViewMenuItem.IsChecked = this.selectedTabIndex == 4;
+                defaultViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.BrowserTab;
+                textViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.TextTab;
+                htmlViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.HtmlTab;
+                browserContentViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.BrowserContentTab;
+                sourceViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.SourceTab;
             }
         }
 
@@ -43,8 +44,6 @@ namespace MinimalEmailClient.Views
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = 0;
-
             // Hack to enforce initial window size without making it grow with content.
             // Seriously, there's gotta be a better way to achieve this.
 
@@ -70,27 +69,49 @@ namespace MinimalEmailClient.Views
 
         private void defaultViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = 0;
+            SelectedTabIndex = (int)TabIndexEnum.BrowserTab;
         }
 
         private void textViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = 1;
+            SelectedTabIndex = (int)TabIndexEnum.TextTab;
         }
 
         private void htmlViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = 2;
+            SelectedTabIndex = (int)TabIndexEnum.HtmlTab;
         }
 
         private void browserContentViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = 3;
+            SelectedTabIndex = (int)TabIndexEnum.BrowserContentTab;
         }
 
         private void sourceViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = 4;
+            SelectedTabIndex = (int)TabIndexEnum.SourceTab;
+        }
+
+        private void textBodyTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            HandleContentChange();
+        }
+
+        private void htmlBodyTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            HandleContentChange();
+        }
+
+        private void HandleContentChange()
+        {
+            if (string.IsNullOrWhiteSpace(htmlBodyTextBox.Text))
+            {
+                textViewMenuItem_Click(this, new RoutedEventArgs());
+            }
+            else
+            {
+                defaultViewMenuItem_Click(this, new RoutedEventArgs());
+            }
         }
     }
 }
