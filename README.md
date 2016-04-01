@@ -11,7 +11,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - Refactored data model and model-view classes so the views and models do not interact with each other - promotes modularity and maintainability.
 - Reorganized project directory structure to accommodate different components and growing project.
 
-# Progress (~Week 03/29)
+# Summary of progress up to Week 3/29
 - Implemented some basic IMAP functionalities which include:
     * Logging in to an IMAP server.
     * Retrieving a list of mailboxes in the user's email account.
