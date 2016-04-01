@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:MinimalEmailClient.Views.Converters"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
              xmlns:viewUtilities="clr-namespace:MinimalEmailClient.Views.Utilities"
-             mc:Ignorable="d" Padding="8" Loaded="UserControl_Loaded">
+             mc:Ignorable="d" Padding="8" Loaded="UserControl_Loaded" FocusManager.FocusedElement="{Binding ElementName=emailAddressTextBox}">
 
     <UserControl.DataContext>
         <viewModels:AddAccountViewModel />
