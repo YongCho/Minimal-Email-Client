@@ -9,7 +9,7 @@ A Windows based email client that provides basic IMAP/SMTP functionality.
 - Yong
     * Modified the message sync procedure to download and update the existing messages instead of downloading only new messages.
     * Fixed error during an account deletion.
-    * Refactored data model and model-view classes so the views and models do not interact with each other - enforces modularity and maintainability.
+    * Refactored data model and model-view classes so the views and models do not interact with each other - promotes modularity and maintainability.
     * Reorganized project directory structure to accommodate different components and growing project.
 
 # Setting up the environment.
