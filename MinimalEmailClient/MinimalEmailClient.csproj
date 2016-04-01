@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>mail2_MNX_icon.ico</ApplicationIcon>
+    <ApplicationIcon>meclient.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
@@ -257,13 +257,13 @@
     <Resource Include="Resources\Images\validate.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="mail2_MNX_icon.ico" />
+    <Resource Include="meclient.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\watermark1.png" />
+    <Resource Include="Resources\Images\watermark_envelope.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\no.png" />
+    <Resource Include="Resources\Images\red_x.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\envelope.png" />

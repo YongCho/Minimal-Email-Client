@@ -47,7 +47,7 @@
         <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding MessageHeaderViewModels}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessageHeaderViewModel}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2" SelectionChanged="messageListView_SelectionChanged">
 
             <ListView.Background>
-                <ImageBrush ImageSource="/Resources/Images/watermark1.png" Stretch="None" Opacity="0.5" />
+                <ImageBrush ImageSource="/Resources/Images/watermark_envelope.png" Stretch="None" Opacity="0.5" />
             </ListView.Background>
 
             <i:Interaction.Triggers>
