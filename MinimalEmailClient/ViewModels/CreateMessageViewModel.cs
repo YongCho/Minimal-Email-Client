@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using MinimalEmailClient.Models;
-using MinimalEmailClient.Commands;
 using MinimalEmailClient.Services;
 using MinimalEmailClient.Notifications;
+using Prism.Commands;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -18,7 +18,7 @@ namespace MinimalEmailClient.ViewModels
         // Initialize a new instance of the CreateMessageViewModel
         public CreateMessageViewModel()
         {
-            SendCommand = new SendMailCommand(this);
+            SendCommand = new DelegateCommand(SendEmail, CanSend);
         }
 
         #endregion
@@ -34,6 +34,7 @@ namespace MinimalEmailClient.ViewModels
             private set
             {
                 SetProperty(ref this.fromAccount, value);
+                RaiseCanSendChanged();
             }
         }
 
@@ -41,16 +42,12 @@ namespace MinimalEmailClient.ViewModels
         #region SendMailCommand
 
         public ICommand SendCommand { get; }
-
-        // Gets or sets a System.Boolean value indicating whether the Email can be sent.
-        public bool CanSend
+        
+        public bool CanSend()
         {
-            get
-            {
-                if (FromAccount == null || String.IsNullOrEmpty(ToAccounts) || String.IsNullOrEmpty(CcAccounts) || String.IsNullOrEmpty(Subject) || String.IsNullOrEmpty(MessageBody))
-                    return false;
-                return true;
-            }
+            if (FromAccount == null || String.IsNullOrEmpty(ToAccounts) || String.IsNullOrEmpty(Subject) || String.IsNullOrEmpty(MessageBody))
+                return false;
+            return true;
         }
 
         #endregion
@@ -92,6 +89,7 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.toAccounts, value);
+                RaiseCanSendChanged();
                 Trace.WriteLine("ToAccounts: " + ToAccounts);
             }
         }
@@ -124,6 +122,7 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.subject, value);
+                RaiseCanSendChanged();
                 Trace.WriteLine("Subject: " + Subject);
             }
         }
@@ -141,6 +140,7 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.messageBody, value);
+                RaiseCanSendChanged();
                 Trace.WriteLine("MessageBody: " + MessageBody);
             }
         }
@@ -148,6 +148,7 @@ namespace MinimalEmailClient.ViewModels
         #endregion
         #region SendEmail
 
+        private bool _connected = false;
         public string Error = string.Empty;
 
         public void SendEmail()
@@ -159,7 +160,19 @@ namespace MinimalEmailClient.ViewModels
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);
                 return;
             }
+
+            if (!NewConnection.SendMail())
+            {
+                Trace.WriteLine(NewConnection.Error);
+                MessageBoxResult result = MessageBox.Show(NewConnection.Error);
+                return;
+            }
             NewConnection.Disconnect();
+        }
+
+        private void RaiseCanSendChanged()
+        {
+            (SendCommand as DelegateCommand).RaiseCanExecuteChanged();
         }
 
         #endregion

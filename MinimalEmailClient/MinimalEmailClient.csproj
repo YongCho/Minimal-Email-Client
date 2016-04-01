@@ -134,25 +134,22 @@
     <Compile Include="Events\GlobalEventAggregator.cs" />
     <Compile Include="Events\EventCollection.cs" />
     <Compile Include="Models\Account.cs" />
-    <Compile Include="Services\AccountManager.cs" />
-    <Compile Include="Services\DatabaseManager.cs" />
-    <Compile Include="Services\MessageManager.cs" />
-    <Compile Include="Services\MimeUtility.cs" />
-    <Compile Include="Services\ImapParser.cs" />
+    <Compile Include="Models\AccountManager.cs" />
+    <Compile Include="Models\DatabaseManager.cs" />
+    <Compile Include="Models\MessageManager.cs" />
+    <Compile Include="Models\MimeUtility.cs" />
+    <Compile Include="Models\ResponseParser.cs" />
     <Compile Include="Models\Mailbox.cs" />
-    <Compile Include="Services\NewAccountValidator.cs" />
-    <Compile Include="Notifications\MessageContentViewNotification.cs" />
-    <Compile Include="Commands\SendMail.cs" />
-    <Compile Include="Services\SmtpClient.cs" />
-    <Compile Include="Notifications\WriteNewMessageNotification.cs" />
-    <Compile Include="ViewModels\AccountViewModel.cs" />
+    <Compile Include="Models\NewAccountValidator.cs" />
+    <Compile Include="Models\SelectedMessageNotification.cs" />
+    <Compile Include="Commands\SendMailCommand.cs" />
+    <Compile Include="Models\SmtpClient.cs" />
+    <Compile Include="Models\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
-    <Compile Include="ViewModels\MailboxViewModel.cs" />
     <Compile Include="ViewModels\MessageListViewModel.cs" />
     <Compile Include="ViewModels\MessageContentViewModel.cs" />
-    <Compile Include="ViewModels\MessageHeaderViewModel.cs" />
-    <Compile Include="Views\Converters\BooleanToEnvelopImageSourceConverter.cs" />
-    <Compile Include="Views\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Views\BooleanToEnvelopImageSourceConverter.cs" />
+    <Compile Include="Views\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
     <Compile Include="ViewModels\PasswordBindingHelper.cs" />
@@ -162,14 +159,14 @@
     <Compile Include="Views\CreateMessageView.xaml.cs">
       <DependentUpon>CreateMessageView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Utilities\FixedWidthGridViewColumn.cs" />
+    <Compile Include="Views\FixedWidthGridViewColumn.cs" />
     <Compile Include="Views\MessageListView.xaml.cs">
       <DependentUpon>MessageListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MessageContentView.xaml.cs">
       <DependentUpon>MessageContentView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Utilities\WebBrowserHelper.cs" />
+    <Compile Include="Views\WebBrowserHelper.cs" />
     <Page Include="Resources\MECResourceDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -194,8 +191,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Services\Decoder.cs" />
-    <Compile Include="Services\ImapClient.cs" />
+    <Compile Include="Models\Decoder.cs" />
+    <Compile Include="Models\ImapClient.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MailboxTreeView.xaml.cs">

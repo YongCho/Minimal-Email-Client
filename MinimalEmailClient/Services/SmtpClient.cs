@@ -46,38 +46,50 @@ namespace MinimalEmailClient.Services
 
         public bool Connect()
         {
-            using (var newTcpClient = new TcpClient(account.SmtpServerName, account.SmtpPortNumber))
+            var newTcpClient = new TcpClient(account.SmtpServerName, account.SmtpPortNumber);
+            var stream = newTcpClient.GetStream();
+            var streamReader = new StreamReader(stream);
+            var streamWriter = new StreamWriter(stream);
+            streamWriter.AutoFlush = true;
+            var newSslStream = new SslStream(stream);
+            var connectResponse = streamReader.ReadLine();
+
+            Trace.WriteLine(connectResponse.ToString());
+            if (!connectResponse.StartsWith("220"))
             {
-                using (var stream = newTcpClient.GetStream())
-                using (var streamReader = new StreamReader(stream))
-                using (var streamWriter = new StreamWriter(stream) { AutoFlush = true })
-                using (var newSslStream = new SslStream(stream))
-                {
-                    var connectResponse = streamReader.ReadLine();
-                    if (!connectResponse.StartsWith("220"))
-                        Error = "SMTP Server did not respond to connection request";
-
-                    streamWriter.WriteLine("HELO");
-                    var helloResponse = streamReader.ReadLine();
-                    if (!helloResponse.StartsWith("250"))
-                        Error = "SMTP Server did not respond to HELO request";
-
-                    streamWriter.WriteLine("STARTTLS");
-                    var startTlsResponse = streamReader.ReadLine();
-                    if (!startTlsResponse.StartsWith("220"))
-                        Error = "SMTP Server did not respond to STARTTLS request";
-                    try
-                    {
-                        newSslStream.AuthenticateAsClient(account.SmtpServerName);
-                    }
-                    catch (Exception e)
-                    {
-                        Error = e.Message;
-                        return false;
-                    }
-                    this.sslStream = newSslStream;
-                }                
+                Error = "SMTP Server did not respond to connection request";
+                return false;
             }
+
+            streamWriter.WriteLine("HELO");
+            var helloResponse = streamReader.ReadLine();
+            Trace.WriteLine(helloResponse.ToString());
+            if (!helloResponse.StartsWith("250"))
+            {
+                Error = "SMTP Server did not respond to HELO request";
+                return false;
+            }
+
+            streamWriter.WriteLine("STARTTLS");
+            var startTlsResponse = streamReader.ReadLine();
+            Trace.WriteLine(startTlsResponse.ToString());
+            if (!startTlsResponse.StartsWith("220"))
+            {
+                Error = "SMTP Server did not respond to STARTTLS request";
+                return false;
+            }
+
+            try
+            {
+                newSslStream.AuthenticateAsClient(account.SmtpServerName);
+                this.sslStream = newSslStream;
+            }
+            catch (Exception e)
+            {
+                Error = e.Message;
+                return false;
+            }
+
             return true;
         }
 
@@ -88,6 +100,48 @@ namespace MinimalEmailClient.Services
                 Trace.WriteLine("Connection to " + account.SmtpServerName + " has been disconnected.");
                 this.sslStream.Dispose();
             }
+        }
+
+        #endregion
+        #region SendMail
+
+        public bool SendMail()
+        {
+            SendString("EHLO");
+            Trace.WriteLine(account.SmtpLoginName);          
+            var reader = new StreamReader(this.sslStream);
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());
+            SendString("AUTH LOGIN");
+            Trace.WriteLine(account.SmtpLoginName);
+            Trace.WriteLine(reader.ReadLine());
+            SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
+            //Trace.WriteLine(reader.ReadLine());
+            SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
+            //Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine("end");
+            return true;
+        }
+
+        private void SendString(string str, SslStream stream)
+        {
+            stream.Write(Encoding.ASCII.GetBytes(str + "\r\n"));
+        }
+
+        private void SendString(string str)
+        {
+            SendString(str, this.sslStream);
         }
 
         #endregion
@@ -133,7 +187,7 @@ namespace MinimalEmailClient.Services
                         tagOk = false;
                     }
                 }
-            }           
+            }
 
             // Debug.Write("Response:\n" + response);
             return (bool)tagOk;
