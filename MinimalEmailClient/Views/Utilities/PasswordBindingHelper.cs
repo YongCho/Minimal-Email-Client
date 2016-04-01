@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace MinimalEmailClient.ViewModels
+namespace MinimalEmailClient.Views.Utilities
 {
     // Helper to enable binding to a PasswordBox.
     // Source: http://www.wpftutorial.net/PasswordBox.html

@@ -154,7 +154,7 @@
     <Compile Include="Views\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
-    <Compile Include="ViewModels\PasswordBindingHelper.cs" />
+    <Compile Include="Views\Utilities\PasswordBindingHelper.cs" />
     <Compile Include="Views\AddAcountView.xaml.cs">
       <DependentUpon>AddAcountView.xaml</DependentUpon>
     </Compile>

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:MinimalEmailClient.Views"
              xmlns:converters="clr-namespace:MinimalEmailClient.Views.Converters"
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
+             xmlns:viewUtilities="clr-namespace:MinimalEmailClient.Views.Utilities"
              mc:Ignorable="d" Padding="8" Loaded="UserControl_Loaded">
 
     <UserControl.DataContext>
@@ -107,7 +108,7 @@
                         </Style>
                     </TextBox.Style>
                 </TextBox>
-                <PasswordBox x:Name="loginPasswordBox" Grid.Column="1" Grid.Row="1" viewModels:PasswordBindingHelper.Attach="True" viewModels:PasswordBindingHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
+                <PasswordBox x:Name="loginPasswordBox" Grid.Column="1" Grid.Row="1" viewUtilities:PasswordBindingHelper.Attach="True" viewUtilities:PasswordBindingHelper.Password="{Binding Text, ElementName=plain, Mode=TwoWay}" PasswordChar="*">
                     <PasswordBox.Style>
                         <Style BasedOn="{StaticResource PasswordBoxStyle}" TargetType="{x:Type PasswordBox}">
                             <Style.Triggers>
