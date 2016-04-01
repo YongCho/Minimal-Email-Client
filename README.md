@@ -1,6 +1,8 @@
 # MinimalEmailClient
 MinimalEmailClient is a simple Windows based email client that is designed to handle downloading, reading, writing, and sending emails using IMAP and SMTP protocols.
 
+<img src="https://drive.google.com/file/d/0B4iaHoetmJUpZnlQMk1KRFRKSkk/view?usp=sharing" />
+
 # Contributor
 - Yong Cho
 - Yoomin Cha
