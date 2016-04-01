@@ -6,7 +6,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - Yoomin Cha
 
 # Progress (Week 03/29)
-- Modified the message sync procedure to download and update the existing messages instead of downloading only new messages.
+- Modified the message sync procedure to re-download and update the existing messages instead of downloading only new messages.
 - Replaced database engine from SQLite to SQLCE due to a bug in SQLite driver that crashed XAML design mode.
 - Fixed database error that was occuring when the user deleted an account from UI.
 - Changed data model and model-view classes design so the views and models do not interact with each other - promotes modularity and maintainability.
