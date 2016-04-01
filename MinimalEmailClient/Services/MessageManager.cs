@@ -314,7 +314,7 @@ namespace MinimalEmailClient.Services
                     {
                         serverMsg.AccountName = account.AccountName;
                         serverMsg.MailboxPath = mailboxName;
-                        Message localMsg = new Message();
+                        Message localMsg;
                         if (MessagesDico.TryGetValue(serverMsg.UniqueKeyString, out localMsg))
                         {
                             // A local copy exists. Update its flags.
