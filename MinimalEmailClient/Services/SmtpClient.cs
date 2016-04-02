@@ -125,7 +125,10 @@ namespace MinimalEmailClient.Services
             Trace.WriteLine(reader.ReadLine());            
             SendString("AUTH LOGIN");
             Trace.WriteLine(reader.ReadLine());
-
+            SendString(Base64Encode(Account.SmtpLoginName));
+            Trace.WriteLine(reader.ReadLine());
+            SendString(Base64Encode(Account.SmtpLoginPassword));
+            Trace.WriteLine(reader.ReadLine());
             //SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
 
             Trace.WriteLine("end");
