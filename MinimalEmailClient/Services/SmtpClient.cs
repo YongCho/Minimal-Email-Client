@@ -107,39 +107,50 @@ namespace MinimalEmailClient.Services
 
         public bool SendMail(string to, string cc, string subject, string message)
         {
+            byte[] buffer = new byte[2048];
+            int bytesRead;
+            string response;
+            
             // Authorize Sender
             SendString("EHLO");
-            Trace.WriteLine(account.SmtpLoginName);          
-            var reader = new StreamReader(this.sslStream);
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());            
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
+                       
             SendString("AUTH LOGIN");
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
+
             SendString(Base64Encode(Account.SmtpLoginName));
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
+
             SendString(Base64Encode(Account.SmtpLoginPassword));
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
 
             SendString("MAIL FROM:<" + Account.SmtpLoginName + ">");
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
+
             SendString("RCPT TO: <" + to + ">");
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
 
             SendString("DATA");
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
+
             SendString(String.Format("Subject: {0}\n{1}\r\n.", subject, message));
-            Trace.WriteLine(reader.ReadLine());
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
 
             Trace.WriteLine("end");
             return true;

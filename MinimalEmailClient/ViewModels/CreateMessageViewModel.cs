@@ -90,7 +90,6 @@ namespace MinimalEmailClient.ViewModels
             {
                 SetProperty(ref this.toAccounts, value);
                 RaiseCanSendChanged();
-                Trace.WriteLine("ToAccounts: " + ToAccounts);
             }
         }
 
@@ -107,7 +106,6 @@ namespace MinimalEmailClient.ViewModels
             set
             {
                 SetProperty(ref this.ccAccounts, value);
-                Trace.WriteLine("CcAccounts: " + CcAccounts);
             }
         }
 
@@ -125,7 +123,6 @@ namespace MinimalEmailClient.ViewModels
             {
                 SetProperty(ref this.subject, value);
                 RaiseCanSendChanged();
-                Trace.WriteLine("Subject: " + Subject);
             }
         }
 
@@ -143,7 +140,6 @@ namespace MinimalEmailClient.ViewModels
             {
                 SetProperty(ref this.messageBody, value);
                 RaiseCanSendChanged();
-                Trace.WriteLine("MessageBody: " + MessageBody);
             }
         }
 
