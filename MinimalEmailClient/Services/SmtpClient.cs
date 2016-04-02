@@ -22,8 +22,10 @@ namespace MinimalEmailClient.Services
         #endregion
         #region Members
 
-        public string Error = string.Empty;
         SslStream sslStream;
+        public string Error = string.Empty;
+        private byte[] buffer = new byte[2048];        
+        private string response = string.Empty;
 
         #endregion
         #region Account(s)
@@ -47,33 +49,29 @@ namespace MinimalEmailClient.Services
         public bool Connect()
         {
             var newTcpClient = new TcpClient(account.SmtpServerName, account.SmtpPortNumber);
-            var stream = newTcpClient.GetStream();
-            var streamReader = new StreamReader(stream);
+            NetworkStream stream = newTcpClient.GetStream();
             var streamWriter = new StreamWriter(stream);
             streamWriter.AutoFlush = true;
             var newSslStream = new SslStream(stream);
-            var connectResponse = streamReader.ReadLine();
 
-            Trace.WriteLine(connectResponse.ToString());
-            if (!connectResponse.StartsWith("220"))
+            ReadResponse(stream);
+            if (!response.StartsWith("220"))
             {
                 Error = "SMTP Server did not respond to connection request";
                 return false;
             }
 
-            streamWriter.WriteLine("HELO " + Account.SmtpLoginName);
-            var helloResponse = streamReader.ReadLine();
-            Trace.WriteLine(helloResponse.ToString());
-            if (!helloResponse.StartsWith("250"))
+            streamWriter.WriteLine("EHLO " + Account.SmtpServerName);
+            ReadResponse(stream);
+            if (!response.StartsWith("250"))
             {
                 Error = "SMTP Server did not respond to HELO request";
                 return false;
             }
 
             streamWriter.WriteLine("STARTTLS");
-            var startTlsResponse = streamReader.ReadLine();
-            Trace.WriteLine(startTlsResponse.ToString());
-            if (!startTlsResponse.StartsWith("220"))
+            ReadResponse(stream);
+            if (!response.StartsWith("220"))
             {
                 Error = "SMTP Server did not respond to STARTTLS request";
                 return false;
@@ -106,51 +104,31 @@ namespace MinimalEmailClient.Services
         #region SendMail
 
         public bool SendMail(string to, string cc, string subject, string message)
-        {
-            byte[] buffer = new byte[2048];
-            int bytesRead;
-            string response;
-            
+        {           
             // Authorize Sender
             SendString("EHLO");
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
-                       
+            ReadResponse();
+
             SendString("AUTH LOGIN");
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             SendString(Base64Encode(Account.SmtpLoginName));
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             SendString(Base64Encode(Account.SmtpLoginPassword));
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             SendString("RCPT TO: <" + to + ">");
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             SendString("DATA");
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             SendString(String.Format("Subject: {0}\n{1}\r\n.", subject, message));
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
+            ReadResponse();
 
             Trace.WriteLine("end");
             return true;
@@ -169,7 +147,7 @@ namespace MinimalEmailClient.Services
         #endregion
         #region EncodeDecode
 
-        public static string Base64Encode(string plainText)
+        private string Base64Encode(string plainText)
         {
             if (plainText == null)
             {
@@ -180,7 +158,7 @@ namespace MinimalEmailClient.Services
             return Convert.ToBase64String(textAsBytes);
         }
 
-        public static string Base64Decode(string encodedText)
+        private string Base64Decode(string encodedText)
         {
             if (encodedText == null)
             {
@@ -194,50 +172,20 @@ namespace MinimalEmailClient.Services
         #endregion
         #region ReadResponse
 
-        private byte[] buffer = new byte[65536];
-
-        private bool ReadResponse(string tag)
+        private void ReadResponse()
         {
-            string response;
-            return ReadResponse(tag, out response);
+            int bytesRead;
+            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
         }
 
-        private bool ReadResponse(string tag, out string response)
+        private void ReadResponse(NetworkStream stream)
         {
-            return ReadResponse(tag, out response, this.sslStream);
-        }
-
-        // Reads all incoming strings up to the line containing the specified tag.
-        private bool ReadResponse(string tag, out string response, SslStream stream)
-        {
-            int byteCount;
-            response = string.Empty;
-            bool? tagOk = null;
-            string pattern = "^" + tag + " (?<ok>[a-zA-Z]+).*\r\n";
-            Match m;
-
-            while (!tagOk.HasValue)
-            {
-                byteCount = stream.Read(this.buffer, 0, this.buffer.Length);
-                byte[] data = new byte[byteCount];
-                Array.Copy(this.buffer, data, byteCount);
-                response += Encoding.ASCII.GetString(data);
-                m = Regex.Match(response, pattern, RegexOptions.Multiline);
-                if (m.Success)
-                {
-                    if (m.Groups["ok"].ToString() == "OK")
-                    {
-                        tagOk = true;
-                    }
-                    else
-                    {
-                        tagOk = false;
-                    }
-                }
-            }
-
-            // Debug.Write("Response:\n" + response);
-            return (bool)tagOk;
+            int bytesRead;
+            bytesRead = stream.Read(buffer, 0, buffer.Length);
+            response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
         }
 
         #endregion
