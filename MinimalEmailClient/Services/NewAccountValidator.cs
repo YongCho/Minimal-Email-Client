@@ -28,20 +28,19 @@ namespace MinimalEmailClient.Services
         public bool Validate()
         {
             ImapClient imapClient = new ImapClient(Account);
-            bool success = false;
             Error = string.Empty;
 
             if (imapClient.Connect())
             {
-                success = true;
+                imapClient.Disconnect();
             }
             else
             {
                 Error = imapClient.Error;
+                return false;
             }
-            imapClient.Disconnect();
 
-            return success;
+            return true;
         }
     }
 }
