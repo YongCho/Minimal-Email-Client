@@ -61,7 +61,7 @@ namespace MinimalEmailClient.Services
                 return false;
             }
 
-            streamWriter.WriteLine("HELO");
+            streamWriter.WriteLine("HELO " + Account.SmtpLoginName);
             var helloResponse = streamReader.ReadLine();
             Trace.WriteLine(helloResponse.ToString());
             if (!helloResponse.StartsWith("250"))
@@ -132,7 +132,7 @@ namespace MinimalEmailClient.Services
             response = Encoding.ASCII.GetString(buffer);
             Trace.WriteLine(response);
 
-            SendString("MAIL FROM:<" + Account.SmtpLoginName + ">");
+            SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
             bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
             response = Encoding.ASCII.GetString(buffer);
             Trace.WriteLine(response);

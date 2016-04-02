@@ -40,6 +40,18 @@ namespace MinimalEmailClient.Services
                 return false;
             }
 
+            SmtpClient smtpClient = new SmtpClient(Account);
+            
+            if (smtpClient.Connect())
+            {
+                smtpClient.Disconnect();
+            }
+            else
+            {
+                Error = smtpClient.Error;
+                return false;
+            }
+
             return true;
         }
     }
