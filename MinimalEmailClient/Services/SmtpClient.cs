@@ -122,14 +122,12 @@ namespace MinimalEmailClient.Services
             Trace.WriteLine(reader.ReadLine());
             Trace.WriteLine(reader.ReadLine());
             Trace.WriteLine(reader.ReadLine());
-            Trace.WriteLine(reader.ReadLine());
+            Trace.WriteLine(reader.ReadLine());            
             SendString("AUTH LOGIN");
-            Trace.WriteLine(account.SmtpLoginName);
             Trace.WriteLine(reader.ReadLine());
-            SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
-            //Trace.WriteLine(reader.ReadLine());
-            SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
-            //Trace.WriteLine(reader.ReadLine());
+
+            //SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
+
             Trace.WriteLine("end");
             return true;
         }
@@ -142,6 +140,31 @@ namespace MinimalEmailClient.Services
         private void SendString(string str)
         {
             SendString(str, this.sslStream);
+        }
+
+        #endregion
+        #region EncodeDecode
+
+        public static string Base64Encode(string plainText)
+        {
+            if (plainText == null)
+            {
+                return null;
+            }
+
+            byte[] textAsBytes = Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(textAsBytes);
+        }
+
+        public static string Base64Decode(string encodedText)
+        {
+            if (encodedText == null)
+            {
+                return null;
+            }
+
+            byte[] textAsBytes = Convert.FromBase64String(encodedText);
+            return Encoding.UTF8.GetString(textAsBytes);
         }
 
         #endregion
