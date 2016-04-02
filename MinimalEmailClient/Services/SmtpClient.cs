@@ -105,8 +105,9 @@ namespace MinimalEmailClient.Services
         #endregion
         #region SendMail
 
-        public bool SendMail()
+        public bool SendMail(string to, string cc, string subject, string message)
         {
+            // Authorize Sender
             SendString("EHLO");
             Trace.WriteLine(account.SmtpLoginName);          
             var reader = new StreamReader(this.sslStream);
@@ -129,7 +130,16 @@ namespace MinimalEmailClient.Services
             Trace.WriteLine(reader.ReadLine());
             SendString(Base64Encode(Account.SmtpLoginPassword));
             Trace.WriteLine(reader.ReadLine());
-            //SendString("MAIL FROM:<" + account.SmtpLoginName + ">");
+
+            SendString("MAIL FROM:<" + Account.SmtpLoginName + ">");
+            Trace.WriteLine(reader.ReadLine());
+            SendString("RCPT TO: <" + to + ">");
+            Trace.WriteLine(reader.ReadLine());
+
+            SendString("DATA");
+            Trace.WriteLine(reader.ReadLine());
+            SendString(String.Format("Subject: {0}\n{1}\r\n.", subject, message));
+            Trace.WriteLine(reader.ReadLine());
 
             Trace.WriteLine("end");
             return true;

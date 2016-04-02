@@ -96,6 +96,7 @@ namespace MinimalEmailClient.ViewModels
 
         #endregion
         #region CcAccounts
+
         private string ccAccounts = string.Empty;
         public string CcAccounts
         {
@@ -109,6 +110,7 @@ namespace MinimalEmailClient.ViewModels
                 Trace.WriteLine("CcAccounts: " + CcAccounts);
             }
         }
+
         #endregion
         #region Subject
 
@@ -161,7 +163,7 @@ namespace MinimalEmailClient.ViewModels
                 return;
             }
 
-            if (!NewConnection.SendMail())
+            if (!NewConnection.SendMail(ToAccounts, CcAccounts, Subject, MessageBody))
             {
                 Trace.WriteLine(NewConnection.Error);
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);
