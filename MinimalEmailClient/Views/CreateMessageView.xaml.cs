@@ -17,9 +17,10 @@ namespace MinimalEmailClient.Views
 
         private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            To_TextBox.Clear();
-            Body_TextBox.Clear();
+            To_TextBox.Clear();            
             Cc_TextBox.Clear();
+            Subject_TextBox.Clear();
+            Body_TextBox.Clear();
         }
     }
 }

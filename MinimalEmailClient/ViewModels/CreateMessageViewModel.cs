@@ -165,6 +165,8 @@ namespace MinimalEmailClient.ViewModels
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);
                 return;
             }
+
+            FinishInteraction();
             NewConnection.Disconnect();
         }
 

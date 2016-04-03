@@ -105,6 +105,9 @@ namespace MinimalEmailClient.Services
 
         public bool SendMail(string to, string cc, string subject, string message)
         {
+            // Some server require initial greeting (smtp etiquette)
+            SendString("EHLO " + Account.SmtpServerName);
+            ReadResponse();
             // Authorize Sender
             Trace.WriteLine("\nAUTH LOGIN" + '\n');
             SendString("AUTH LOGIN");
@@ -114,7 +117,7 @@ namespace MinimalEmailClient.Services
             SendString(Base64Encode(Account.SmtpLoginName));
             ReadResponse();
 
-            Trace.WriteLine('\n' + Account.SmtpLoginPassword + '\n');
+            Trace.WriteLine('\n' + Account.SmtpServerName + '\n');
             SendString(Base64Encode(Account.SmtpLoginPassword));
             ReadResponse();
 
@@ -131,11 +134,16 @@ namespace MinimalEmailClient.Services
             ReadResponse();
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("Subject: {0}\n{1}\r\n.", subject, message));
+            SendMessage(to, cc, subject, message);
             ReadResponse();
 
             Trace.WriteLine("\nend");
             return true;
+        }
+
+        private void SendMessage(string to, string cc, string subject, string message)
+        {
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}\r\n.", Account.SmtpLoginName, to, subject, message));
         }
 
         private void SendString(string str, SslStream stream)
