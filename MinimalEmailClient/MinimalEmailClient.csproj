@@ -134,6 +134,7 @@
     <Compile Include="Events\GlobalEventAggregator.cs" />
     <Compile Include="Events\EventCollection.cs" />
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Email.cs" />
     <Compile Include="Services\AccountManager.cs" />
     <Compile Include="Services\DatabaseManager.cs" />
     <Compile Include="Services\MessageManager.cs" />

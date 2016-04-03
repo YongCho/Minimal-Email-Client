@@ -14,9 +14,10 @@ namespace MinimalEmailClient.Services
     {
         #region Constructor
 
-        public SmtpClient(Account account)
+        public SmtpClient(Account account, Email email)
         {
             Account = account;
+            NewEmail = email;
         }
 
         #endregion
@@ -43,7 +44,21 @@ namespace MinimalEmailClient.Services
             }
         }
 
-        #endregion        
+        #endregion
+        #region NewEmail
+
+        private Email newEmail;
+        internal Email NewEmail
+        {
+            get { return newEmail; }
+            set
+            {
+                newEmail = value;
+            }
+        }
+
+        #endregion
+       
         #region TCP Connection(s)
 
         public bool Connect()
@@ -103,7 +118,7 @@ namespace MinimalEmailClient.Services
         #endregion
         #region SendMail
 
-        public bool SendMail(string to, string cc, string subject, string message)
+        public bool SendMail()
         {
             // Some server require initial greeting (smtp etiquette)
             SendString("EHLO " + Account.SmtpServerName);
@@ -125,8 +140,8 @@ namespace MinimalEmailClient.Services
             SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
             ReadResponse();
 
-            Trace.WriteLine("\nRCPT TO: " + to + '\n');
-            SendString("RCPT TO: <" + to + ">");
+            Trace.WriteLine("\nRCPT TO: " + email.To + '\n');
+            SendString("RCPT TO: <" + email.To + ">");
             ReadResponse();
 
             Trace.WriteLine("\nDATA\n");
@@ -134,16 +149,11 @@ namespace MinimalEmailClient.Services
             ReadResponse();
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendMessage(to, cc, subject, message);
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}\r\n.", Account.SmtpLoginName, email.To, email.Subject, email.Message));
             ReadResponse();
 
             Trace.WriteLine("\nend");
             return true;
-        }
-
-        private void SendMessage(string to, string cc, string subject, string message)
-        {
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}\r\n.", Account.SmtpLoginName, to, subject, message));
         }
 
         private void SendString(string str, SslStream stream)

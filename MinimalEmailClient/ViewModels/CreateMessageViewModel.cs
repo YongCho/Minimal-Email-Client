@@ -146,12 +146,15 @@ namespace MinimalEmailClient.ViewModels
         #endregion
         #region SendEmail
 
-        private bool _connected = false;
-        public string Error = string.Empty;
-
         public void SendEmail()
         {
-            SmtpClient NewConnection = new SmtpClient(FromAccount);
+            Email email = new Email();
+            email.To = ToAccounts;
+            email.Cc = CcAccounts;
+            email.Subject = Subject;
+            email.Message = MessageBody;
+
+            SmtpClient NewConnection = new SmtpClient(FromAccount, email);
             if (!NewConnection.Connect())
             {
                 Trace.WriteLine(NewConnection.Error);
@@ -159,7 +162,7 @@ namespace MinimalEmailClient.ViewModels
                 return;
             }
 
-            if (!NewConnection.SendMail(ToAccounts, CcAccounts, Subject, MessageBody))
+            if (!NewConnection.SendMail())
             {
                 Trace.WriteLine(NewConnection.Error);
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);
