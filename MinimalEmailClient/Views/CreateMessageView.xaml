@@ -40,34 +40,32 @@
                     </Button>
                 </ToolBar>
             </ToolBarPanel>
-            
+
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Button Grid.Column="0" Grid.Row="0" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="From" HorizontalContentAlignment="Left" />
+                <Button Grid.Column="0" Grid.Row="1" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="To..." HorizontalContentAlignment="Left" />
+                <Button Grid.Column="0" Grid.Row="2" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Cc..." HorizontalContentAlignment="Left" />
+                <TextBlock x:Name="Subject" Grid.Column="0" Grid.Row="3" Background="White" Margin="8,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap" Text="Subject" />
+                <TextBox x:Name="From" Grid.Column="1" Grid.Row="0" Height="23" Margin="6,2" Text="{Binding FromAccount.EmailAddress}" TextWrapping="Wrap" />
+                <TextBox x:Name="To_TextBox" Grid.Column="1" Grid.Row="1" Height="23" Margin="6,2" Text="{Binding ToAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+                <TextBox x:Name="Cc_TextBox" Grid.Column="1" Grid.Row="2" Height="23" Margin="6,2" Text="{Binding CcAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+                <TextBox x:Name="Subject_TextBox" Grid.Column="1" Grid.Row="3" Height="23" Margin="6,2" Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TextWrapping="Wrap" />
+            </Grid>
+
             <!-- Message Body -->
-            <TextBox DockPanel.Dock="Bottom" Text="{Binding MessageBody, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" x:Name="Body_TextBox" Height="473" TextWrapping="Wrap"/>
-
-            <!-- Email Headers -->
-            <StackPanel  DockPanel.Dock="Left" Height="Auto" Width="Auto">
-                <Button Background="White" Width="65">
-                    <TextBlock Text="From" VerticalAlignment="Center" Width="70" Height="15"/>
-                </Button>
-                <Button Background="White" Width="65">
-                    <TextBlock Text="To..." VerticalAlignment="Center" Width="70" Height="15" />
-                </Button>
-                <Button Background="White" Width="65">
-                    <TextBlock Text="Cc..." VerticalAlignment="Center" Width="70" Height="15" />
-                </Button>
-                <Border Background="White" BorderThickness="01" BorderBrush="Black" Width="65" Height="Auto" >
-                    <TextBlock x:Name="Subject" VerticalAlignment="Center" TextWrapping="Wrap" Text="Subject" Width="70" Height="17" Margin="0,0,-2,0"/>
-                </Border>
-            </StackPanel>
-            
-            <!-- Email Headers Forms-->
-            <StackPanel>
-                <TextBox Text="{Binding FromAccount.EmailAddress}" x:Name="From" Height="19" TextWrapping="Wrap"/>
-                <TextBox Text="{Binding ToAccounts, UpdateSourceTrigger=PropertyChanged}" x:Name="To_TextBox" Height="19" TextWrapping="Wrap" Width="Auto"/>
-                <TextBox Text="{Binding CcAccounts, UpdateSourceTrigger=PropertyChanged}" x:Name="Cc_TextBox" Height="19" TextWrapping="Wrap" Width="Auto"/>
-                <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" x:Name="Subject_TextBox" Height="19" TextWrapping="Wrap" Width="Auto"/>
-            </StackPanel>
-
+            <TextBox x:Name="Body_TextBox" Margin="8,12,8,8" BorderThickness="0" Text="{Binding MessageBody, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" FontSize="16" />
         </DockPanel>
     </Grid>
 </UserControl>
