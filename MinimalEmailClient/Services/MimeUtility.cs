@@ -1,11 +1,10 @@
-﻿using System.Text;
-using System.Diagnostics;
-using NI.Email.Mime.Message;
+﻿using NI.Email.Mime.Decoder;
 using NI.Email.Mime.Field;
-using NI.Email.Mime.Decoder;
-using System.IO;
-using System;
+using NI.Email.Mime.Message;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Text;
 
 namespace MinimalEmailClient.Services
 {

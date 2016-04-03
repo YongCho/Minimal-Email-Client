@@ -1,16 +1,16 @@
 ﻿using HtmlAgilityPack;
 using MinimalEmailClient.Common;
 using MinimalEmailClient.Models;
+using MinimalEmailClient.Notifications;
+using MinimalEmailClient.Services;
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MinimalEmailClient.Services;
-using MinimalEmailClient.Notifications;
-using System.ComponentModel;
 
 namespace MinimalEmailClient.ViewModels
 {

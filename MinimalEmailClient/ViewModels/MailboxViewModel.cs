@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using MinimalEmailClient.Models;
-using System.Collections.ObjectModel;
+﻿using MinimalEmailClient.Models;
 using Prism.Mvvm;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace MinimalEmailClient.ViewModels
 {

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using MinimalEmailClient.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net.Sockets;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using MinimalEmailClient.Models;
 
 namespace MinimalEmailClient.Services
 {

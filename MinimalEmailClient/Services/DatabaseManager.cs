@@ -1,11 +1,11 @@
 ﻿#undef TRACE
-using System.Collections.Generic;
-using System.IO;
-using System.Data.SqlServerCe;
-using System;
 using MinimalEmailClient.Common;
-using System.Diagnostics;
 using MinimalEmailClient.Models;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlServerCe;
+using System.Diagnostics;
+using System.IO;
 
 namespace MinimalEmailClient.Services
 {

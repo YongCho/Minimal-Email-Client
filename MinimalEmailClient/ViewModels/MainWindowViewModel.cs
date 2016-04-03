@@ -1,13 +1,12 @@
 ﻿using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
+using MinimalEmailClient.Notifications;
+using MinimalEmailClient.Services;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using System.Windows.Input;
-using System.Diagnostics;
-using Prism.Events;
-using MinimalEmailClient.Services;
-using MinimalEmailClient.Notifications;
 
 namespace MinimalEmailClient.ViewModels
 {

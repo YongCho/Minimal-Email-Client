@@ -1,16 +1,15 @@
-﻿using Prism.Mvvm;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
-using MinimalEmailClient.Events;
+using MinimalEmailClient.Services;
+using Prism.Commands;
+using Prism.Events;
+using Prism.Mvvm;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Prism.Commands;
 using System.Windows;
-using Prism.Events;
-using MinimalEmailClient.Services;
-using System;
+using System.Windows.Input;
 
 namespace MinimalEmailClient.ViewModels
 {
