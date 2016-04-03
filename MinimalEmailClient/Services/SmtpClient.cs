@@ -24,7 +24,7 @@ namespace MinimalEmailClient.Services
 
         SslStream sslStream;
         public string Error = string.Empty;
-        private byte[] buffer = new byte[2048];        
+        private byte[] buffer = new byte[2048];
         private string response = string.Empty;
 
         #endregion
@@ -104,33 +104,37 @@ namespace MinimalEmailClient.Services
         #region SendMail
 
         public bool SendMail(string to, string cc, string subject, string message)
-        {           
+        {
             // Authorize Sender
-            SendString("EHLO");
-            ReadResponse();
-
+            Trace.WriteLine("\nAUTH LOGIN" + '\n');
             SendString("AUTH LOGIN");
             ReadResponse();
 
+            Trace.WriteLine('\n' + Account.SmtpLoginName + '\n');
             SendString(Base64Encode(Account.SmtpLoginName));
             ReadResponse();
 
+            Trace.WriteLine('\n' + Account.SmtpLoginPassword + '\n');
             SendString(Base64Encode(Account.SmtpLoginPassword));
             ReadResponse();
 
+            Trace.WriteLine("\nMAIL FROM: " + Account.SmtpLoginName + '\n');
             SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
             ReadResponse();
 
+            Trace.WriteLine("\nRCPT TO: " + to + '\n');
             SendString("RCPT TO: <" + to + ">");
             ReadResponse();
 
+            Trace.WriteLine("\nDATA\n");
             SendString("DATA");
             ReadResponse();
 
+            Trace.WriteLine("\nMESSAGEBODY\n");
             SendString(String.Format("Subject: {0}\n{1}\r\n.", subject, message));
             ReadResponse();
 
-            Trace.WriteLine("end");
+            Trace.WriteLine("\nend");
             return true;
         }
 
@@ -185,7 +189,6 @@ namespace MinimalEmailClient.Services
             int bytesRead;
             bytesRead = stream.Read(buffer, 0, buffer.Length);
             response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
         }
 
         #endregion

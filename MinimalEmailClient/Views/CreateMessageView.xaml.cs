@@ -14,5 +14,12 @@ namespace MinimalEmailClient.Views
             InitializeComponent();
             this.DataContext = new CreateMessageViewModel();
         }
+
+        private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            To_TextBox.Clear();
+            Body_TextBox.Clear();
+            Cc_TextBox.Clear();
+        }
     }
 }
