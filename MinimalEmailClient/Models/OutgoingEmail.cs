@@ -18,6 +18,13 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.cc, value); }
         }
 
+        private string bcc = string.Empty;
+        public string Bcc
+        {
+            get { return this.bcc; }
+            set { SetProperty(ref this.bcc, value); }
+        }
+
         private string subject = string.Empty;
         public string Subject
         {

@@ -147,19 +147,29 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine("\nRCPT TO: " + NewEmail.To + '\n');
             SendString("RCPT TO: <" + NewEmail.To + ">");
+            ReadResponse();
+
+            // Send Carbon Copy to Recipients
             if (!String.IsNullOrEmpty(NewEmail.Cc))
             {
                 Trace.WriteLine("\nRCPT TO: " + NewEmail.Cc + '\n');
                 SendString("RCPT TO: <" + NewEmail.Cc + ">");
+                ReadResponse();
             }
-            ReadResponse();
+            // Send Blind Carbon Copy to Recipients
+            if (!String.IsNullOrEmpty(NewEmail.Bcc))
+            {
+                Trace.WriteLine("\nRCPT TO: " + NewEmail.Bcc + '\n');
+                SendString("RCPT TO: <" + NewEmail.Bcc + ">");
+                ReadResponse();
+            }
 
             Trace.WriteLine("\nDATA\n");
             SendString("DATA");
             ReadResponse();
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nSubject: {3}\r\n\r\n{4}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Subject, NewEmail.Message));
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}\r\n\r\n{5}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject, NewEmail.Message));
             ReadResponse();
 
             Trace.WriteLine("\nend");

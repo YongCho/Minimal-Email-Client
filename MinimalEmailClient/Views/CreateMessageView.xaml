@@ -52,16 +52,19 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <Button Grid.Column="0" Grid.Row="0" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="From" HorizontalContentAlignment="Left" />
                 <Button Grid.Column="0" Grid.Row="1" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="To..." HorizontalContentAlignment="Left" />
                 <Button Grid.Column="0" Grid.Row="2" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Cc..." HorizontalContentAlignment="Left" />
-                <TextBlock x:Name="Subject" Grid.Column="0" Grid.Row="3" Background="White" Margin="8,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap" Text="Subject" />
+                <Button Grid.Column="0" Grid.Row="3" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Bcc..." HorizontalContentAlignment="Left" />
+                <TextBlock x:Name="Subject" Grid.Column="0" Grid.Row="4" Background="White" Margin="8,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap" Text="Subject" />
                 <TextBox x:Name="From" Grid.Column="1" Grid.Row="0" Height="23" Margin="6,2" Text="{Binding FromAccount.EmailAddress}" TextWrapping="Wrap" />
                 <TextBox x:Name="To_TextBox" Grid.Column="1" Grid.Row="1" Height="23" Margin="6,2" Text="{Binding ToAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
                 <TextBox x:Name="Cc_TextBox" Grid.Column="1" Grid.Row="2" Height="23" Margin="6,2" Text="{Binding CcAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
-                <TextBox x:Name="Subject_TextBox" Grid.Column="1" Grid.Row="3" Height="23" Margin="6,2" Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                <TextBox x:Name="Bcc_TextBox" Grid.Column="1" Grid.Row="3" Height="23" Margin="6,2" Text="{Binding BccAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
+                <TextBox x:Name="Subject_TextBox" Grid.Column="1" Grid.Row="4" Height="23" Margin="6,2" Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TextWrapping="Wrap" />
             </Grid>
 
             <!-- Message Body -->

@@ -110,6 +110,22 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
+        #region BccAccounts
+
+        private string bccAccounts = string.Empty;
+        public string BccAccounts
+        {
+            get
+            {
+                return this.bccAccounts;
+            }
+            set
+            {
+                SetProperty(ref this.bccAccounts, value);
+            }
+        }
+
+        #endregion
         #region Subject
 
         private string subject = string.Empty;
@@ -151,6 +167,7 @@ namespace MinimalEmailClient.ViewModels
             OutgoingEmail email = new OutgoingEmail();
             email.To = ToAccounts;
             email.Cc = CcAccounts;
+            email.Bcc = BccAccounts;
             email.Subject = Subject;
             email.Message = MessageBody; 
 
