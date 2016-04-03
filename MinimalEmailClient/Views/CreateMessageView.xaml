@@ -19,7 +19,7 @@
             </Menu>
 
             <!-- Toolbar -->
-            <ToolBarPanel DockPanel.Dock="Top" Background="White" VerticalAlignment="Top" Height="29">
+            <ToolBarPanel DockPanel.Dock="Top" Background="White" Height="29">
                 <ToolBar ToolBarTray.IsLocked="True" BorderThickness="0
                          " Background="White" BorderBrush="Black" Height="Auto" Width="Auto">
 
@@ -45,7 +45,7 @@
             <TextBox DockPanel.Dock="Bottom" Text="{Binding MessageBody, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" AcceptsTab="True" x:Name="Body_TextBox" Height="473" TextWrapping="Wrap"/>
 
             <!-- Email Headers -->
-            <StackPanel  DockPanel.Dock="Left" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Top" Width="Auto">
+            <StackPanel  DockPanel.Dock="Left" Height="Auto" Width="Auto">
                 <Button Background="White" Width="65">
                     <TextBlock Text="From" VerticalAlignment="Center" Width="70" Height="15"/>
                 </Button>
@@ -56,7 +56,7 @@
                     <TextBlock Text="Cc..." VerticalAlignment="Center" Width="70" Height="15" />
                 </Button>
                 <Border Background="White" BorderThickness="01" BorderBrush="Black" Width="65" Height="Auto" >
-                    <TextBlock x:Name="Subject" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Subject" Width="70" Height="17" Margin="0,0,-2,0"/>
+                    <TextBlock x:Name="Subject" VerticalAlignment="Center" TextWrapping="Wrap" Text="Subject" Width="70" Height="17" Margin="0,0,-2,0"/>
                 </Border>
             </StackPanel>
             
