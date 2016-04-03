@@ -148,11 +148,11 @@ namespace MinimalEmailClient.ViewModels
 
         public void SendEmail()
         {
-            Email email = new Email();
+            OutgoingEmail email = new OutgoingEmail();
             email.To = ToAccounts;
             email.Cc = CcAccounts;
             email.Subject = Subject;
-            email.Message = MessageBody;
+            email.Message = MessageBody; 
 
             SmtpClient NewConnection = new SmtpClient(FromAccount, email);
             if (!NewConnection.Connect())

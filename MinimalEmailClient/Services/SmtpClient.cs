@@ -12,9 +12,14 @@ namespace MinimalEmailClient.Services
 {
     public class SmtpClient
     {
-        #region Constructor
+        #region Constructors
 
-        public SmtpClient(Account account, Email email)
+        public SmtpClient(Account account)
+        {
+            Account = account;
+        }
+
+        public SmtpClient(Account account, OutgoingEmail email)
         {
             Account = account;
             NewEmail = email;
@@ -47,8 +52,8 @@ namespace MinimalEmailClient.Services
         #endregion
         #region NewEmail
 
-        private Email newEmail;
-        internal Email NewEmail
+        private OutgoingEmail newEmail;
+        public OutgoingEmail NewEmail
         {
             get { return newEmail; }
             set
@@ -140,8 +145,8 @@ namespace MinimalEmailClient.Services
             SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
             ReadResponse();
 
-            Trace.WriteLine("\nRCPT TO: " + email.To + '\n');
-            SendString("RCPT TO: <" + email.To + ">");
+            Trace.WriteLine("\nRCPT TO: " + NewEmail.To + '\n');
+            SendString("RCPT TO: <" + NewEmail.To + ">");
             ReadResponse();
 
             Trace.WriteLine("\nDATA\n");
@@ -149,7 +154,7 @@ namespace MinimalEmailClient.Services
             ReadResponse();
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}\r\n.", Account.SmtpLoginName, email.To, email.Subject, email.Message));
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Subject, NewEmail.Message));
             ReadResponse();
 
             Trace.WriteLine("\nend");

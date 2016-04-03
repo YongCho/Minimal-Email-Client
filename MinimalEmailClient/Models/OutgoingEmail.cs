@@ -2,7 +2,7 @@
 
 namespace MinimalEmailClient.Models
 {
-    class Email : BindableBase
+    public class OutgoingEmail : BindableBase
     {
         private string to = string.Empty;
         public string To
@@ -32,3 +32,4 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.message, value); }
         }
     }
+}
