@@ -147,6 +147,11 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine("\nRCPT TO: " + NewEmail.To + '\n');
             SendString("RCPT TO: <" + NewEmail.To + ">");
+            if (!String.IsNullOrEmpty(NewEmail.Cc))
+            {
+                Trace.WriteLine("\nRCPT TO: " + NewEmail.Cc + '\n');
+                SendString("RCPT TO: <" + NewEmail.Cc + ">");
+            }
             ReadResponse();
 
             Trace.WriteLine("\nDATA\n");
@@ -154,7 +159,7 @@ namespace MinimalEmailClient.Services
             ReadResponse();
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nSubject: {2}\r\n\r\n{3}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Subject, NewEmail.Message));
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nSubject: {3}\r\n\r\n{4}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Subject, NewEmail.Message));
             ReadResponse();
 
             Trace.WriteLine("\nend");
