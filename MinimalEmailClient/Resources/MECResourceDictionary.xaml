@@ -11,7 +11,7 @@
     </Style>
 
     <!-- Brushes -->
-    <SolidColorBrush x:Key="UniversalBorderBrush" Color="LightGray" />
+    <SolidColorBrush x:Key="UniversalBorderBrush" Color="#FFE3E3E3" />
     <SolidColorBrush x:Key="MenuItemBackgroundBrush" Color="White" />
     <SolidColorBrush x:Key="MenuItemBorderBrush" Color="#FFDADADA" />
     <SolidColorBrush x:Key="MenuItemHighlightBackgroundBrush" Color="#FFD4E9FB" />
