@@ -92,7 +92,7 @@
             <!-- List of messages in the selected mailbox. -->
             <views:MessageListView Grid.Column="1" Margin="10,0,0,0" BorderThickness="0" />
 
-            <GridSplitter Grid.Column="1" Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="{StaticResource UniversalBorderBrush}" />
+            <GridSplitter Grid.Column="1" Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="{StaticResource DefaultBorderBrush}" />
         </Grid>
 
     </DockPanel>

@@ -155,6 +155,7 @@
     <Compile Include="Views\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
+    <Compile Include="Views\Converters\LeftMarginMultiplierConverter.cs" />
     <Compile Include="Views\Utilities\PasswordBindingHelper.cs" />
     <Compile Include="Views\AddAcountView.xaml.cs">
       <DependentUpon>AddAcountView.xaml</DependentUpon>
@@ -169,6 +170,7 @@
     <Compile Include="Views\MessageContentView.xaml.cs">
       <DependentUpon>MessageContentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Utilities\TreeViewItemExtensions.cs" />
     <Compile Include="Views\Utilities\WebBrowserHelper.cs" />
     <Page Include="Resources\MECResourceDictionary.xaml">
       <SubType>Designer</SubType>
