@@ -14,18 +14,12 @@ namespace MinimalEmailClient.Services
         public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
         public static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
 
-        private static string connString;
+        private static string connString = string.Format("Case Sensitive=True;Data Source={0}", DatabasePath);
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
         private static readonly int schemaVersion = 13;
 
         public static bool Initialize()
         {
-            SqlCeConnectionStringBuilder connBuilder = new SqlCeConnectionStringBuilder();
-            connBuilder["Data Source"] = DatabasePath;
-            connBuilder["Case Sensitive"] = true;
-
-            connString = connBuilder.ConnectionString;
-
             if (!IsSchemaCurrent())
             {
                 return CreateDatabase();
