@@ -76,7 +76,7 @@
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom" Height="20" Background="#fafafa">
             <StatusBarItem>
-                <TextBlock Name="lblStatus" Text="Idle" />
+                <TextBlock Name="lblStatus" />
             </StatusBarItem>
         </StatusBar>
 
@@ -92,7 +92,7 @@
             <!-- List of messages in the selected mailbox. -->
             <views:MessageListView Grid.Column="1" Margin="10,0,0,0" BorderThickness="0" />
 
-            <GridSplitter Grid.Column="1" Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="AliceBlue" />
+            <GridSplitter Grid.Column="1" Name="gridSplitter" HorizontalAlignment="Left" Width="1" Background="{StaticResource UniversalBorderBrush}" />
         </Grid>
 
     </DockPanel>
