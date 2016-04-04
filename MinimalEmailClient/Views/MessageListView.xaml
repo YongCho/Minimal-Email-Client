@@ -47,7 +47,7 @@
         <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding MessageHeaderViewModels}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessageHeaderViewModel}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2" SelectionChanged="messageListView_SelectionChanged">
 
             <ListView.Background>
-                <ImageBrush ImageSource="/Resources/Images/watermark_envelope.png" Stretch="None" Opacity="0.5" />
+                <ImageBrush ImageSource="pack://application:,,,/MinimalEmailClient;component/Resources/Images/watermark_envelope.png" Stretch="None" Opacity="0.5" />
             </ListView.Background>
 
             <i:Interaction.Triggers>
@@ -67,7 +67,7 @@
                     <!-- 'IsSeen' column -->
                     <viewUtilities:FixedWidthGridViewColumn x:Name="col0" FixedWidth="30">
                         <viewUtilities:FixedWidthGridViewColumn.Header>
-                            <Image Source="/Resources/Images/envelope.png" Height="14" />
+                            <Image Source="pack://application:,,,/MinimalEmailClient;component/Resources/Images/envelope.png" Height="14" />
                         </viewUtilities:FixedWidthGridViewColumn.Header>
                         <viewUtilities:FixedWidthGridViewColumn.CellTemplate>
                             <DataTemplate>
