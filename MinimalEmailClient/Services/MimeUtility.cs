@@ -175,5 +175,10 @@ namespace MinimalEmailClient.Services
         {
             return !string.IsNullOrEmpty(fileName) && fileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
         }
+
+        private static void EncodeAttachment()
+        {
+
+        }
     }
 }

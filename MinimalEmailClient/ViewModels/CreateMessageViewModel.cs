@@ -4,10 +4,13 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.Generic;
 using MinimalEmailClient.Models;
 using MinimalEmailClient.Services;
 using MinimalEmailClient.Notifications;
 using Prism.Commands;
+using Microsoft.Win32;
+
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -19,6 +22,7 @@ namespace MinimalEmailClient.ViewModels
         public CreateMessageViewModel()
         {
             SendCommand = new DelegateCommand(SendEmail, CanSend);
+            AttachFileCommand = new DelegateCommand(AttachFile);
         }
 
         #endregion
@@ -49,6 +53,11 @@ namespace MinimalEmailClient.ViewModels
                 return false;
             return true;
         }
+
+        #endregion
+        #region AttachFileCommand
+
+        public ICommand AttachFileCommand { get; set; }
 
         #endregion
         #region INotification
@@ -160,7 +169,12 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
-        #region SendEmail
+        #region Attachments
+
+        List<string> attachments = new List<string>();
+
+        #endregion
+        #region SendEmailMethod
 
         public void SendEmail()
         {
@@ -179,7 +193,7 @@ namespace MinimalEmailClient.ViewModels
                 return;
             }
 
-            if (!NewConnection.SendMail())
+            if (!NewConnection.SendMail(attachments))
             {
                 Trace.WriteLine(NewConnection.Error);
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);
@@ -193,6 +207,19 @@ namespace MinimalEmailClient.ViewModels
         private void RaiseCanSendChanged()
         {
             (SendCommand as DelegateCommand).RaiseCanExecuteChanged();
+        }
+
+        #endregion
+        #region AttachFileMethod
+
+        private void AttachFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string filePath = openFileDialog.FileName;
+                attachments.Add(filePath);
+            }
         }
 
         #endregion

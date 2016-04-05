@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.IO;
 using MinimalEmailClient.Models;
+using MimeKit;
 
 namespace MinimalEmailClient.Services
 {
@@ -63,7 +63,11 @@ namespace MinimalEmailClient.Services
         }
 
         #endregion
-       
+        #region Attachments
+
+        List<MimeEntity> attachments;
+
+        #endregion
         #region TCP Connection(s)
 
         public bool Connect()
@@ -123,7 +127,23 @@ namespace MinimalEmailClient.Services
         #endregion
         #region SendMail
 
-        public bool SendMail()
+        public bool SendMail(List<string> attachmentList)
+        {
+            if (attachmentList.Count > 0)
+            {
+                if (!StoreEntities(attachmentList)) return false;
+            }
+            if (!AuthorizeAndPrepareServer()) return false;
+
+            Trace.WriteLine("\nMESSAGEBODY\n");
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}\r\n\r\n{5}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject, NewEmail.Message));
+            ReadResponse();
+
+            Trace.WriteLine("\nend");
+            return true;
+        }
+
+        private bool AuthorizeAndPrepareServer()
         {
             // Some server require initial greeting (smtp etiquette)
             SendString("EHLO " + Account.SmtpServerName);
@@ -168,11 +188,6 @@ namespace MinimalEmailClient.Services
             SendString("DATA");
             ReadResponse();
 
-            Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}\r\n\r\n{5}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject, NewEmail.Message));
-            ReadResponse();
-
-            Trace.WriteLine("\nend");
             return true;
         }
 
@@ -184,6 +199,20 @@ namespace MinimalEmailClient.Services
         private void SendString(string str)
         {
             SendString(str, this.sslStream);
+        }
+
+        #endregion
+        #region MimeEntities
+
+        private bool StoreEntities(List<string> attachmentList)
+        {
+            Trace.Write("Attached Files: ");
+            foreach(string iter in attachmentList)
+            {
+                Trace.Write(iter + "; ");
+            }
+            Trace.Write('\n');
+            return true;
         }
 
         #endregion
