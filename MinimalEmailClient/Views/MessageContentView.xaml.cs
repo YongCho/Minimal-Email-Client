@@ -113,5 +113,13 @@ namespace MinimalEmailClient.Views
                 defaultViewMenuItem_Click(this, new RoutedEventArgs());
             }
         }
+
+        private void userControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            htmlBodyTextBox.Clear();
+            textBodyTextBox.Clear();
+            browserContentTextBox.Clear();
+            sourceTextBox.Clear();
+        }
     }
 }

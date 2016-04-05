@@ -12,7 +12,7 @@
         <viewModels:MailboxTreeViewModel />
     </UserControl.DataContext>
 
-    <TreeView Padding="5" BorderThickness="0" ItemsSource="{Binding AccountViewModels}" SelectedItemChanged="TreeView_SelectedItemChanged">
+    <TreeView Margin="6,0,0,0" HorizontalContentAlignment="Stretch" BorderThickness="0" ItemsSource="{Binding AccountViewModels}" SelectedItemChanged="TreeView_SelectedItemChanged">
         <TreeView.Background>
             <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                 <GradientStop Color="#fffafafa" Offset="1"/>
@@ -24,8 +24,7 @@
 
             <!-- Template for displaying Account object -->
             <HierarchicalDataTemplate DataType="{x:Type viewModels:AccountViewModel}" ItemsSource="{Binding MailboxViewModelTree}">
-                <TextBlock Text="{Binding EmailAddress, Mode=OneWay}"
-                           Margin="0, 2">
+                <TextBlock Text="{Binding EmailAddress, Mode=OneWay}" Margin="0, 3">
                     <TextBlock.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Delete Account"
@@ -38,13 +37,13 @@
 
             <!-- Template for displaying Mailbox object -->
             <HierarchicalDataTemplate DataType="{x:Type viewModels:MailboxViewModel}" ItemsSource="{Binding MailboxViewModelSubTree}">
-                <TextBlock Text="{Binding DisplayName, Mode=OneWay}" Margin="0, 2" />
+                <TextBlock Text="{Binding DisplayName, Mode=OneWay}" Margin="0, 3" />
             </HierarchicalDataTemplate>
 
         </TreeView.Resources>
 
         <TreeView.ItemContainerStyle>
-            <Style TargetType="TreeViewItem">
+            <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemStyle}">
                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
             </Style>
         </TreeView.ItemContainerStyle>

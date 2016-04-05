@@ -10,11 +10,11 @@ namespace MinimalEmailClient.Views.Converters
         {
             if ((bool)value)
             {
-                return "/Resources/Images/envelope_seen.png";
+                return "pack://application:,,,/MinimalEmailClient;component/Resources/Images/envelope_seen.png";
             }
             else
             {
-                return "/Resources/Images/envelope_unseen.png";
+                return "pack://application:,,,/MinimalEmailClient;component/Resources/Images/envelope_unseen.png";
             }
         }
 

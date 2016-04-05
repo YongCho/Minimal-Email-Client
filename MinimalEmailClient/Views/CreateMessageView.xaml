@@ -26,7 +26,7 @@
                     <!-- 'Send' button -->
                     <Button Command="{Binding SendCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Resources/Images/send.png" Stretch="Uniform" Height="20" Width="20" Margin="0,0,3,0" />
+                            <Image Source="pack://application:,,,/MinimalEmailClient;component/Resources/Images/send.png" Stretch="Uniform" Height="20" Width="20" Margin="0,0,3,0" />
                             <TextBlock Text="Send" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
@@ -34,7 +34,7 @@
                     <!-- 'Attachment' button -->
                     <Button Command="{Binding AttachFileCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Resources/Images/attachment.png" Stretch="Uniform" Height="20" Width="20" />
+                            <Image Source="pack://application:,,,/MinimalEmailClient;component/Resources/Images/attachment.png" Stretch="Uniform" Height="20" Width="20" />
                             <TextBlock Text="Attach" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
