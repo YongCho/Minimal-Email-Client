@@ -6,11 +6,11 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - Yoo Min Cha
 
 # Progress (Week 04/05)
-- TODO: Research ways to locate and decode binary attachments embedded within MIME (Yong).
-- TODO: List the attached file names when the user reads a message; possibly show an appropriate icon based on the file type (Yong).
-- TODO: Implement user interface to save the attached files to the file system (Yong).
-- TODO: Implement user interface to select files from the file system (Yoo Min).
-- TODO: Research and implement mechanism to embed binary attachment to an outgoing email (Yoo Min).
+- In-progress: Research ways to locate and decode binary attachments embedded within MIME (Yong).
+- In-progress: List the attached file names when the user reads a message; possibly show an appropriate icon based on the file type (Yong).
+- In-progress: Implement user interface to save the attached files to the file system (Yong).
+- In-progress: Implement user interface to select files from the file system (Yoo Min).
+- In-progress: Research and implement mechanism to embed binary attachment to an outgoing email (Yoo Min).
 
 # Progress (Week 03/29)
 - Modified the message sync procedure to re-download and update the existing messages instead of downloading only new messages.
