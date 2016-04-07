@@ -9,7 +9,7 @@
              xmlns:viewUtilities="clr-namespace:MinimalEmailClient.Views.Utilities"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300" Background="White" Loaded="UserControl_Loaded" Unloaded="userControl_Unloaded">
+             d:DesignHeight="300" d:DesignWidth="800" Background="White" Loaded="UserControl_Loaded" Unloaded="userControl_Unloaded">
 
     <UserControl.DataContext>
         <viewModels:MessageContentViewModel />
@@ -17,6 +17,8 @@
 
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="InverseBoolToHiddenConverter" TrueValue="Hidden" FalseValue="Visible" />
+        <converters:FileSizeToStringConverter x:Key="FileSizeToStringConverter" />
+        <converters:FilePathToIconImageConverter x:Key="FilePathToIconImageConverter" />
     </UserControl.Resources>
 
     <DockPanel>
@@ -74,14 +76,60 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="2">
-                <WrapPanel>
-                    <!-- Attachments -->
-                </WrapPanel>
-            </Border>
+            <!-- Attachments -->
+            <ListView x:Name="AttachmentListView" Grid.Row="2" ItemsSource="{Binding Attachments}" BorderThickness="0,1,0,0" BorderBrush="{StaticResource DefaultBorderBrush}" Padding="0,4" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.Style>
+                    <Style TargetType="ListView">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Attachments.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.Style>
+
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Border x:Name="ItemBoxBorder" Margin="0,0,8,0">
+                                            <StackPanel Orientation="Horizontal" Margin="3">
+                                                <Image Height="18" Margin="0,0,4,0" Source="{Binding FilePath, Converter={StaticResource FilePathToIconImageConverter}}" />
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding FileName}" />
+                                                <TextBlock VerticalAlignment="Center" Text="(" Margin="3,0,0,0" />
+                                                <TextBlock VerticalAlignment="Center" Text="{Binding FileSizeBytes, Converter={StaticResource FileSizeToStringConverter}}" />
+                                                <TextBlock VerticalAlignment="Center" Text=")" />
+                                            </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="true">
+                                            <Setter TargetName="ItemBoxBorder" Property="Background" Value="{StaticResource DefaultHighlightBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="AttachmentOpenMenu" Header="Open" Click="AttachmentOpenMenu_Click" />
+                        <MenuItem x:Name="AttachmentSaveAsMenu" Header="Save As..." Click="AttachmentSaveAsMenu_Click" />
+                        <MenuItem x:Name="AttachmentSaveAllMenu" Header="Save All Attachments..." Click="AttachmentSaveAllMenu_Click" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+            </ListView>
 
             <!-- Message body -->
-            <Border Grid.Row="3" BorderThickness="0,1,0,0" Padding="0,15,0,0" BorderBrush="{StaticResource MenuItemHighlightBackgroundBrush}">
+            <Border Grid.Row="3" Padding="0,15,0,0"  BorderThickness="0,1,0,0" BorderBrush="{StaticResource DefaultBorderBrush}">
                 <xctk:BusyIndicator IsBusy="{Binding Loading}" BusyContent="Downloading message ..." >
                     <TabControl x:Name="msgTabControl" SelectedIndex="{Binding ElementName=userControl, Path=SelectedTabIndex}" TabStripPlacement="Bottom" BorderThickness="0" >
                         <TabItem Header="Text" Visibility="Collapsed">

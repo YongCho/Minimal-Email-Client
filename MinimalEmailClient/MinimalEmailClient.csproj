@@ -73,6 +73,10 @@
       <HintPath>..\packages\NI.Email.Mime.1.8.1.0\lib\net20\NI.Email.Mime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Prism, Version=6.1.0.0, Culture=neutral, PublicKeyToken=91a96d2a154366d8, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.Core.6.1.0\lib\net45\Prism.dll</HintPath>
       <Private>True</Private>
@@ -143,6 +147,7 @@
     <Compile Include="Events\GlobalEventAggregator.cs" />
     <Compile Include="Events\EventCollection.cs" />
     <Compile Include="Models\Account.cs" />
+    <Compile Include="ViewModels\AttachmentInfoViewModel.cs" />
     <Compile Include="Models\OutgoingEmail.cs" />
     <Compile Include="Services\AccountManager.cs" />
     <Compile Include="Services\DatabaseManager.cs" />
@@ -164,6 +169,8 @@
     <Compile Include="Views\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CreateMessageViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
+    <Compile Include="Views\Converters\FilePathToIconImageConverter.cs" />
+    <Compile Include="Views\Converters\FileSizeToStringConverter.cs" />
     <Compile Include="Views\Converters\LeftMarginMultiplierConverter.cs" />
     <Compile Include="Views\Utilities\PasswordBindingHelper.cs" />
     <Compile Include="Views\AddAcountView.xaml.cs">
@@ -285,6 +292,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\envelope_unseen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\document.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -1,4 +1,8 @@
-﻿using System.ComponentModel;
+﻿using MinimalEmailClient.ViewModels;
+using Ookii.Dialogs.Wpf;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -120,6 +124,59 @@ namespace MinimalEmailClient.Views
             textBodyTextBox.Clear();
             browserContentTextBox.Clear();
             sourceTextBox.Clear();
+            AttachmentListView.Visibility = Visibility.Collapsed;
+        }
+
+        private void AttachmentOpenMenu_Click(object sender, RoutedEventArgs e)
+        {
+            AttachmentInfoViewModel attachmentInfo = (AttachmentInfoViewModel)AttachmentListView.SelectedItem;
+            if (attachmentInfo != null)
+            {
+                Process.Start(attachmentInfo.FilePath);
+            }
+        }
+
+        private void AttachmentSaveAsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            AttachmentInfoViewModel attachmentInfo = (AttachmentInfoViewModel)AttachmentListView.SelectedItem;
+            if (attachmentInfo != null)
+            {
+                string extension = Path.GetExtension(attachmentInfo.FileName);  // ".pdf", ".txt", etc.
+
+                VistaSaveFileDialog saveFileDialog = new VistaSaveFileDialog();
+                saveFileDialog.OverwritePrompt = true;
+                saveFileDialog.Filter = "*"+ extension + "|*" + extension + "|*.*|*.*";
+                saveFileDialog.FileName = attachmentInfo.FileName;
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    bool overwrite = true;
+                    File.Copy(attachmentInfo.FilePath, saveFileDialog.FileName, overwrite);
+                }
+            }
+        }
+
+        private void AttachmentSaveAllMenu_Click(object sender, RoutedEventArgs e)
+        {
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+            dialog.Description = "Save All Attachments";
+            dialog.UseDescriptionForTitle = true;
+            if (dialog.ShowDialog() == true)
+            {
+                foreach (AttachmentInfoViewModel attachmentInfo in AttachmentListView.Items)
+                {
+                    string targetFilePath = Path.Combine(dialog.SelectedPath, attachmentInfo.FileName);
+                    if (File.Exists(targetFilePath))
+                    {
+                        MessageBoxResult result = MessageBox.Show(
+                            attachmentInfo.FileName + " exists in the selected directory. Would you like to overwrite it?", "Duplicate File Name",
+                            MessageBoxButton.YesNo);
+                        if (result != MessageBoxResult.Yes)
+                            continue;
+                    }
+                    bool overwrite = true;
+                    File.Copy(attachmentInfo.FilePath, targetFilePath, overwrite);
+                }
+            }
         }
     }
 }

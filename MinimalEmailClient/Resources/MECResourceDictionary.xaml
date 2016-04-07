@@ -368,8 +368,8 @@
         </Setter>
     </Style>
 
-    <!-- Style for each listview row -->
-    <Style TargetType="{x:Type ListViewItem}">
+    <!-- Style for each message list row -->
+    <Style x:Key="MessageListViewItemStyle" TargetType="{x:Type ListViewItem}">
         <Setter Property="Template">
             <Setter.Value>
                 <!-- Remove corner radius. Without this, each row will have rounded corners by default. -->

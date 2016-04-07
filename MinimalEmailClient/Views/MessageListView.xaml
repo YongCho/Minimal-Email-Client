@@ -44,7 +44,7 @@
     <Grid>
 
         <!-- The listview -->
-        <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding MessageHeaderViewModels}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessageHeaderViewModel}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2" SelectionChanged="messageListView_SelectionChanged">
+        <ListView x:Name="messageListView" BorderThickness="0" ItemsSource="{Binding MessageHeaderViewModels}" SelectionMode="Extended"  SelectedItem="{Binding SelectedMessageHeaderViewModel}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AlternationCount="2" SelectionChanged="messageListView_SelectionChanged" ItemContainerStyle="{StaticResource MessageListViewItemStyle}">
 
             <ListView.Background>
                 <ImageBrush ImageSource="pack://application:,,,/MinimalEmailClient;component/Resources/Images/watermark_envelope.png" Stretch="None" Opacity="0.5" />
