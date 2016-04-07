@@ -14,19 +14,19 @@ namespace MinimalEmailClient.Services
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
-            return ParseFromMime(mimeMsg, "text/plain");
+            return ParseBodyFromMime(mimeMsg, "text/plain");
         }
 
         public static string GetHtmlBody(string body)
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
-            return ParseFromMime(mimeMsg, "text/html");
+            return ParseBodyFromMime(mimeMsg, "text/html");
         }
 
         // Parses the content of the specified mime type.
         // Recognized mime types are "text/html" and "text/plain".
-        private static string ParseFromMime(Entity mimeEntity, string mimeType)
+        private static string ParseBodyFromMime(Entity mimeEntity, string mimeType)
         {
             string parsedText = string.Empty;
             if (mimeEntity.IsMultipart)
@@ -35,8 +35,14 @@ namespace MinimalEmailClient.Services
                 foreach (Entity part in multiPart.BodyParts)
                 {
                     ContentTypeField contentType = part.Header.GetField(MimeField.ContentType) as ContentTypeField;
+                    MimeField contentDispositionField = part.Header.GetField("Content-Disposition");
                     if (contentType == null)
                     {
+                        continue;
+                    }
+                    if (contentDispositionField != null && contentDispositionField.Body.StartsWith("attachment"))
+                    {
+                        // An attached text file could also be ITextBody. We don't want this. We only want message body.
                         continue;
                     }
                     if (part.Body is ITextBody && contentType.MimeType.Contains(mimeType))
@@ -45,11 +51,11 @@ namespace MinimalEmailClient.Services
                     }
                     else if (part.IsMultipart)
                     {
-                        parsedText = ParseFromMime((Entity)part, mimeType);
+                        parsedText = ParseBodyFromMime((Entity)part, mimeType);
                     }
                     else if (part.Body is MimeMessage)
                     {
-                        parsedText = ParseFromMime((MimeMessage)part.Body, mimeType);
+                        parsedText = ParseBodyFromMime((MimeMessage)part.Body, mimeType);
                     }
                 }
             }
