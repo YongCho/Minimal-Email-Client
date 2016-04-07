@@ -143,11 +143,13 @@ namespace MinimalEmailClient.ViewModels
         private Dictionary<string, string> savedCidContents = new Dictionary<string, string>();
         private Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
         public ObservableCollection<AttachmentInfoViewModel> Attachments { get; set; }
+        public ICommand HandleUiCloseCommand { get; set; }
         public Action FinishInteraction { get; set; }
 
         public MessageContentViewModel()
         {
             Attachments = new ObservableCollection<AttachmentInfoViewModel>();
+            HandleUiCloseCommand = new DelegateCommand(HandleUiClose);
             if (!Directory.Exists(cidContentDirPath))
             {
                 Directory.CreateDirectory(cidContentDirPath);
@@ -156,6 +158,18 @@ namespace MinimalEmailClient.ViewModels
             {
                 Directory.CreateDirectory(cidContentDirPath);
             }
+        }
+
+        private void HandleUiClose()
+        {
+            Message.PropertyChanged -= HandleModelPropertyChanged;
+            Message = null;
+            Date = new DateTime();
+            TextBody = string.Empty;
+            HtmlBody = string.Empty;
+            BrowserContent = string.Empty;
+            RaiseViewModelPropertiesChanged();
+            Attachments.Clear();
         }
 
         private void LoadAttachments(string mimeSource)

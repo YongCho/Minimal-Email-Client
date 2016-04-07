@@ -120,11 +120,7 @@ namespace MinimalEmailClient.Views
 
         private void userControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            htmlBodyTextBox.Clear();
-            textBodyTextBox.Clear();
-            browserContentTextBox.Clear();
-            sourceTextBox.Clear();
-            AttachmentListView.Visibility = Visibility.Collapsed;
+            CloseCommandRelayButton.Command.Execute(null);
         }
 
         private void AttachmentOpenMenu_Click(object sender, RoutedEventArgs e)

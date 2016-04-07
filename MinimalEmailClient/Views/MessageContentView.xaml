@@ -159,6 +159,8 @@
                     </TabControl>
                 </xctk:BusyIndicator>
             </Border>
+
+            <Button x:Name="CloseCommandRelayButton" Visibility="Hidden" Command="{Binding HandleUiCloseCommand}" />
         </Grid>
     </DockPanel>
 </UserControl>
