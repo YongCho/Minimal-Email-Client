@@ -8,7 +8,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 # Progress (Week 04/05)
 - Implemented handling of attached files in a received message. The program now scans the message's MIME body and extracts/displays all attached files (both binary and text attachments) when the user opens an email message. 
 - Implemented UI to allow opening the attachment directly using the system's default associated application, or save them to the file system.
-- In-progress: Implement user interface to select files from the file system (Yoo Min) in order to attach them to an outgoing message (Yoo Min).
+- In-progress: Implement user interface to select files from the file system in order to attach them to an outgoing message (Yoo Min).
 - In-progress: Research and implement mechanism to embed binary/text attachment to an outgoing email (Yoo Min).
 
 # Progress (Week 03/29)
