@@ -32,14 +32,7 @@ namespace MinimalEmailClient.ViewModels
         public bool IsExpanded
         {
             get { return this.isExpanded; }
-            set
-            {
-                if (this.isExpanded != value)
-                {
-                    this.isExpanded = value;
-                    OnPropertyChanged("IsExpanded");
-                }
-            }
+            set { SetProperty(ref this.isExpanded, value); }
         }
 
         public ObservableCollection<MailboxViewModel> MailboxViewModelSubTree { get; set; }

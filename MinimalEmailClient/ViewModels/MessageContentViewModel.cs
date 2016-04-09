@@ -80,11 +80,8 @@ namespace MinimalEmailClient.ViewModels
             get { return this.message; }
             private set
             {
-                if (this.message != value)
-                {
-                    this.message = value;
-                    RaiseViewModelPropertiesChanged();
-                }
+                SetProperty(ref this.message, value);
+                RaiseViewModelPropertiesChanged();
             }
         }
 
@@ -149,7 +146,7 @@ namespace MinimalEmailClient.ViewModels
         public MessageContentViewModel()
         {
             Attachments = new ObservableCollection<AttachmentInfoViewModel>();
-            HandleUiCloseCommand = new DelegateCommand(HandleUiClose);
+            HandleUiCloseCommand = new DelegateCommand(HandleInteractionFinished);
             if (!Directory.Exists(cidContentDirPath))
             {
                 Directory.CreateDirectory(cidContentDirPath);
@@ -160,7 +157,7 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        private void HandleUiClose()
+        private void HandleInteractionFinished()
         {
             Message.PropertyChanged -= HandleModelPropertyChanged;
             Message = null;
