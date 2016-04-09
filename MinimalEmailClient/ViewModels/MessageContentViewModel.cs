@@ -139,13 +139,13 @@ namespace MinimalEmailClient.ViewModels
         private static readonly string attachmentDirPath = Path.Combine(Globals.UserSettingsFolder, "Attachments");  // explicit attachments
         private Dictionary<string, string> savedCidContents = new Dictionary<string, string>();
         private Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
-        public ObservableCollection<AttachmentInfoViewModel> Attachments { get; set; }
+        public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
         public ICommand HandleUiCloseCommand { get; set; }
         public Action FinishInteraction { get; set; }
 
         public MessageContentViewModel()
         {
-            Attachments = new ObservableCollection<AttachmentInfoViewModel>();
+            Attachments = new ObservableCollection<AttachmentViewModel>();
             HandleUiCloseCommand = new DelegateCommand(HandleInteractionFinished);
             if (!Directory.Exists(cidContentDirPath))
             {
@@ -188,7 +188,7 @@ namespace MinimalEmailClient.ViewModels
             Attachments.Clear();
             foreach (string path in this.savedAttachments.Values)
             {
-                Attachments.Add(new AttachmentInfoViewModel(path));
+                Attachments.Add(new AttachmentViewModel(path));
             }
         }
 

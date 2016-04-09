@@ -125,7 +125,7 @@ namespace MinimalEmailClient.Views
 
         private void AttachmentOpenMenu_Click(object sender, RoutedEventArgs e)
         {
-            AttachmentInfoViewModel attachmentInfo = (AttachmentInfoViewModel)AttachmentListView.SelectedItem;
+            AttachmentViewModel attachmentInfo = (AttachmentViewModel)AttachmentListView.SelectedItem;
             if (attachmentInfo != null)
             {
                 Process.Start(attachmentInfo.FilePath);
@@ -134,7 +134,7 @@ namespace MinimalEmailClient.Views
 
         private void AttachmentSaveAsMenu_Click(object sender, RoutedEventArgs e)
         {
-            AttachmentInfoViewModel attachmentInfo = (AttachmentInfoViewModel)AttachmentListView.SelectedItem;
+            AttachmentViewModel attachmentInfo = (AttachmentViewModel)AttachmentListView.SelectedItem;
             if (attachmentInfo != null)
             {
                 string extension = Path.GetExtension(attachmentInfo.FileName);  // ".pdf", ".txt", etc.
@@ -158,7 +158,7 @@ namespace MinimalEmailClient.Views
             dialog.UseDescriptionForTitle = true;
             if (dialog.ShowDialog() == true)
             {
-                foreach (AttachmentInfoViewModel attachmentInfo in AttachmentListView.Items)
+                foreach (AttachmentViewModel attachmentInfo in AttachmentListView.Items)
                 {
                     string targetFilePath = Path.Combine(dialog.SelectedPath, attachmentInfo.FileName);
                     if (File.Exists(targetFilePath))

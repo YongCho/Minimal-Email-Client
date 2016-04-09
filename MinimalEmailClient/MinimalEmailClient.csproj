@@ -147,7 +147,7 @@
     <Compile Include="Events\GlobalEventAggregator.cs" />
     <Compile Include="Events\EventCollection.cs" />
     <Compile Include="Models\Account.cs" />
-    <Compile Include="ViewModels\AttachmentInfoViewModel.cs" />
+    <Compile Include="ViewModels\AttachmentViewModel.cs" />
     <Compile Include="Models\OutgoingEmail.cs" />
     <Compile Include="Services\AccountManager.cs" />
     <Compile Include="Services\DatabaseManager.cs" />

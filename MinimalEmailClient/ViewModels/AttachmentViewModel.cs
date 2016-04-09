@@ -3,7 +3,7 @@ using System.IO;
 
 namespace MinimalEmailClient.ViewModels
 {
-    public class AttachmentInfoViewModel : BindableBase
+    public class AttachmentViewModel : BindableBase
     {
         private string filePath = string.Empty;
         public string FilePath
@@ -32,7 +32,7 @@ namespace MinimalEmailClient.ViewModels
             private set { SetProperty(ref this.fileSizeBytes, value); }
         }
 
-        public AttachmentInfoViewModel(string filePath)
+        public AttachmentViewModel(string filePath)
         {
             string fullPath = Path.GetFullPath(filePath);
             if (File.Exists(fullPath))
