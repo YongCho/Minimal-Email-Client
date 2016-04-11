@@ -16,7 +16,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - Implemented handling of attached files in a received message. The program now scans the message's MIME body and extracts/displays all attached files (both binary and text attachments) when the user opens an email message. 
 - Implemented UI to allow opening the attachment directly using the system's default associated application for the file type, or save them to the file system.
 - Implemented UI to select files from the file system in order to attach them to an outgoing message.
-- Researched possible ways to construct outgoing MIME message in order to allow file attachment. We have decided to use [MimeKit](https://github.com/jstedfast/MimeKit). It seems to be a little easier to use than [NI.Email.Mime](http://nugetmusthaves.com/Package/NI.Email.Mime) which is currently being used by the receiver side to parse incoming MIME message. We will continue using NI.Email.Mime on the receiver side for now since we have finished implementing it already and tested it functional.
+- Researched possible ways to construct outgoing MIME message in order to allow file attachment. We have decided to use [MimeKit](https://github.com/jstedfast/MimeKit). It seems to be a little easier to use than [NI.Email.Mime](http://nugetmusthaves.com/Package/NI.Email.Mime) which is currently being used by the receiver side to parse incoming MIME message. We will continue using NI.Email.Mime on the receiver side for now since we have finished implementing it already and tested it functional. The sender side will use MimeKit.
 - In-Progress: Implement mechanism to embed binary/text attachment to an outgoing email.
 
 # Progress (Week 03/29)
