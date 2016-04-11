@@ -20,6 +20,7 @@ namespace MinimalEmailClient.ViewModels
         public Account Account
         {
             get { return this.account; }
+            private set { SetProperty(ref this.account, value); }
         }
 
         public string EmailAddress
@@ -31,19 +32,10 @@ namespace MinimalEmailClient.ViewModels
         public bool IsExpanded
         {
             get { return this.isExpanded; }
-            set
-            {
-                if (this.isExpanded != value)
-                {
-                    this.isExpanded = value;
-                    SetProperty(ref this.isExpanded, value);
-                }
-            }
+            set { SetProperty(ref this.isExpanded, value); }
         }
 
         public ObservableCollection<MailboxViewModel> MailboxViewModelTree { get; set; }
-
-        private readonly object mailboxTreeUpdateLock = new object();
 
         public AccountViewModel(Account account)
         {
@@ -52,11 +44,11 @@ namespace MinimalEmailClient.ViewModels
                 throw new ArgumentNullException("account", "AccountViewModel constructor was expecting an Account object; received null.");
             }
 
-            this.account = account;
-            MailboxViewModelTree = ConstructMailboxViewModelTree(this.account.Mailboxes.ToList());
+            Account = account;
+            MailboxViewModelTree = ConstructMailboxViewModelTree(Account.Mailboxes.ToList());
 
-            this.account.PropertyChanged += HandleModelPropertyChanged;
-            this.account.Mailboxes.CollectionChanged += HandleMailboxListChanged;
+            Account.PropertyChanged += HandleModelPropertyChanged;
+            Account.Mailboxes.CollectionChanged += HandleMailboxListChanged;
         }
 
         private void HandleModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -73,7 +65,7 @@ namespace MinimalEmailClient.ViewModels
         {
             Trace.WriteLine("HandleMailboxListChanged");
 
-            ObservableCollection <MailboxViewModel> newTree = ConstructMailboxViewModelTree(this.account.Mailboxes.ToList());
+            ObservableCollection <MailboxViewModel> newTree = ConstructMailboxViewModelTree(Account.Mailboxes.ToList());
 
             Thread.Sleep(5);  // TODO: Investigate why we get an exception sometimes without a delay here.
             Application.Current.Dispatcher.Invoke(() =>

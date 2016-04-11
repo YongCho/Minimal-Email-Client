@@ -3,84 +3,22 @@ using MinimalEmailClient.Common;
 using MinimalEmailClient.Models;
 using MinimalEmailClient.Notifications;
 using MinimalEmailClient.Services;
+using Prism.Commands;
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace MinimalEmailClient.ViewModels
 {
     public class MessageContentViewModel : BindableBase, IInteractionRequestAware
     {
-        private MessageContentViewNotification notification;
-        public INotification Notification
-        {
-            get
-            {
-                return this.notification;
-            }
-            set
-            {
-                // Setter called when new interaction notification comes in.
-                // Replace the Message object with the new one that came with the notification.
-                if (value is MessageContentViewNotification)
-                {
-                    this.notification = value as MessageContentViewNotification;
-                    this.OnPropertyChanged(() => this.Notification);
-
-                    Message newMessage = (value as MessageContentViewNotification).SelectedMessage;
-                    if (newMessage == null)
-                    {
-                        throw new ArgumentNullException("SelectedMessage");
-                    }
-
-                    if (Message != newMessage)
-                    {
-                        if (Message != null)
-                        {
-                            Message.PropertyChanged -= HandleModelPropertyChanged;
-                        }
-
-                        Message = newMessage;
-                        Date = ImapParser.ParseDate(Message.DateString);
-
-                        if (string.IsNullOrEmpty(Message.Body))
-                        {
-                            DownloadMessageBodyAsync();
-                        }
-                        else
-                        {
-                            TextBody = MimeUtility.GetTextBody(Message.Body);
-                            HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
-                            BrowserContent = PrepareBrowserContent(HtmlBody);
-                        }
-
-                        Message.PropertyChanged += HandleModelPropertyChanged;
-                    }
-                }
-            }
-        }
-
-        public Action FinishInteraction { get; set; }
-
-        private Message message;
-        public Message Message
-        {
-            get { return this.message; }
-            private set
-            {
-                if (this.message != value)
-                {
-                    this.message = value;
-                    RaiseViewModelPropertiesChanged();
-                }
-            }
-        }
-
         public string Subject
         {
             get { return Message == null ? string.Empty : Message.Subject; }
@@ -136,20 +74,104 @@ namespace MinimalEmailClient.ViewModels
             private set { SetProperty(ref this.browserContent, value); }
         }
 
-        private static readonly string attachmentDirPath = Path.Combine(Globals.UserSettingsFolder, "Attachments");
-        Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
-
-        public MessageContentViewModel()
+        private Message message;
+        public Message Message
         {
-            if (!Directory.Exists(attachmentDirPath))
+            get { return this.message; }
+            private set
             {
-                Directory.CreateDirectory(attachmentDirPath);
+                SetProperty(ref this.message, value);
+                RaiseViewModelPropertiesChanged();
             }
         }
 
-        private string PrepareBrowserContent(string htmlBody)
+        private MessageContentViewNotification notification;
+        public INotification Notification
         {
-            // Clear the files in temporary attachment storage.
+            get
+            {
+                return this.notification;
+            }
+            set
+            {
+                // Setter called when new interaction notification comes in.
+                // Replace the Message object with the new one that came with the notification.
+                if (value is MessageContentViewNotification)
+                {
+                    this.notification = value as MessageContentViewNotification;
+                    this.OnPropertyChanged(() => this.Notification);
+
+                    Message newMessage = (value as MessageContentViewNotification).SelectedMessage;
+                    if (newMessage == null)
+                    {
+                        throw new ArgumentNullException("SelectedMessage");
+                    }
+
+                    if (Message != newMessage)
+                    {
+                        if (Message != null)
+                        {
+                            Message.PropertyChanged -= HandleModelPropertyChanged;
+                        }
+
+                        Message = newMessage;
+                        Date = ImapParser.ParseDate(Message.DateString);
+
+                        if (string.IsNullOrEmpty(Message.Body))
+                        {
+                            DownloadMessageBodyAsync();
+                        }
+                        else
+                        {
+                            TextBody = MimeUtility.GetTextBody(Message.Body);
+                            HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
+                            BrowserContent = PrepareBrowserContent(HtmlBody);
+                            LoadAttachments(Message.Body);
+                        }
+
+                        Message.PropertyChanged += HandleModelPropertyChanged;
+                    }
+                }
+            }
+        }
+
+        private static readonly string cidContentDirPath = Path.Combine(Globals.UserSettingsFolder, "CidContents");  // embedded binaries
+        private static readonly string attachmentDirPath = Path.Combine(Globals.UserSettingsFolder, "Attachments");  // explicit attachments
+        private Dictionary<string, string> savedCidContents = new Dictionary<string, string>();
+        private Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
+        public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
+        public ICommand HandleUiCloseCommand { get; set; }
+        public Action FinishInteraction { get; set; }
+
+        public MessageContentViewModel()
+        {
+            Attachments = new ObservableCollection<AttachmentViewModel>();
+            HandleUiCloseCommand = new DelegateCommand(HandleInteractionFinished);
+            if (!Directory.Exists(cidContentDirPath))
+            {
+                Directory.CreateDirectory(cidContentDirPath);
+            }
+            if (!Directory.Exists(attachmentDirPath))
+            {
+                Directory.CreateDirectory(cidContentDirPath);
+            }
+        }
+
+        private void HandleInteractionFinished()
+        {
+            Message.PropertyChanged -= HandleModelPropertyChanged;
+            Message = null;
+            Date = new DateTime();
+            TextBody = string.Empty;
+            HtmlBody = string.Empty;
+            BrowserContent = string.Empty;
+            RaiseViewModelPropertiesChanged();
+            Attachments.Clear();
+        }
+
+        private void LoadAttachments(string mimeSource)
+        {
+            // Clear the files in temporary storage.
             DirectoryInfo di = new DirectoryInfo(attachmentDirPath);
             foreach (FileInfo file in di.GetFiles())
             {
@@ -160,9 +182,32 @@ namespace MinimalEmailClient.ViewModels
                 dir.Delete(true);
             }
 
-            // Save all attachments and obtain their <cid, filePath> pairs.
             this.savedAttachments.Clear();
-            MimeUtility.SaveAttachments(Message.Body, attachmentDirPath, this.savedAttachments);
+            MimeUtility.SaveAttachments(mimeSource, attachmentDirPath, this.savedAttachments);
+
+            Attachments.Clear();
+            foreach (string path in this.savedAttachments.Values)
+            {
+                Attachments.Add(new AttachmentViewModel(path));
+            }
+        }
+
+        private string PrepareBrowserContent(string htmlBody)
+        {
+            // Clear the files in temporary storage.
+            DirectoryInfo di = new DirectoryInfo(cidContentDirPath);
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+
+            // Save all attachments and obtain their <cid, filePath> pairs.
+            this.savedCidContents.Clear();
+            MimeUtility.SaveBinariesWithCid(Message.Body, cidContentDirPath, this.savedCidContents);
 
             HtmlDocument html = new HtmlDocument();
             html.LoadHtml(htmlBody);
@@ -180,9 +225,9 @@ namespace MinimalEmailClient.ViewModels
                     if (m.Success)
                     {
                         string cid = m.Groups[1].Value.Trim(' ');
-                        if (this.savedAttachments.ContainsKey(cid))
+                        if (this.savedCidContents.ContainsKey(cid))
                         {
-                            node.SetAttributeValue("src", this.savedAttachments[cid]);
+                            node.SetAttributeValue("src", this.savedCidContents[cid]);
                         }
                     }
                 }
@@ -256,6 +301,7 @@ namespace MinimalEmailClient.ViewModels
                     TextBody = MimeUtility.GetTextBody(Message.Body);
                     HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
                     BrowserContent = PrepareBrowserContent(HtmlBody);
+                    LoadAttachments(Message.Body);
                     OnPropertyChanged(e.PropertyName);
                     break;
             }

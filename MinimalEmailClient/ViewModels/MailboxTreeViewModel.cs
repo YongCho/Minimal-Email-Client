@@ -38,7 +38,7 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        // This could be a Mailbox or an Account.
+        // This could be a MailboxViewModel or an AccountViewModel.
         private object selectedTreeViewItem;
         public object SelectedTreeViewItem
         {

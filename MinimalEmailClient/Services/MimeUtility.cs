@@ -1,10 +1,12 @@
 ﻿using NI.Email.Mime.Decoder;
 using NI.Email.Mime.Field;
 using NI.Email.Mime.Message;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.Services
 {
@@ -14,19 +16,19 @@ namespace MinimalEmailClient.Services
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
-            return ParseFromMime(mimeMsg, "text/plain");
+            return ParseBodyFromMime(mimeMsg, "text/plain");
         }
 
         public static string GetHtmlBody(string body)
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
-            return ParseFromMime(mimeMsg, "text/html");
+            return ParseBodyFromMime(mimeMsg, "text/html");
         }
 
         // Parses the content of the specified mime type.
         // Recognized mime types are "text/html" and "text/plain".
-        private static string ParseFromMime(Entity mimeEntity, string mimeType)
+        private static string ParseBodyFromMime(Entity mimeEntity, string mimeType)
         {
             string parsedText = string.Empty;
             if (mimeEntity.IsMultipart)
@@ -35,8 +37,14 @@ namespace MinimalEmailClient.Services
                 foreach (Entity part in multiPart.BodyParts)
                 {
                     ContentTypeField contentType = part.Header.GetField(MimeField.ContentType) as ContentTypeField;
+                    MimeField contentDispositionField = part.Header.GetField("Content-Disposition");
                     if (contentType == null)
                     {
+                        continue;
+                    }
+                    if (contentDispositionField != null && contentDispositionField.Body.StartsWith("attachment"))
+                    {
+                        // An attached text file could also be ITextBody. We don't want this. We only want message body.
                         continue;
                     }
                     if (part.Body is ITextBody && contentType.MimeType.Contains(mimeType))
@@ -45,11 +53,11 @@ namespace MinimalEmailClient.Services
                     }
                     else if (part.IsMultipart)
                     {
-                        parsedText = ParseFromMime((Entity)part, mimeType);
+                        parsedText = ParseBodyFromMime((Entity)part, mimeType);
                     }
                     else if (part.Body is MimeMessage)
                     {
-                        parsedText = ParseFromMime((MimeMessage)part.Body, mimeType);
+                        parsedText = ParseBodyFromMime((MimeMessage)part.Body, mimeType);
                     }
                 }
             }
@@ -97,38 +105,50 @@ namespace MinimalEmailClient.Services
                 bytesRead = memStream.Read(buffer, 0, buffer.Length);
             }
 
-            return mimeBody.CurrentEncoding.GetString(buffer, 0, bytesRead);
+            if (bytesRead > 0)
+            {
+                return mimeBody.CurrentEncoding.GetString(buffer, 0, bytesRead);
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
-        public static void SaveAttachments(string mimeMsg, string savePath, Dictionary<string, string> savedFiles)
+        public static void SaveBinariesWithCid(string mimeMsg, string savePath, Dictionary<string, string> savedFiles)
         {
             Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(mimeMsg));
             MimeMessage m = new MimeMessage(mimeMsgStream);
 
-            SaveAttachments(m, savePath, savedFiles);
+            SaveBinariesWithCid(m, savePath, savedFiles);
         }
 
         // Extracts binary contents from mime and saves them to given location.
-        // Inserts <content-ID, saved file name> pairs to the dictionary.
-        private static void SaveAttachments(Entity mimeEntity, string savePath, Dictionary<string, string> savedFiles)
+        // Inserts <content-ID, saved file path> pairs to the dictionary.
+        private static void SaveBinariesWithCid(Entity mimeEntity, string savePath, Dictionary<string, string> savedFiles)
         {
             if (mimeEntity.IsMultipart)
             {
                 foreach (Entity part in ((Multipart)mimeEntity.Body).BodyParts)
                 {
                     ContentTypeField contentType = part.Header.GetField(MimeField.ContentType) as ContentTypeField;
-                    if (contentType == null) continue;
+                    if (contentType == null)
+                        continue;
 
                     if (part.Body is MimeMessage)
                     {
-                        SaveAttachments((MimeMessage)part.Body, savePath, savedFiles);
+                        SaveBinariesWithCid((MimeMessage)part.Body, savePath, savedFiles);
                     }
                     else if (part.IsMultipart)
                     {
-                        SaveAttachments((Entity)part, savePath, savedFiles);
+                        SaveBinariesWithCid((Entity)part, savePath, savedFiles);
                     }
                     else if (!(part.Body is ITextBody))
                     {
+                        MimeField contentIdField = part.Header.GetField("Content-ID");
+                        if (contentIdField == null)
+                            continue;
+
                         string fileName;
                         if (contentType.Parameters.Contains("name"))
                         {
@@ -160,11 +180,123 @@ namespace MinimalEmailClient.Services
                         outFileStream.Flush();
                         outFileStream.Close();
 
-                        MimeField contentIdField = part.Header.GetField("Content-ID");
-                        string key = (contentIdField != null) ? contentIdField.Body.Trim('"', '<', '>', ' ') : fileName;
-                        if (!savedFiles.ContainsKey(key))
+                        string cid = contentIdField.Body.Trim('"', '<', '>', ' ');
+                        if (!savedFiles.ContainsKey(cid))
                         {
-                            savedFiles.Add(key, filePath);
+                            savedFiles.Add(cid, filePath);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void SaveAttachments(string mimeMsg, string savePath, Dictionary<string, string> savedFiles)
+        {
+            Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(mimeMsg));
+            MimeMessage m = new MimeMessage(mimeMsgStream);
+
+            SaveAttachments(m, savePath, savedFiles);
+        }
+
+        // Extracts binary contents from mime and saves them to given location.
+        // Inserts <content-ID, saved file path> pairs to the dictionary.
+        private static void SaveAttachments(Entity mimeEntity, string savePath, Dictionary<string, string> savedFiles)
+        {
+            if (mimeEntity.IsMultipart)
+            {
+                foreach (Entity part in ((Multipart)mimeEntity.Body).BodyParts)
+                {
+                    ContentTypeField contentType = part.Header.GetField(MimeField.ContentType) as ContentTypeField;
+                    if (contentType == null)
+                        continue;
+
+                    if (part.Body is MimeMessage)
+                    {
+                        SaveAttachments((MimeMessage)part.Body, savePath, savedFiles);
+                    }
+                    else if (part.IsMultipart)
+                    {
+                        SaveAttachments((Entity)part, savePath, savedFiles);
+                    }
+                    else
+                    {
+                        MimeField contentDispositionField = part.Header.GetField("Content-Disposition");
+
+                        if (contentDispositionField == null)
+                            continue;
+
+                        if (!contentDispositionField.Body.StartsWith("attachment"))
+                            continue;
+
+                        string fileName;
+                        Match fileNameMatch = Regex.Match(contentDispositionField.Body, "filename=\"?([^<>\"]+)");
+                        if (fileNameMatch.Success)
+                        {
+                            string name = fileNameMatch.Groups[1].Value.Trim(' ', '"', '<', '>');
+                            name = Decoder.DecodeSingleLine(name);
+                            if (IsValidFileName(name))
+                            {
+                                fileName = name;
+                            }
+                            else
+                            {
+                                fileName = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + ".attachment";
+                            }
+                        }
+                        else if (contentType.Parameters.Contains("name"))
+                        {
+                            string name = contentType.Parameters["name"].ToString();
+                            if (IsValidFileName(name))
+                            {
+                                fileName = name;
+                            }
+                            else
+                            {
+                                fileName = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + ".attachment";
+                            }
+                        }
+                        else
+                        {
+                            fileName = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + ".attachment";
+                        }
+
+                        string filePath = Path.Combine(savePath, fileName);
+                        if (part.Body is ITextBody)
+                        {
+                            try
+                            {
+                                string parsedText = ParseTextBody(part);
+                                File.WriteAllText(filePath, parsedText);
+
+                                savedFiles.Add(fileName, filePath);
+                            }
+                            catch (Exception e)
+                            {
+                                Trace.WriteLine("SaveAttachments: " + e.Message);
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                FileStream outFileStream = new FileStream(filePath, FileMode.Create);
+                                BinaryReader rdr = ((IBinaryBody)part.Body).Reader;
+                                byte[] buf = new byte[1024];
+                                int bytesRead = 0;
+                                while ((bytesRead = rdr.Read(buf, 0, buf.Length)) > 0)
+                                {
+                                    outFileStream.Write(buf, 0, bytesRead);
+                                }
+
+                                outFileStream.Flush();
+                                outFileStream.Close();
+
+                                savedFiles.Add(fileName, filePath);
+                            }
+                            catch (Exception e)
+                            {
+                                Trace.WriteLine("SaveAttachments: " + e.Message);
+                            }
                         }
                     }
                 }

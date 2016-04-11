@@ -68,7 +68,7 @@ namespace MinimalEmailClient.Services
         // ex2)
         // QuotedPrintableToString("utf-8", "=?utf-8?q?Prueba=20de=20espa=c3=b1ol?=");
         // returns "Prueba de español"
-        public static string QuotedPrintableToString(string charset, string encodedString)
+        private static string QuotedPrintableToString(string charset, string encodedString)
         {
             List<byte> encodedBytes = new List<byte>();
 

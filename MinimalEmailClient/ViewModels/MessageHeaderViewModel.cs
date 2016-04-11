@@ -12,13 +12,7 @@ namespace MinimalEmailClient.ViewModels
         public Message Message
         {
             get { return this.message; }
-            private set
-            {
-                if (this.message != value)
-                {
-                    this.message = value;
-                }
-            }
+            private set { SetProperty(ref this.message, value); }
         }
 
         public string AccountName
