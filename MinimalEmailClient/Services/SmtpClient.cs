@@ -7,6 +7,8 @@ using System.Text;
 using System.IO;
 using MinimalEmailClient.Models;
 using MimeKit;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 
 namespace MinimalEmailClient.Services
 {
@@ -42,6 +44,9 @@ namespace MinimalEmailClient.Services
             get { return this.account; }
             set
             {
+                if (value == null)
+                    throw new ArgumentNullException("Please select user account");
+
                 if (this.account != value)
                 {
                     this.account = value;
@@ -58,6 +63,8 @@ namespace MinimalEmailClient.Services
             get { return newEmail; }
             set
             {
+                if (value == null)
+                    throw new ArgumentNullException("Email contents are empty");      
                 newEmail = value;
             }
         }
@@ -65,7 +72,7 @@ namespace MinimalEmailClient.Services
         #endregion
         #region Attachments
 
-        List<MimeEntity> attachments;
+        readonly List<MimePart> attachments = new List<MimePart> ();
 
         #endregion
         #region TCP Connection(s)
@@ -136,7 +143,7 @@ namespace MinimalEmailClient.Services
             if (!AuthorizeAndPrepareServer()) return false;
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}\r\n\r\n{5}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject, NewEmail.Message));
+            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nnMIME-Version: 1.0 (mime-construct 1.9)\r\nSubject: {4}\r\n\r\n{5}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject, NewEmail.Message));
             ReadResponse();
 
             Trace.WriteLine("\nend");
@@ -147,46 +154,82 @@ namespace MinimalEmailClient.Services
         {
             // Some server require initial greeting (smtp etiquette)
             SendString("EHLO " + Account.SmtpServerName);
-            ReadResponse();
+            if (ReadResponse() != "250")
+            {
+                Error = "Failed authentication greeting";
+                return false;
+            }
             // Authorize Sender
             Trace.WriteLine("\nAUTH LOGIN" + '\n');
             SendString("AUTH LOGIN");
-            ReadResponse();
+            if (ReadResponse() != "334")
+            {
+                Error = "Failed AUTH LOGIN handshake";
+                return false;
+            }
 
             Trace.WriteLine('\n' + Account.SmtpLoginName + '\n');
             SendString(Base64Encode(Account.SmtpLoginName));
-            ReadResponse();
+            if (ReadResponse() != "334")
+            {
+                Error = "Failed to validate account login username";
+                return false;
+            }
 
             Trace.WriteLine('\n' + Account.SmtpServerName + '\n');
             SendString(Base64Encode(Account.SmtpLoginPassword));
-            ReadResponse();
+            if (ReadResponse() != "235")
+            {
+                Error = "Failed validate account password";
+                return false;
+            }
 
             Trace.WriteLine("\nMAIL FROM: " + Account.SmtpLoginName + '\n');
             SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
-            ReadResponse();
+            if (ReadResponse() != "250")
+            {
+                Error = "Server unable to recognize sender";
+                return false;
+            }
 
             Trace.WriteLine("\nRCPT TO: " + NewEmail.To + '\n');
             SendString("RCPT TO: <" + NewEmail.To + ">");
-            ReadResponse();
+            if (ReadResponse() != "250")
+            {
+                Error = "Server unable to find sender";
+                return false;
+            }
 
             // Send Carbon Copy to Recipients
             if (!String.IsNullOrEmpty(NewEmail.Cc))
             {
                 Trace.WriteLine("\nRCPT TO: " + NewEmail.Cc + '\n');
                 SendString("RCPT TO: <" + NewEmail.Cc + ">");
-                ReadResponse();
+                if (ReadResponse() != "250")
+                {
+                    Error = "Server unable to find sender";
+                    return false;
+                }
             }
             // Send Blind Carbon Copy to Recipients
             if (!String.IsNullOrEmpty(NewEmail.Bcc))
             {
                 Trace.WriteLine("\nRCPT TO: " + NewEmail.Bcc + '\n');
                 SendString("RCPT TO: <" + NewEmail.Bcc + ">");
-                ReadResponse();
+                if (ReadResponse() != "250")
+                {
+                    Error = "Server unable to find sender";
+                    return false;
+                }
             }
 
             Trace.WriteLine("\nDATA\n");
             SendString("DATA");
-            ReadResponse();
+            if (ReadResponse() != "354")
+            {
+                Error = "Server does not recognize command";
+                return false;
+            }
 
             return true;
         }
@@ -205,14 +248,57 @@ namespace MinimalEmailClient.Services
         #region MimeEntities
 
         private bool StoreEntities(List<string> attachmentList)
-        {
-            Trace.Write("Attached Files: ");
-            foreach(string iter in attachmentList)
+        {            
+            foreach (string iter in attachmentList)
             {
-                Trace.Write(iter + "; ");
+                FileStream stream = File.OpenRead(iter);
+                if (!stream.CanRead)
+                {
+                    Error = "Cannot open file stream";
+                    return false;
+                }
+
+                string mimeType = MimeTypes.GetMimeType(iter);
+                ContentType fileType = ContentType.Parse(mimeType);
+                MimePart attachment;
+                if (fileType.IsMimeType("text", "*"))
+                {
+                    attachment = new TextPart(fileType.MediaSubtype);
+                    foreach (var param in fileType.Parameters)
+                        attachment.ContentType.Parameters.Add(param);
+                } else
+                {
+                    attachment = new MimePart(fileType);
+                }
+                attachment.FileName = Path.GetFileName(iter);
+                attachment.IsAttachment = true;
+
+                MemoryBlockStream memoryBlockStream = new MemoryBlockStream();
+                BestEncodingFilter encodingFilter = new BestEncodingFilter();
+                byte[] fileBuffer = new byte[4096];
+                int index, length, bytesRead;
+
+                while ((bytesRead = stream.Read(fileBuffer, 0, fileBuffer.Length)) > 0)
+                {
+                    encodingFilter.Filter(fileBuffer, 0, bytesRead, out index, out length);
+                    memoryBlockStream.Write(fileBuffer, 0, bytesRead);
+                }
+
+                encodingFilter.Flush(fileBuffer, 0, 0, out index, out length);
+                memoryBlockStream.Position = 0;
+
+                attachment.ContentTransferEncoding = encodingFilter.GetBestEncoding(EncodingConstraint.SevenBit);
+                attachment.ContentObject = new ContentObject(memoryBlockStream);
+
+                if(attachment != null) attachments.Add(attachment);                
             }
-            Trace.Write('\n');
             return true;
+        }
+
+        static ContentType GetMimeType(string filePath)
+        {
+            string mimeType = MimeTypes.GetMimeType(filePath);
+            return ContentType.Parse(mimeType);
         }
 
         #endregion
@@ -243,12 +329,13 @@ namespace MinimalEmailClient.Services
         #endregion
         #region ReadResponse
 
-        private void ReadResponse()
+        private string ReadResponse()
         {
             int bytesRead;
             bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
             response = Encoding.ASCII.GetString(buffer);
             Trace.WriteLine(response);
+            return response.Substring(0, 3);
         }
 
         private void ReadResponse(NetworkStream stream)
