@@ -5,8 +5,8 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - Yong Cho
 - Yoo Min Cha
 
-# ToDo (Week 04/12)
-- TODO: Research possible ways to subscribe and listen to the IMAP server events so we can automatically update the UI to match the server status at any time. Some of the important events we want to know include
+# Progress (Week 04/12)
+- In-Progress: Research possible ways to subscribe and listen to the IMAP server events so we can automatically update the UI to match the server status at any time. Some of the important events we want to know include
     - arrival of new email
     - deletion of an email
     - flag changes (marked as read/unread).
