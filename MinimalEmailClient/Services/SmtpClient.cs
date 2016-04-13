@@ -30,6 +30,7 @@ namespace MinimalEmailClient.Services
         #endregion
         #region Members
 
+        private enum smtpCodes { UnableToConnect = 101, RefusedConnection = 111, SystemStatus = 211, HelpMessage = 214, ServiceReady = 220, ServiceClosingTransmissionChannel = 221, AuthenticationSuccessful = 235, Ok = 250, UserNotLocalWillForward = 251, CannotVerifyUserWillAttemptDelivery = 252, AuthenticationChallenge = 334, StartMailInput = 354, ServiceNotAvailable = 421, PasswordTransitionNeeded = 432, MailboxBusy = 450, ErrorInProcessing = 451, InsufficientStorage = 452, TemporaryAuthenticationFailure = 454, CommandUnrecognized = 500, SyntaxError = 501, CommandNotImplemented = 502, BadCommandSequence = 503, CommandParameterNotImplemented = 504, AuthenticationRequired = 530, AuthenticationMechanismTooWeak = 534, AuthenticationInvalidCredentials = 535, EncryptionRequiredForAuthenticationMechanism = 538, MailboxUnavailable = 550, UserNotLocalTryAlternatePath = 551, ExceededStorageAllocation = 552, MailboxNameNotAllowed = 553, TransactionFailed = 554 };
         SslStream sslStream;
         public string Error = string.Empty;
         private byte[] buffer = new byte[2048];
@@ -85,24 +86,22 @@ namespace MinimalEmailClient.Services
             streamWriter.AutoFlush = true;
             var newSslStream = new SslStream(stream);
 
-            ReadResponse(stream);
-            if (!response.StartsWith("220"))
+            Trace.WriteLine(((int)smtpCodes.ServiceReady).ToString());
+            if (ReadResponse(stream) != (int)smtpCodes.ServiceReady)
             {
-                Error = "SMTP Server did not respond to connection request";
+                //Error = "SMTP Server did not respond to connection request";
                 return false;
             }
 
             streamWriter.WriteLine("EHLO " + Account.SmtpServerName);
-            ReadResponse(stream);
-            if (!response.StartsWith("250"))
+            if (ReadResponse(stream) != (int)smtpCodes.Ok)
             {
                 Error = "SMTP Server did not respond to HELO request";
                 return false;
             }
 
             streamWriter.WriteLine("STARTTLS");
-            ReadResponse(stream);
-            if (!response.StartsWith("220"))
+            if (ReadResponse(stream) != (int)smtpCodes.ServiceReady)
             {
                 Error = "SMTP Server did not respond to STARTTLS request";
                 return false;
@@ -154,7 +153,7 @@ namespace MinimalEmailClient.Services
         {
             // Some server require initial greeting (smtp etiquette)
             SendString("EHLO " + Account.SmtpServerName);
-            if (ReadResponse() != "250")
+            if (ReadResponse() != (int)smtpCodes.Ok)
             {
                 Error = "Failed authentication greeting";
                 return false;
@@ -162,7 +161,7 @@ namespace MinimalEmailClient.Services
             // Authorize Sender
             Trace.WriteLine("\nAUTH LOGIN" + '\n');
             SendString("AUTH LOGIN");
-            if (ReadResponse() != "334")
+            if (ReadResponse() != (int)smtpCodes.AuthenticationChallenge)
             {
                 Error = "Failed AUTH LOGIN handshake";
                 return false;
@@ -170,7 +169,7 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine('\n' + Account.SmtpLoginName + '\n');
             SendString(Base64Encode(Account.SmtpLoginName));
-            if (ReadResponse() != "334")
+            if (ReadResponse() != (int)smtpCodes.AuthenticationChallenge)
             {
                 Error = "Failed to validate account login username";
                 return false;
@@ -178,7 +177,7 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine('\n' + Account.SmtpServerName + '\n');
             SendString(Base64Encode(Account.SmtpLoginPassword));
-            if (ReadResponse() != "235")
+            if (ReadResponse() != (int)smtpCodes.AuthenticationSuccessful)
             {
                 Error = "Failed validate account password";
                 return false;
@@ -186,7 +185,7 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine("\nMAIL FROM: " + Account.SmtpLoginName + '\n');
             SendString("MAIL FROM: <" + Account.SmtpLoginName + ">");
-            if (ReadResponse() != "250")
+            if (ReadResponse() != (int)smtpCodes.Ok)
             {
                 Error = "Server unable to recognize sender";
                 return false;
@@ -194,7 +193,7 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine("\nRCPT TO: " + NewEmail.To + '\n');
             SendString("RCPT TO: <" + NewEmail.To + ">");
-            if (ReadResponse() != "250")
+            if (ReadResponse() != (int)smtpCodes.Ok)
             {
                 Error = "Server unable to find sender";
                 return false;
@@ -205,7 +204,7 @@ namespace MinimalEmailClient.Services
             {
                 Trace.WriteLine("\nRCPT TO: " + NewEmail.Cc + '\n');
                 SendString("RCPT TO: <" + NewEmail.Cc + ">");
-                if (ReadResponse() != "250")
+                if (ReadResponse() != (int)smtpCodes.Ok)
                 {
                     Error = "Server unable to find sender";
                     return false;
@@ -216,7 +215,7 @@ namespace MinimalEmailClient.Services
             {
                 Trace.WriteLine("\nRCPT TO: " + NewEmail.Bcc + '\n');
                 SendString("RCPT TO: <" + NewEmail.Bcc + ">");
-                if (ReadResponse() != "250")
+                if (ReadResponse() != (int)smtpCodes.Ok)
                 {
                     Error = "Server unable to find sender";
                     return false;
@@ -225,7 +224,7 @@ namespace MinimalEmailClient.Services
 
             Trace.WriteLine("\nDATA\n");
             SendString("DATA");
-            if (ReadResponse() != "354")
+            if (ReadResponse() != (int)smtpCodes.StartMailInput)
             {
                 Error = "Server does not recognize command";
                 return false;
@@ -329,20 +328,25 @@ namespace MinimalEmailClient.Services
         #endregion
         #region ReadResponse
 
-        private string ReadResponse()
+        private int ReadResponse()
         {
-            int bytesRead;
-            bytesRead = this.sslStream.Read(buffer, 0, buffer.Length);
-            response = Encoding.ASCII.GetString(buffer);
-            Trace.WriteLine(response);
-            return response.Substring(0, 3);
+            return ReadResponse(this.sslStream);
         }
 
-        private void ReadResponse(NetworkStream stream)
+        private int ReadResponse(Stream stream)
         {
             int bytesRead;
             bytesRead = stream.Read(buffer, 0, buffer.Length);
             response = Encoding.ASCII.GetString(buffer);
+            Trace.WriteLine(response);
+            response = response.Substring(0, 3);
+            return Int32.Parse(response);
+        }
+
+        private string ToString(smtpCodes serviceCode)
+        {
+            var codeString = serviceCode;
+            return serviceCode.ToString();
         }
 
         #endregion
