@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MinimalEmailClient.Services
@@ -71,6 +72,12 @@ namespace MinimalEmailClient.Services
                     imapClient.Disconnect();
                 }
 
+                while (!Common.Globals.BootStrapperLoaded)
+                {
+                    // We don't want to fire this event before the subscribers are ready.
+                    // There must be a better way to handle these sort of things.
+                    Thread.Sleep(50);
+                }
                 GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Publish(account);
             });
         }

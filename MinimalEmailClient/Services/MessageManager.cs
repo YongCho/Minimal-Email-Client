@@ -206,7 +206,7 @@ namespace MinimalEmailClient.Services
             imapClient.Disconnect();
         }
 
-        private void SyncNewMessageHeaders(Account account, string mailboxName, ImapClient connectedImapClient, int firstUid, int lastUid)
+        private void SyncNewMessageHeaders(Account account, string mailboxName, ImapClient imapClientOnSelectedStatus, int firstUid, int lastUid)
         {
             Trace.WriteLine("SyncNewMessageHeaders: Mailbox(" + mailboxName + "), UIDs(" + firstUid + ", " + lastUid + ")");
 
@@ -232,7 +232,7 @@ namespace MinimalEmailClient.Services
                 {
                     startUid = firstUid;
                 }
-                List<Message> msgs = connectedImapClient.FetchHeaders(startUid, endUid - startUid + 1, true);
+                List<Message> msgs = imapClientOnSelectedStatus.FetchHeaders(startUid, endUid - startUid + 1, true);
                 if (msgs.Count > 0)
                 {
                     foreach (Message msg in msgs)
@@ -253,7 +253,7 @@ namespace MinimalEmailClient.Services
             openSyncOps.AddOrUpdate(account.AccountName, 0, (k, v) => v - 1);
         }
 
-        private void SyncExistingMessageHeaders(Account account, string mailboxName, ImapClient connectedImapClient, int firstUid, int lastUid)
+        private void SyncExistingMessageHeaders(Account account, string mailboxName, ImapClient imapClientOnSelectedStatus, int firstUid, int lastUid)
         {
             Trace.WriteLine("SyncExistingMessageHeaders: Mailbox(" + mailboxName + "), UIDs(" + firstUid + ", " + lastUid + ")");
 
@@ -261,7 +261,7 @@ namespace MinimalEmailClient.Services
             openSyncOps.AddOrUpdate(account.AccountName, 1, (k, v) => v + 1);
 
             // Delete all messages that have been deleted from server.
-            List<int> serverUids = connectedImapClient.SearchUids("ALL");
+            List<int> serverUids = imapClientOnSelectedStatus.SearchUids("ALL");
             List<string> keysToDelete = new List<string>();
             foreach (KeyValuePair<string, Message> entry in MessagesDico)
             {
@@ -305,7 +305,7 @@ namespace MinimalEmailClient.Services
                 {
                     startUid = firstUid;
                 }
-                List<Message> serverMsgs = connectedImapClient.FetchHeaders(startUid, endUid - startUid + 1, true);
+                List<Message> serverMsgs = imapClientOnSelectedStatus.FetchHeaders(startUid, endUid - startUid + 1, true);
                 if (serverMsgs.Count > 0)
                 {
                     List<Message> messagesAdded = new List<Message>();
@@ -383,21 +383,61 @@ namespace MinimalEmailClient.Services
             ImapClient imapClient = new ImapClient(account);
             if (!imapClient.Connect())
             {
-                Trace.WriteLine(imapClient.Error);
+                Debug.WriteLine(imapClient.Error);
                 return;
             }
 
-            imapClient.BeginMonitor(mailboxName, HandleNewMessageAtServer);
+            imapClient.NewMessageAtServer += HandleNewMessageAtServer;
+            imapClient.MessageDeletedAtServer += HandleMessageDeletedAtServer;
+            imapClient.MessageSeenAtServer += HandleMessageSeenAtServer;
+            imapClient.MessageUnseenAtServer += HandleMessageUnseenAtServer;
+            imapClient.BeginMonitor(mailboxName);
         }
 
-        private void HandleNewMessageAtServer(Message newMessage)
+        private void HandleNewMessageAtServer(object sender, Message newMessage)
         {
             if (!MessagesDico.ContainsKey(newMessage.UniqueKeyString))
             {
                 MessagesDico.Add(newMessage.UniqueKeyString, newMessage);
                 OnMessageAdded(newMessage);
+                DatabaseManager.StoreMessage(newMessage);
             }
-            DatabaseManager.StoreMessage(newMessage);
+        }
+
+        private void HandleMessageDeletedAtServer(object sender, ImapMonitorEventArgs e)
+        {
+            string messageKey = Message.CreateUniqueKeyString(e.AccountName, e.MailboxName, e.Uid);
+            Message msg;
+            if (MessagesDico.TryGetValue(messageKey, out msg))
+            {
+                MessagesDico.Remove(messageKey);
+                OnMessageRemoved(msg);
+                DatabaseManager.DeleteMessage(msg);
+            }
+        }
+
+        private void HandleMessageSeenAtServer(object sender, ImapMonitorEventArgs e)
+        {
+            string messageKey = Message.CreateUniqueKeyString(e.AccountName, e.MailboxName, e.Uid);
+            Message msg;
+            if (MessagesDico.TryGetValue(messageKey, out msg) && !msg.IsSeen)
+            {
+                msg.IsSeen = true;
+                OnMessageModified(msg);
+                DatabaseManager.Update(msg);
+            }
+        }
+
+        private void HandleMessageUnseenAtServer(object sender, ImapMonitorEventArgs e)
+        {
+            string messageKey = Message.CreateUniqueKeyString(e.AccountName, e.MailboxName, e.Uid);
+            Message msg;
+            if (MessagesDico.TryGetValue(messageKey, out msg) && msg.IsSeen)
+            {
+                msg.IsSeen = false;
+                OnMessageModified(msg);
+                DatabaseManager.Update(msg);
+            }
         }
 
     }

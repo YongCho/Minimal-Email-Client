@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
@@ -19,6 +20,20 @@ namespace MinimalEmailClient.Services
         public int UidNext;
         public List<string> PermanemtFlags;
         public List<string> Flags;
+    }
+
+    public class ImapMonitorEventArgs : EventArgs
+    {
+        public string AccountName { get; private set; }
+        public string MailboxName { get; private set; }
+        public int Uid { get; private set; }
+
+        public ImapMonitorEventArgs(string accountName, string mailboxName, int uid)
+        {
+            AccountName = accountName;
+            MailboxName = mailboxName;
+            Uid = uid;
+        }
     }
 
     public class ImapClient
@@ -43,6 +58,11 @@ namespace MinimalEmailClient.Services
 
         TcpClient tcpClient;
         SslStream sslStream;
+
+        public event EventHandler<Message> NewMessageAtServer;
+        public event EventHandler<ImapMonitorEventArgs> MessageUnseenAtServer;
+        public event EventHandler<ImapMonitorEventArgs> MessageSeenAtServer;
+        public event EventHandler<ImapMonitorEventArgs> MessageDeletedAtServer;
 
         public ImapClient(Account account)
         {
@@ -201,6 +221,12 @@ namespace MinimalEmailClient.Services
         // Example condition string: "ALL", "SEEN", "UNSEEN"
         public List<int> SearchUids(string conditionString)
         {
+            if (string.IsNullOrEmpty(SelectedMailboxName))
+            {
+                Error = "Mailbox must be selected before SEARCH operation.";
+                return null;
+            }
+
             List<int> uidList = new List<int>();
             string tag = NextTag();
             SendString(string.Format("{0} UID SEARCH {1}", tag, conditionString));
@@ -486,19 +512,21 @@ namespace MinimalEmailClient.Services
             return (bool)tagOk;
         }
 
-        public void BeginMonitor(string mailboxName, Action<Message> newMessageHandler)
+        public void BeginMonitor(string mailboxName)
         {
             int defaultPollIntervalMillisec = 5000;
-            BeginMonitor(mailboxName, defaultPollIntervalMillisec, newMessageHandler);
+            BeginMonitor(mailboxName, defaultPollIntervalMillisec);
         }
 
         // Poll periodically for newly arrived messages.
-        public void BeginMonitor(string mailboxName, int pollIntervalMillisec, Action<Message> newMessageHandler)
+        public void BeginMonitor(string mailboxName, int pollIntervalMillisec)
         {
             Task.Run(() => {
-                int uidNext = -1;
+                int prevUidNext = -1;
                 bool readOnly = true;
                 ExamineResult examineResult;
+                List<int> prevUids = null;
+                List<int> prevUnseenUids = null;
 
                 while (!this.abortLatch)
                 {
@@ -522,25 +550,25 @@ namespace MinimalEmailClient.Services
                         return;
                     }
 
-                    if (uidNext < 0)
+                    if (prevUidNext < 0)
                     {
                         // Initially retrieve the UIDNEXT parameter.
-                        uidNext = examineResult.UidNext;
+                        prevUidNext = examineResult.UidNext;
                     }
-                    else if (examineResult.UidNext > uidNext)
+                    else if (examineResult.UidNext > prevUidNext)
                     {
                         // New message(s) showed up at the server. Download it.
-                        int newMessagesCount = examineResult.UidNext - uidNext;
+                        int newMessagesCount = examineResult.UidNext - prevUidNext;
                         bool useUidFetch = true;
-                        List<Message> newMessages = FetchHeaders(uidNext, newMessagesCount, useUidFetch);
+                        List<Message> newMessages = FetchHeaders(prevUidNext, newMessagesCount, useUidFetch);
                         foreach (Message newMessage in newMessages)
                         {
-                            newMessageHandler(newMessage);
+                            OnNewMessageArrived(newMessage);
                         }
 
-                        uidNext = examineResult.UidNext;
+                        prevUidNext = examineResult.UidNext;
                     }
-                    else if (examineResult.UidNext < uidNext)
+                    else if (examineResult.UidNext < prevUidNext)
                     {
                         // UIDNEXT parameter decreased. According to RFC3501, this could only happen when the
                         // physical message store is re-ordered and the server had to regenerate all UIDs.
@@ -550,10 +578,88 @@ namespace MinimalEmailClient.Services
                         return;
                     }
 
+                    // Check for deletion of messages.
+                    List<int> currentUids = SearchUids("ALL");
+                    if (prevUids != null)
+                    {
+                        var prevNotCurrent = prevUids.Except(currentUids).ToList();
+
+                        if (prevNotCurrent.Count > 0)
+                        {
+                            // Message(s) deleted on server.
+                            foreach (int uid in prevNotCurrent)
+                            {
+                                OnMessageDeleted(Account.AccountName, mailboxName, uid);
+                            }
+                        }
+                    }
+
+                    prevUids = currentUids;
+
+                    // Check for changes in 'unseen' flag (messages read/unread).
+                    List<int> currentUnseenUids = SearchUids("UNSEEN");
+                    if (prevUnseenUids != null)
+                    {
+                        // Compare both ways because a message can go from 'read' to 'unread' or vice versa.
+                        var prevNotCurrent = prevUnseenUids.Except(currentUnseenUids).ToList();
+                        var currentNotPrev = currentUnseenUids.Except(prevUnseenUids).ToList();
+
+                        if (prevNotCurrent.Count > 0)
+                        {
+                            // Previously unseen message(s) was marked as Seen or deleted on server.
+                            foreach (int uid in prevNotCurrent)
+                            {
+                                OnMessageSeen(Account.AccountName, mailboxName, uid);
+                            }
+                        }
+                        if (currentNotPrev.Count > 0)
+                        {
+                            // Previously seen message(s) was marked as Unseen on server; or new message(s) arrived.
+                            foreach (int uid in currentNotPrev)
+                            {
+                                OnMessageUnseen(Account.AccountName, mailboxName, uid);
+                            }
+                        }
+                    }
+
+                    prevUnseenUids = currentUnseenUids;
+
                     CloseMailbox();
                     Thread.Sleep(pollIntervalMillisec);
                 }
             });
+        }
+
+        protected virtual void OnNewMessageArrived(Message newMessage)
+        {
+            if (NewMessageAtServer != null)
+            {
+                NewMessageAtServer(this, newMessage);
+            }
+        }
+
+        protected virtual void OnMessageDeleted(string accountName, string mailboxName, int uid)
+        {
+            if (MessageDeletedAtServer != null)
+            {
+                MessageDeletedAtServer(this, new ImapMonitorEventArgs(accountName, mailboxName, uid));
+            }
+        }
+
+        protected virtual void OnMessageSeen(string accountName, string mailboxName, int uid)
+        {
+            if (MessageSeenAtServer != null)
+            {
+                MessageSeenAtServer(this, new ImapMonitorEventArgs(accountName, mailboxName, uid));
+            }
+        }
+
+        protected virtual void OnMessageUnseen(string accountName, string mailboxName, int uid)
+        {
+            if (MessageUnseenAtServer != null)
+            {
+                MessageUnseenAtServer(this, new ImapMonitorEventArgs(accountName, mailboxName, uid));
+            }
         }
 
     }

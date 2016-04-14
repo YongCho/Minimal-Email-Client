@@ -689,6 +689,19 @@ namespace MinimalEmailClient.Services
             return numRowsInserted;
         }
 
+        public static int DeleteMessage(Message message)
+        {
+            string ignoredErrorMsg;
+            return DeleteMessage(message, out ignoredErrorMsg);
+        }
+
+        public static int DeleteMessage(Message message, out string errorMsg)
+        {
+            List<Message> wrap = new List<Message>();
+            wrap.Add(message);
+            return DeleteMessages(wrap, out errorMsg);
+        }
+
         public static int DeleteMessages(List<Message> messages)
         {
             string ignoredErrorMsg;

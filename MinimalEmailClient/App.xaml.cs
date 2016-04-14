@@ -1,6 +1,5 @@
-﻿using System.Windows;
-using MinimalEmailClient.Models;
-using MinimalEmailClient.Services;
+﻿using MinimalEmailClient.Services;
+using System.Windows;
 
 namespace MinimalEmailClient
 {
@@ -17,6 +16,7 @@ namespace MinimalEmailClient
 
             var bs = new Bootstrapper();
             bs.Run();
+            Common.Globals.BootStrapperLoaded = true;
         }
     }
 }
