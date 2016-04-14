@@ -5,11 +5,16 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - Yong Cho
 - Yoo Min Cha
 
+# Progress (Week 4/19)
+- TODO: Implement replying and forwarding functionality.
+- TODO: Conduct reliability test on all functionalities implemented so far.
+
 # Progress (Week 04/12)
-- In-Progress: Research possible ways to subscribe and listen to the IMAP server events so we can automatically update the UI to match the server status at any time. Some of the important events we want to know include
-    - arrival of new email
-    - deletion of an email
-    - flag changes (marked as read/unread).
+- We conducted research on possible ways to get notified on important IMAP server changes such as arrival of new messages, deletion of a message and message being marked as read/unread, so that we can automatically update our UI when such events occur. We found several mechanisms that could be used to achieve this:
+    - [IMAP4-IDLE](https://tools.ietf.org/html/rfc2177)
+    - [IMAP4-NOTIFY](https://tools.ietf.org/html/rfc5465)
+    - [Push-IMAP](https://en.wikipedia.org/wiki/Push-IMAP)
+The problem was that different email servers support different mechanisms and no single mechanism is supported by all the popular commercial email servers. We decided not to implement any of them and go with the traditional 'periodic polling' method which has a disadvantage of wasting some network resources but works on all servers.
 - In-Progress: Finish implementing file attachment to outgoing email.
 
 # Progress (Week 04/05)
