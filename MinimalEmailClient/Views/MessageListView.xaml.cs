@@ -14,6 +14,7 @@ namespace MinimalEmailClient.Views
 
         private void messageListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            viewModel.SelectedMessageHeaderViewModels.Clear();
             foreach (MessageHeaderViewModel msgHeaderVm in messageListView.SelectedItems)
             {
                 viewModel.SelectedMessageHeaderViewModels.Add(msgHeaderVm);
