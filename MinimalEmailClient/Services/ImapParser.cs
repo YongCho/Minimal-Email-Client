@@ -68,7 +68,7 @@ namespace MinimalEmailClient.Services
                 }
             }
 
-            // UID is not in the first line. The response must be in the alternate pattern
+            // UID is not in the first line. The response must be an alternate pattern
             // where the UID is in the last line.
             if (uid == -1)
             {

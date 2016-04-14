@@ -180,10 +180,12 @@ namespace MinimalEmailClient.Models
         {
             return
                 "Message:\n" +
+                "AccountName: " + AccountName + "\n" +
+                "MailboxPath: " + MailboxPath + "\n" +
                 "UID: " + Uid + "\n" +
                 "Subject: " + Subject + "\n" +
                 "Sender: " + Sender + "\n" +
-                "Recipient: " + (Recipient.Length > 50 ? Recipient.Substring(0, 46) + " ..." : Recipient) + "\n" +
+                "Recipient: " + (Recipient.Length > 80 ? Recipient.Substring(0, 76) + " ..." : Recipient) + "\n" +
                 "Date: " + DateString + "\n" +
                 "FlagsString: " + FlagString + "\n" +
                 "IsSeen?: " + (IsSeen ? "Yes" : "No") + "\n";

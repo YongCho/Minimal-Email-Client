@@ -1,4 +1,4 @@
-﻿// #undef TRACE
+﻿#undef TRACE
 using MinimalEmailClient.Events;
 using MinimalEmailClient.Models;
 using System;
@@ -139,6 +139,7 @@ namespace MinimalEmailClient.Services
                 if (mailbox.MailboxName.ToLower() == "inbox")
                 {
                     Task.Run(() => { SyncMessage(account, mailbox.DirectoryPath); });
+                    BeginMonitor(account, mailbox.DirectoryPath);
                     mailboxes.Remove(mailbox);
                     break;
                 }
@@ -236,8 +237,6 @@ namespace MinimalEmailClient.Services
                 {
                     foreach (Message msg in msgs)
                     {
-                        msg.AccountName = account.AccountName;
-                        msg.MailboxPath = mailboxName;
                         if (!MessagesDico.ContainsKey(msg.UniqueKeyString))
                         {
                             MessagesDico.Add(msg.UniqueKeyString, msg);
@@ -312,8 +311,6 @@ namespace MinimalEmailClient.Services
                     List<Message> messagesAdded = new List<Message>();
                     foreach (Message serverMsg in serverMsgs)
                     {
-                        serverMsg.AccountName = account.AccountName;
-                        serverMsg.MailboxPath = mailboxName;
                         Message localMsg;
                         if (MessagesDico.TryGetValue(serverMsg.UniqueKeyString, out localMsg))
                         {
@@ -378,6 +375,29 @@ namespace MinimalEmailClient.Services
                     }
                 }
             });
+        }
+
+        private void BeginMonitor(Account account, string mailboxName)
+        {
+            Trace.WriteLine("BeginMonitor " + account.AccountName);
+            ImapClient imapClient = new ImapClient(account);
+            if (!imapClient.Connect())
+            {
+                Trace.WriteLine(imapClient.Error);
+                return;
+            }
+
+            imapClient.BeginMonitor(mailboxName, HandleNewMessageAtServer);
+        }
+
+        private void HandleNewMessageAtServer(Message newMessage)
+        {
+            if (!MessagesDico.ContainsKey(newMessage.UniqueKeyString))
+            {
+                MessagesDico.Add(newMessage.UniqueKeyString, newMessage);
+                OnMessageAdded(newMessage);
+            }
+            DatabaseManager.StoreMessage(newMessage);
         }
 
     }

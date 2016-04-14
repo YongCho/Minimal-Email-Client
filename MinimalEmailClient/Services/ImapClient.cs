@@ -6,6 +6,8 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MinimalEmailClient.Services
 {
@@ -33,10 +35,13 @@ namespace MinimalEmailClient.Services
                 }
             }
         }
+        public string SelectedMailboxName { get; private set; }
         public string Error = string.Empty;
         private byte[] buffer = new byte[65536];
         private int nextTagSequence = 0;
+        bool abortLatch = false;
 
+        TcpClient tcpClient;
         SslStream sslStream;
 
         public ImapClient(Account account)
@@ -71,6 +76,7 @@ namespace MinimalEmailClient.Services
 
                 if (TryLogin(newSslStream))
                 {
+                    this.tcpClient = newTcpClient;
                     this.sslStream = newSslStream;
                 }
                 else
@@ -94,6 +100,26 @@ namespace MinimalEmailClient.Services
             {
                 this.sslStream.Dispose();
             }
+        }
+
+        private bool TryReconnect(int tryCount)
+        {
+            Disconnect();
+            while (tryCount > 0)
+            {
+                Trace.WriteLine("Attempting to reconnect to " + Account.ImapServerName + ":" + Account.ImapPortNumber);
+                Thread.Sleep(1000);
+                if (Connect())
+                {
+                    return true;
+                }
+                else
+                {
+                    --tryCount;
+                }
+            }
+
+            return false;
         }
 
         private bool TryLogin(SslStream stream)
@@ -144,7 +170,8 @@ namespace MinimalEmailClient.Services
             ExamineResult result = new ExamineResult();
             return SelectMailbox(mailboxPath, readOnly, out result);
         }
-        // Sends 'EXAMINE' command to the server with the specified mailbox.
+
+        // Selects specified mailbox as working directory.
         public bool SelectMailbox(string mailboxPath, bool readOnly, out ExamineResult status)
         {
             status = new ExamineResult();
@@ -162,10 +189,10 @@ namespace MinimalEmailClient.Services
             string response = string.Empty;
             if (!ReadResponse(tag, out response))
             {
-                Error = response;
                 return false;
             }
 
+            SelectedMailboxName = mailboxPath;
             status = ImapParser.ParseExamine(response);
             return true;
         }
@@ -197,9 +224,15 @@ namespace MinimalEmailClient.Services
         }
 
         // Fetches body of a message.
-        // ExamineMailbox must be called to select the mailbox before calling this method.
+        // SelectMailbox must be called to select the mailbox before calling this method.
         public string FetchBody(int uid)
         {
+            if (string.IsNullOrEmpty(SelectedMailboxName))
+            {
+                Error = "Mailbox must be selected before FETCH operation.";
+                return null;
+            }
+
             string tag = NextTag();
             SendString(string.Format("{0} UID FETCH {1} BODY[]", tag, uid));
 
@@ -219,8 +252,15 @@ namespace MinimalEmailClient.Services
         }
 
         // Fetches message headers and returns them as a list of Message objects.
+        // SelectMailbox must be called to select the mailbox before calling this method.
         public List<Message> FetchHeaders(int startSeqNum, int count, bool useUid)
         {
+            if (string.IsNullOrEmpty(SelectedMailboxName))
+            {
+                Error = "Mailbox must be selected before FETCH operation.";
+                return null;
+            }
+
             var messages = new List<Message>(count);
 
             if (startSeqNum < 1 || count < 1)
@@ -261,6 +301,8 @@ namespace MinimalEmailClient.Services
                     {
                         string untaggedResponse = match.Groups[2].ToString();
                         Message message = ImapParser.ParseFetchHeader(untaggedResponse);
+                        message.AccountName = Account.AccountName;
+                        message.MailboxPath = SelectedMailboxName;
 
                         if (message != null)
                         {
@@ -346,13 +388,27 @@ namespace MinimalEmailClient.Services
                         responseCount = 0;
                     }
 
-                    // Expunge the tagged messages and move out of the currently selected mailbox.
-                    tag = NextTag();
-                    SendString(tag + " CLOSE");
-                    ReadResponse(tag, out response);
+                    // Closing the mailbox automatically expunges the deleted messages.
+                    CloseMailbox(out response);
+
                     Trace.WriteLine(response);
                 }
             }
+        }
+
+        public void CloseMailbox()
+        {
+            string ignoredResponse;
+            CloseMailbox(out ignoredResponse);
+        }
+
+        public void CloseMailbox(out string response)
+        {
+            response = string.Empty;
+            string tag = NextTag();
+            SendString(tag + " CLOSE");
+            ReadResponse(tag, out response);
+            SelectedMailboxName = null;
         }
 
         private void Logout()
@@ -399,10 +455,19 @@ namespace MinimalEmailClient.Services
 
             while (!tagOk.HasValue)
             {
-                byteCount = stream.Read(this.buffer, 0, this.buffer.Length);
-                byte[] data = new byte[byteCount];
-                Array.Copy(this.buffer, data, byteCount);
-                response += Encoding.ASCII.GetString(data);
+                try
+                {
+                    byteCount = stream.Read(this.buffer, 0, this.buffer.Length);
+                    byte[] data = new byte[byteCount];
+                    Array.Copy(this.buffer, data, byteCount);
+                    response += Encoding.ASCII.GetString(data);
+                }
+                catch (Exception e)
+                {
+                    Error = e.Message;
+                    return false;
+                }
+
                 m = Regex.Match(response, pattern, RegexOptions.Multiline);
                 if (m.Success)
                 {
@@ -420,5 +485,76 @@ namespace MinimalEmailClient.Services
             // Debug.Write("Response:\n" + response);
             return (bool)tagOk;
         }
+
+        public void BeginMonitor(string mailboxName, Action<Message> newMessageHandler)
+        {
+            int defaultPollIntervalMillisec = 5000;
+            BeginMonitor(mailboxName, defaultPollIntervalMillisec, newMessageHandler);
+        }
+
+        // Poll periodically for newly arrived messages.
+        public void BeginMonitor(string mailboxName, int pollIntervalMillisec, Action<Message> newMessageHandler)
+        {
+            Task.Run(() => {
+                int uidNext = -1;
+                bool readOnly = true;
+                ExamineResult examineResult;
+
+                while (!this.abortLatch)
+                {
+                    while (!SelectMailbox(mailboxName, readOnly, out examineResult) && !this.abortLatch)
+                    {
+                        if (this.tcpClient.Client != null && this.tcpClient.Client.Connected)
+                        {
+                            // Not a connection problem. Maybe the mailbox is deleted?
+                            return;
+                        }
+                        else
+                        {
+                            // We do have a connection problem. Try reconnecting at an interval.
+                            while (!TryReconnect(1) && !this.abortLatch)
+                                Thread.Sleep(5000);
+                        }
+                    }
+
+                    if (this.abortLatch)
+                    {
+                        return;
+                    }
+
+                    if (uidNext < 0)
+                    {
+                        // Initially retrieve the UIDNEXT parameter.
+                        uidNext = examineResult.UidNext;
+                    }
+                    else if (examineResult.UidNext > uidNext)
+                    {
+                        // New message(s) showed up at the server. Download it.
+                        int newMessagesCount = examineResult.UidNext - uidNext;
+                        bool useUidFetch = true;
+                        List<Message> newMessages = FetchHeaders(uidNext, newMessagesCount, useUidFetch);
+                        foreach (Message newMessage in newMessages)
+                        {
+                            newMessageHandler(newMessage);
+                        }
+
+                        uidNext = examineResult.UidNext;
+                    }
+                    else if (examineResult.UidNext < uidNext)
+                    {
+                        // UIDNEXT parameter decreased. According to RFC3501, this could only happen when the
+                        // physical message store is re-ordered and the server had to regenerate all UIDs.
+                        // If this happens, UIDs of all local messages become invalid and we will need an
+                        // application-wide mechanism to handle it.
+                        Error = "UID reordered";
+                        return;
+                    }
+
+                    CloseMailbox();
+                    Thread.Sleep(pollIntervalMillisec);
+                }
+            });
+        }
+
     }
 }

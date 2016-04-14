@@ -616,6 +616,19 @@ namespace MinimalEmailClient.Services
             return messages;
         }
 
+        public static int StoreMessage(Message msg)
+        {
+            string ignoredErrorMsg;
+            return StoreMessage(msg, out ignoredErrorMsg);
+        }
+
+        public static int StoreMessage(Message msg, out string errorMsg)
+        {
+            List<Message> wrapperList = new List<Message>();
+            wrapperList.Add(msg);
+            return StoreMessages(wrapperList, out errorMsg);
+        }
+
         public static int StoreMessages(List<Message> messages)
         {
             string ignoredErrorMsg;
