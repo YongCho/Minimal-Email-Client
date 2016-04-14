@@ -518,7 +518,7 @@ namespace MinimalEmailClient.Services
             BeginMonitor(mailboxName, defaultPollIntervalMillisec);
         }
 
-        // Poll periodically for newly arrived messages.
+        // Poll periodically for newly arrived messages and flag changes.
         public void BeginMonitor(string mailboxName, int pollIntervalMillisec)
         {
             Task.Run(() => {
@@ -535,6 +535,7 @@ namespace MinimalEmailClient.Services
                         if (this.tcpClient.Client != null && this.tcpClient.Client.Connected)
                         {
                             // Not a connection problem. Maybe the mailbox is deleted?
+                            Debug.WriteLine("ImapClient.BeginMonitor returning due to select error.");
                             return;
                         }
                         else
