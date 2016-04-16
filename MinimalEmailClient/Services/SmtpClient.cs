@@ -142,7 +142,14 @@ namespace MinimalEmailClient.Services
             if (!AuthorizeAndPrepareServer()) return false;
 
             Trace.WriteLine("\nMESSAGEBODY\n");
-            SendString(String.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nnMIME-Version: 1.0 (mime-construct 1.9)\r\nSubject: {4}\r\n\r\n{5}\r\n.", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject, NewEmail.Message));
+            SendString(string.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject));
+            SendString("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"1537aa2112f_462f\"\r\n");
+            SendString(string.Format("--1537aa2112f_462f\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{0}\r\n--1537aa2112f_462f--\r\n", NewEmail.Message));
+            foreach (MimePart attachment in attachments)
+            {
+               
+            }
+            SendString("\r\n.");
             ReadResponse();
 
             Trace.WriteLine("\nend");
