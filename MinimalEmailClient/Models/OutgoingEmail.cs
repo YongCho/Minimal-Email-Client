@@ -6,26 +6,59 @@ namespace MinimalEmailClient.Models
 {
     public class OutgoingEmail : BindableBase
     {
-        private string to = string.Empty;
-        public string To
+        #region Headers
+        #region ToAccounts
+
+        private List<string> to = new List<string> ();
+
+        public List<string> To
         {
-            get { return this.to; }
+            get { return to; }
             set { SetProperty(ref this.to, value); }
+
         }
 
-        private string cc = string.Empty;
-        public string Cc
+        public string ToAccounts()
+        {
+            IList<string> toAccounts = to;
+            return string.Join(",", toAccounts);
+        }
+
+        #endregion
+        #region CcAccounts
+
+        private List<string> cc = new List<string>();
+
+        public List<string> Cc
         {
             get { return this.cc; }
             set { SetProperty(ref this.cc, value); }
         }
 
-        private string bcc = string.Empty;
-        public string Bcc
+        public string CcAccounts()
+        {
+            IList<string> ccAccounts = cc;
+            return string.Join(",", ccAccounts);
+        }
+
+        #endregion
+        #region BccAccounts
+
+        private List<string> bcc = new List<string>();
+
+        public List<string> Bcc
         {
             get { return this.bcc; }
             set { SetProperty(ref this.bcc, value); }
         }
+
+        public string BccAccounts()
+        {
+            IList<string> bccAccounts = bcc;
+            return string.Join(",", bccAccounts);
+        }
+
+        #endregion
 
         private string subject = string.Empty;
         public string Subject
@@ -33,6 +66,8 @@ namespace MinimalEmailClient.Models
             get { return this.subject; }
             set { SetProperty(ref this.subject, value); }
         }
+
+        #endregion
 
         private string message = string.Empty;
         public string Message
@@ -42,7 +77,6 @@ namespace MinimalEmailClient.Models
         }
 
         private List<MimePart> attachmentList = new List<MimePart>();
-
         public List<MimePart> AttachmentList
         {
             get { return attachmentList; }

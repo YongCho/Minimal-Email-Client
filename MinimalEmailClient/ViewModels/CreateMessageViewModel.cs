@@ -10,7 +10,7 @@ using MinimalEmailClient.Services;
 using MinimalEmailClient.Notifications;
 using Prism.Commands;
 using Microsoft.Win32;
-
+using System.Text.RegularExpressions;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -179,9 +179,9 @@ namespace MinimalEmailClient.ViewModels
         public void SendEmail()
         {
             OutgoingEmail email = new OutgoingEmail();
-            email.To = ToAccounts;
-            email.Cc = CcAccounts;
-            email.Bcc = BccAccounts;
+            email.To = ExtractRecipients(toAccounts);
+            if (!String.IsNullOrEmpty(CcAccounts)) email.Cc = ExtractRecipients(CcAccounts);
+            if (!String.IsNullOrEmpty(BccAccounts)) email.Bcc = ExtractRecipients(BccAccounts);
             email.Subject = Subject;
             email.Message = MessageBody; 
 
@@ -223,7 +223,26 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
+        #region ExtractRecipients
 
+        List<string> ExtractRecipients(string unparsedRecipients)
+        {
+            Regex whiteSpace = new Regex(@"\s+");
+            char[] delimiterChars = { ' ', ',', ';' };
+            List<string> recipients = new List<String> ();
+
+            // begin extraction of recipients from header contents
+            var parsedRecipients = whiteSpace.Replace(unparsedRecipients, "");
+            string[] splitRecipients = parsedRecipients.Split(delimiterChars);
+            foreach (string recipient in splitRecipients)
+            {                
+                recipients.Add(recipient);
+            }
+
+            return recipients;
+        }
+
+        #endregion
         public Action FinishInteraction { get; set; }
     }
 }

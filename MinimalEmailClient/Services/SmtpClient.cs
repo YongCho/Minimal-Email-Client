@@ -30,6 +30,10 @@ namespace MinimalEmailClient.Services
         #endregion
         #region Members
 
+        SslStream sslStream;
+        public string Error = string.Empty;
+        private byte[] buffer = new byte[2048];
+        private string response = string.Empty;
         private enum smtpCodes
         {
           UnableToConnect = 101,
@@ -64,11 +68,7 @@ namespace MinimalEmailClient.Services
           ExceededStorageAllocation = 552,
           MailboxNameNotAllowed = 553,
           TransactionFailed = 554
-        };
-        SslStream sslStream;
-        public string Error = string.Empty;
-        private byte[] buffer = new byte[2048];
-        private string response = string.Empty;
+        };        
 
         #endregion
         #region Account(s)
@@ -170,11 +170,17 @@ namespace MinimalEmailClient.Services
             }
             if (!AuthorizeAndPrepareServer()) return false;
 
-            Trace.WriteLine("Sending Message");
-            string encapsulationToken = GenerateEncapsulationToken();
-            SendString(string.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject));
-            SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"\r\n", encapsulationToken));
-            SendString(string.Format("--{0}\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{1}\r\n", encapsulationToken, NewEmail.Message));
+            Trace.WriteLine("\nSending Message\n");
+            string encapsulationToken = GenerateEncapsulationToken();          
+            SendString(string.Format("From: {0}", Account.SmtpLoginName));
+            SendString(string.Format("To: {0}", NewEmail.ToAccounts()));
+            if(NewEmail.Cc != null)
+                SendString(string.Format("Cc: {0}", NewEmail.CcAccounts()));
+            if (NewEmail.Bcc != null)
+                SendString(string.Format("Bcc: {0}", NewEmail.BccAccounts()));
+            SendString(string.Format("Subject: {0}", NewEmail.Subject));
+            SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"", encapsulationToken));
+            SendString(string.Format("--{0}\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{1}", encapsulationToken, NewEmail.Message));
             foreach (MimePart attachment in NewEmail.AttachmentList)
             {
                 SendString("--" + encapsulationToken);
@@ -230,35 +236,19 @@ namespace MinimalEmailClient.Services
                 return false;
             }
 
-            Trace.WriteLine("\nRCPT TO: " + NewEmail.To + '\n');
-            SendString("RCPT TO: <" + NewEmail.To + ">");
-            if (ReadResponse() != (int)smtpCodes.Ok)
-            {
-                Error = "Server unable to find sender";
-                return false;
-            }
+            if (!ListRecipients(NewEmail.To)) return false;
 
             // Send Carbon Copy to Recipients
-            if (!String.IsNullOrEmpty(NewEmail.Cc))
+            if (NewEmail.Cc != null)
             {
-                Trace.WriteLine("\nRCPT TO: " + NewEmail.Cc + '\n');
-                SendString("RCPT TO: <" + NewEmail.Cc + ">");
-                if (ReadResponse() != (int)smtpCodes.Ok)
-                {
-                    Error = "Server unable to find sender";
+                if (!ListRecipients(NewEmail.Cc))
                     return false;
-                }
             }
             // Send Blind Carbon Copy to Recipients
-            if (!String.IsNullOrEmpty(NewEmail.Bcc))
+            if (NewEmail.Bcc != null)
             {
-                Trace.WriteLine("\nRCPT TO: " + NewEmail.Bcc + '\n');
-                SendString("RCPT TO: <" + NewEmail.Bcc + ">");
-                if (ReadResponse() != (int)smtpCodes.Ok)
-                {
-                    Error = "Server unable to find sender";
+                if (!ListRecipients(NewEmail.Bcc))
                     return false;
-                }
             }
 
             Trace.WriteLine("\nDATA\n");
@@ -269,6 +259,21 @@ namespace MinimalEmailClient.Services
                 return false;
             }
 
+            return true;
+        }
+
+        private bool ListRecipients(List<string> recipients)
+        {
+            foreach (string recipient in recipients)
+            {
+                Trace.WriteLine("\nRCPT TO: " + recipient + '\n');
+                SendString("RCPT TO: <" + recipient + ">");
+                if (ReadResponse() != (int)smtpCodes.Ok)
+                {
+                    Error = "Server unable to find sender";
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -399,6 +404,6 @@ namespace MinimalEmailClient.Services
             return new String(stringChars);
         }
 
-        #endregion
+        #endregion        
     }
 }
