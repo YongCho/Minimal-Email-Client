@@ -153,7 +153,7 @@ namespace MinimalEmailClient.ViewModels
             }
             if (!Directory.Exists(attachmentDirPath))
             {
-                Directory.CreateDirectory(cidContentDirPath);
+                Directory.CreateDirectory(attachmentDirPath);
             }
         }
 
