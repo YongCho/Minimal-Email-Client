@@ -15,7 +15,8 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
     - [IMAP4-NOTIFY](https://tools.ietf.org/html/rfc5465)
     - [Push-IMAP](https://en.wikipedia.org/wiki/Push-IMAP)
 - The problem was that different IMAP servers support different extensions and no single extension is supported by all the popular commercial IMAP servers. We decided not to implement any of the above extensions and instead implemented traditional 'periodic polling' method to achieve the similar result. This method has the disadvantage of wasting some network resources but works on all servers.
-- In-Progress: Finish implementing file attachment to outgoing email.
+- Finished implementing file attachment to outgoing email.
+- Allow sender to send to multiple recipients.
 - TODO: Implement reply and forwarding email capabilities
 
 # Progress (Week 04/05)
