@@ -1,4 +1,6 @@
-﻿using Prism.Mvvm;
+﻿using MimeKit;
+using Prism.Mvvm;
+using System.Collections.Generic;
 
 namespace MinimalEmailClient.Models
 {
@@ -37,6 +39,18 @@ namespace MinimalEmailClient.Models
         {
             get { return this.message; }
             set { SetProperty(ref this.message, value); }
+        }
+
+        private List<MimePart> attachmentList = new List<MimePart>();
+
+        public List<MimePart> AttachmentList
+        {
+            get { return attachmentList; }
+        }
+
+        public void Add(MimePart MP)
+        {
+            attachmentList.Add(MP);
         }
     }
 }

@@ -30,7 +30,41 @@ namespace MinimalEmailClient.Services
         #endregion
         #region Members
 
-        private enum smtpCodes { UnableToConnect = 101, RefusedConnection = 111, SystemStatus = 211, HelpMessage = 214, ServiceReady = 220, ServiceClosingTransmissionChannel = 221, AuthenticationSuccessful = 235, Ok = 250, UserNotLocalWillForward = 251, CannotVerifyUserWillAttemptDelivery = 252, AuthenticationChallenge = 334, StartMailInput = 354, ServiceNotAvailable = 421, PasswordTransitionNeeded = 432, MailboxBusy = 450, ErrorInProcessing = 451, InsufficientStorage = 452, TemporaryAuthenticationFailure = 454, CommandUnrecognized = 500, SyntaxError = 501, CommandNotImplemented = 502, BadCommandSequence = 503, CommandParameterNotImplemented = 504, AuthenticationRequired = 530, AuthenticationMechanismTooWeak = 534, AuthenticationInvalidCredentials = 535, EncryptionRequiredForAuthenticationMechanism = 538, MailboxUnavailable = 550, UserNotLocalTryAlternatePath = 551, ExceededStorageAllocation = 552, MailboxNameNotAllowed = 553, TransactionFailed = 554 };
+        private enum smtpCodes
+        {
+          UnableToConnect = 101,
+          RefusedConnection = 111,
+          SystemStatus = 211,
+          HelpMessage = 214,
+          ServiceReady = 220,
+          ServiceClosingTransmissionChannel = 221,
+          AuthenticationSuccessful = 235,
+          Ok = 250,
+          UserNotLocalWillForward = 251,
+          CannotVerifyUserWillAttemptDelivery = 252,
+          AuthenticationChallenge = 334,
+          StartMailInput = 354,
+          ServiceNotAvailable = 421,
+          PasswordTransitionNeeded = 432,
+          MailboxBusy = 450,
+          ErrorInProcessing = 451,
+          InsufficientStorage = 452,
+          TemporaryAuthenticationFailure = 454,
+          CommandUnrecognized = 500,
+          SyntaxError = 501,
+          CommandNotImplemented = 502,
+          BadCommandSequence = 503,
+          CommandParameterNotImplemented = 504,
+          AuthenticationRequired = 530,
+          AuthenticationMechanismTooWeak = 534,
+          AuthenticationInvalidCredentials = 535,
+          EncryptionRequiredForAuthenticationMechanism = 538,
+          MailboxUnavailable = 550,
+          UserNotLocalTryAlternatePath = 551,
+          ExceededStorageAllocation = 552,
+          MailboxNameNotAllowed = 553,
+          TransactionFailed = 554
+        };
         SslStream sslStream;
         public string Error = string.Empty;
         private byte[] buffer = new byte[2048];
@@ -70,12 +104,7 @@ namespace MinimalEmailClient.Services
             }
         }
 
-        #endregion
-        #region Attachments
-
-        readonly List<MimePart> attachments = new List<MimePart> ();
-
-        #endregion
+        #endregion        
         #region TCP Connection(s)
 
         public bool Connect()
@@ -141,17 +170,18 @@ namespace MinimalEmailClient.Services
             }
             if (!AuthorizeAndPrepareServer()) return false;
 
-            Trace.WriteLine("\nMESSAGEBODY\n");
+            Trace.WriteLine("Sending Message");
+            string encapsulationToken = GenerateEncapsulationToken();
             SendString(string.Format("From: {0}\r\nTo: {1}\r\nCc: {2}\r\nBcc: {3}\r\nSubject: {4}", Account.SmtpLoginName, NewEmail.To, NewEmail.Cc, NewEmail.Bcc, NewEmail.Subject));
-            SendString("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"1537aa2112f_462f\"\r\n");
-            SendString(string.Format("--1537aa2112f_462f\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{0}\r\n", NewEmail.Message));
-            foreach (MimePart attachment in attachments)
+            SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"\r\n", encapsulationToken));
+            SendString(string.Format("--{0}\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{1}\r\n", encapsulationToken, NewEmail.Message));
+            foreach (MimePart attachment in NewEmail.AttachmentList)
             {
-                SendString("--1537aa2112f_462f");
+                SendString("--" + encapsulationToken);
                 SendString(string.Format("Content-Type: {0}", attachment.ContentType));
                 attachment.WriteTo(this.sslStream);
             }
-            SendString("--1537aa2112f_462f--\r\n.");
+            SendString("--" + encapsulationToken + "--\r\n.");
             ReadResponse();
 
             Trace.WriteLine("\nend");
@@ -298,7 +328,7 @@ namespace MinimalEmailClient.Services
                 attachment.ContentTransferEncoding = encodingFilter.GetBestEncoding(EncodingConstraint.SevenBit);
                 attachment.ContentObject = new ContentObject(memoryBlockStream);
 
-                if(attachment != null) attachments.Add(attachment);                
+                if (attachment != null) NewEmail.AttachmentList.Add(attachment);               
             }
             return true;
         }
@@ -352,10 +382,21 @@ namespace MinimalEmailClient.Services
             return Int32.Parse(response);
         }
 
-        private string ToString(smtpCodes serviceCode)
+        #endregion
+        #region EncapsulationToken
+
+        private string GenerateEncapsulationToken()
         {
-            var codeString = serviceCode;
-            return serviceCode.ToString();
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            char[] stringChars = new char[15];
+            Random random = new Random();
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new String(stringChars);
         }
 
         #endregion
