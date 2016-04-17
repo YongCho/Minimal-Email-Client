@@ -167,7 +167,7 @@
     <Compile Include="ViewModels\MessageHeaderViewModel.cs" />
     <Compile Include="Views\Converters\BooleanToEnvelopImageSourceConverter.cs" />
     <Compile Include="Views\Converters\BoolToVisibilityConverter.cs" />
-    <Compile Include="ViewModels\CreateMessageViewModel.cs" />
+    <Compile Include="ViewModels\MultiPartSenderViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
     <Compile Include="Views\Converters\FilePathToIconImageConverter.cs" />
     <Compile Include="Views\Converters\FileSizeToStringConverter.cs" />
@@ -176,8 +176,8 @@
     <Compile Include="Views\AddAcountView.xaml.cs">
       <DependentUpon>AddAcountView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\CreateMessageView.xaml.cs">
-      <DependentUpon>CreateMessageView.xaml</DependentUpon>
+    <Compile Include="Views\NewEmailView.xaml.cs">
+      <DependentUpon>NewEmailView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Utilities\FixedWidthGridViewColumn.cs" />
     <Compile Include="Views\MessageListView.xaml.cs">
@@ -196,7 +196,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\CreateMessageView.xaml">
+    <Page Include="Views\NewEmailView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

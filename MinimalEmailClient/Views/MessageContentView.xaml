@@ -29,7 +29,7 @@
         <prism:InteractionRequestTrigger SourceObject="{Binding WriteNewMessagePopupRequest, Mode=OneWay}">
             <prism:PopupWindowAction>
                 <prism:PopupWindowAction.WindowContent>
-                    <views:CreateMessageView />
+                    <views:NewEmailView />
                 </prism:PopupWindowAction.WindowContent>
             </prism:PopupWindowAction>
         </prism:InteractionRequestTrigger>

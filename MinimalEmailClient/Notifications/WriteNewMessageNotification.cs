@@ -13,5 +13,12 @@ namespace MinimalEmailClient.Notifications
         {
             CurrentAccount = currentAccount;
         }
+
+        public WriteNewMessageNotification(Account currentAccount, string recipient, string subject)
+        {
+            CurrentAccount = currentAccount;
+            Recipient = recipient;
+            Subject = "re: " + subject;
+        }
     }
 }

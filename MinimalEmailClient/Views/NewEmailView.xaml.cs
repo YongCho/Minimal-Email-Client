@@ -7,12 +7,12 @@ namespace MinimalEmailClient.Views
     /// <summary>
     /// Interaction logic for ComposeMailView.xaml
     /// </summary>
-    public partial class CreateMessageView : UserControl
+    public partial class NewEmailView : UserControl
     {
-        public CreateMessageView()
+        public NewEmailView()
         {
             InitializeComponent();
-            this.DataContext = new CreateMessageViewModel();
+            this.DataContext = new MultiPartSenderViewModel();
         }
 
         private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)

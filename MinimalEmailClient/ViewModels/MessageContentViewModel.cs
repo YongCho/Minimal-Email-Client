@@ -166,8 +166,8 @@ namespace MinimalEmailClient.ViewModels
             Account sendingAccount;
             sendingAccount = AccountManager.Instance.Accounts[0];
 
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount);
-            notification.Title = "Reply to ";
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender, Subject);
+            notification.Title = "Re: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
         }
 

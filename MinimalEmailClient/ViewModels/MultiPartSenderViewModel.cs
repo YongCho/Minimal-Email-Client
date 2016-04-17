@@ -18,12 +18,12 @@ using MimeKit.IO.Filters;
 
 namespace MinimalEmailClient.ViewModels
 {
-    public class CreateMessageViewModel : BindableBase, IInteractionRequestAware
+    public class MultiPartSenderViewModel : BindableBase, IInteractionRequestAware
     {
         #region Constructor
 
-        // Initialize a new instance of the CreateMessageViewModel
-        public CreateMessageViewModel()
+        // Initialize a new instance of the MultiPartViewModel
+        public MultiPartSenderViewModel()
         {
             SendCommand = new DelegateCommand(SendEmail, CanSend);
             AttachFileCommand = new DelegateCommand(AttachFile);
@@ -88,14 +88,14 @@ namespace MinimalEmailClient.ViewModels
                         Trace.WriteLine(this.notification.CurrentAccount);
                         FromAccount = this.notification.CurrentAccount;
                     }
-                   /* if (!String.IsNullOrEmpty(this.notification.Recipient))
+                    if (!String.IsNullOrEmpty(this.notification.Recipient))
                     {
                         ToAccounts = this.notification.Recipient;
                     }
                     if (!String.IsNullOrEmpty(this.notification.Subject))
                     {
                         Subject = this.notification.Subject;
-                    }*/
+                    }
                 }
             }
         }
