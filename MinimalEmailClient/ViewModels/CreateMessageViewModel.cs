@@ -88,6 +88,14 @@ namespace MinimalEmailClient.ViewModels
                         Trace.WriteLine(this.notification.CurrentAccount);
                         FromAccount = this.notification.CurrentAccount;
                     }
+                   /* if (!String.IsNullOrEmpty(this.notification.Recipient))
+                    {
+                        ToAccounts = this.notification.Recipient;
+                    }
+                    if (!String.IsNullOrEmpty(this.notification.Subject))
+                    {
+                        Subject = this.notification.Subject;
+                    }*/
                 }
             }
         }

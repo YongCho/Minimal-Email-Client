@@ -56,13 +56,6 @@
                         <TextBlock Text="Write" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
-                <!-- 'Reply' button -->
-                <Button>
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="pack://application:,,,/MinimalEmailClient;component/Resources/Images/reply.png" Stretch="Uniform" Height="20" Width="20" />
-                        <TextBlock Text="Reply" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
                 <!-- 'Delete' button -->
                 <Button Command="{Binding DeleteMessageCommand}">
                     <StackPanel Orientation="Horizontal">

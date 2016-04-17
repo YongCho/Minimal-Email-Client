@@ -140,11 +140,15 @@ namespace MinimalEmailClient.ViewModels
         private Dictionary<string, string> savedCidContents = new Dictionary<string, string>();
         private Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
         public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
+        public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
+        public ICommand ReplyMessageCommand { get; set; }
         public ICommand HandleUiCloseCommand { get; set; }
         public Action FinishInteraction { get; set; }
 
         public MessageContentViewModel()
         {
+            WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
+            ReplyMessageCommand = new DelegateCommand(RaiseReplyMessagePopupRequest);
             Attachments = new ObservableCollection<AttachmentViewModel>();
             HandleUiCloseCommand = new DelegateCommand(HandleInteractionFinished);
             if (!Directory.Exists(cidContentDirPath))
@@ -155,6 +159,16 @@ namespace MinimalEmailClient.ViewModels
             {
                 Directory.CreateDirectory(attachmentDirPath);
             }
+        }
+
+        private void RaiseReplyMessagePopupRequest()
+        {
+            Account sendingAccount;
+            sendingAccount = AccountManager.Instance.Accounts[0];
+
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount);
+            notification.Title = "Reply to ";
+            WriteNewMessagePopupRequest.Raise(notification);
         }
 
         private void HandleInteractionFinished()
