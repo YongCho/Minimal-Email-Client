@@ -38,6 +38,9 @@
                             <TextBlock Text="Attach" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    
+                    <!-- 'Attachment List -->
+                    <TextBlock Text="{Binding Attachments, Mode=OneWay}" Width="657" Height="24" VerticalAlignment="Bottom"/>
                 </ToolBar>
             </ToolBarPanel>
 

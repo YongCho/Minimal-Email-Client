@@ -11,6 +11,10 @@ using MinimalEmailClient.Notifications;
 using Prism.Commands;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
+using System.IO;
+using MimeKit;
+using MimeKit.IO;
+using MimeKit.IO.Filters;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -89,6 +93,7 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
+        #region Headers
         #region ToAccounts
 
         private string toAccounts = string.Empty;
@@ -169,9 +174,10 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
+        #endregion
         #region Attachments
 
-        List<string> attachments = new List<string>();
+        private List<string> attachments = new List<string>();
 
         #endregion
         #region SendEmailMethod
@@ -183,7 +189,8 @@ namespace MinimalEmailClient.ViewModels
             if (!String.IsNullOrEmpty(CcAccounts)) email.Cc = ExtractRecipients(CcAccounts);
             if (!String.IsNullOrEmpty(BccAccounts)) email.Bcc = ExtractRecipients(BccAccounts);
             email.Subject = Subject;
-            email.Message = MessageBody; 
+            email.Message = MessageBody;
+            if (attachments != null ) StoreEntities(email, attachments);
 
             SmtpClient NewConnection = new SmtpClient(FromAccount, email);
             if (!NewConnection.Connect())
@@ -193,7 +200,7 @@ namespace MinimalEmailClient.ViewModels
                 return;
             }
 
-            if (!NewConnection.SendMail(attachments))
+            if (!NewConnection.SendMail())
             {
                 Trace.WriteLine(NewConnection.Error);
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);
@@ -201,6 +208,7 @@ namespace MinimalEmailClient.ViewModels
             }
 
             FinishInteraction();
+            attachments.Clear();
             NewConnection.Disconnect();
         }
 
@@ -210,16 +218,16 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
-        #region AttachFileMethod
+        #region AttachFile
 
         private void AttachFile()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                string filePath = openFileDialog.FileName;
+                var filePath = openFileDialog.FileName;
                 attachments.Add(filePath);
-            }
+            }            
         }
 
         #endregion
@@ -240,6 +248,63 @@ namespace MinimalEmailClient.ViewModels
             }
 
             return recipients;
+        }
+
+        #endregion
+        #region MimeEntities
+
+        private bool StoreEntities(OutgoingEmail email,List<string> attachmentList)
+        {
+            foreach (string iter in attachmentList)
+            {
+                FileStream stream = File.OpenRead(iter);
+                if (!stream.CanRead)
+                {
+                    return false;
+                }
+
+                string mimeType = MimeTypes.GetMimeType(iter);
+                ContentType fileType = ContentType.Parse(mimeType);
+                MimePart attachment;
+                if (fileType.IsMimeType("text", "*"))
+                {
+                    attachment = new TextPart(fileType.MediaSubtype);
+                    foreach (var param in fileType.Parameters)
+                        attachment.ContentType.Parameters.Add(param);
+                }
+                else
+                {
+                    attachment = new MimePart(fileType);
+                }
+                attachment.FileName = Path.GetFileName(iter);
+                attachment.IsAttachment = true;
+
+                MemoryBlockStream memoryBlockStream = new MemoryBlockStream();
+                BestEncodingFilter encodingFilter = new BestEncodingFilter();
+                byte[] fileBuffer = new byte[4096];
+                int index, length, bytesRead;
+
+                while ((bytesRead = stream.Read(fileBuffer, 0, fileBuffer.Length)) > 0)
+                {
+                    encodingFilter.Filter(fileBuffer, 0, bytesRead, out index, out length);
+                    memoryBlockStream.Write(fileBuffer, 0, bytesRead);
+                }
+
+                encodingFilter.Flush(fileBuffer, 0, 0, out index, out length);
+                memoryBlockStream.Position = 0;
+
+                attachment.ContentTransferEncoding = encodingFilter.GetBestEncoding(EncodingConstraint.SevenBit);
+                attachment.ContentObject = new ContentObject(memoryBlockStream);
+
+                if (attachment != null) email.AttachmentList.Add(attachment);
+            }
+            return true;
+        }
+
+        static ContentType GetMimeType(string filePath)
+        {
+            string mimeType = MimeTypes.GetMimeType(filePath);
+            return ContentType.Parse(mimeType);
         }
 
         #endregion

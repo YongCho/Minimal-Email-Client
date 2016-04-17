@@ -7,8 +7,6 @@ using System.Text;
 using System.IO;
 using MinimalEmailClient.Models;
 using MimeKit;
-using MimeKit.IO;
-using MimeKit.IO.Filters;
 
 namespace MinimalEmailClient.Services
 {
@@ -152,6 +150,8 @@ namespace MinimalEmailClient.Services
 
         public void Disconnect()
         {
+            if (NewEmail.AttachmentList != null)
+                NewEmail.AttachmentList.Clear();
             if (this.sslStream != null)
             {
                 Trace.WriteLine("Connection to " + account.SmtpServerName + " has been disconnected.");
@@ -162,16 +162,13 @@ namespace MinimalEmailClient.Services
         #endregion
         #region SendMail
 
-        public bool SendMail(List<string> attachmentList)
+        public bool SendMail()
         {
-            if (attachmentList.Count > 0)
-            {
-                if (!StoreEntities(attachmentList)) return false;
-            }
-            if (!AuthorizeAndPrepareServer()) return false;
+            if (!AuthorizeAndPrepareServer()) return false;            
+            string encapsulationToken = GenerateEncapsulationToken();
 
-            Trace.WriteLine("\nSending Message\n");
-            string encapsulationToken = GenerateEncapsulationToken();          
+            Trace.WriteLine("\nSending Message..\n");
+            // Main Email headers
             SendString(string.Format("From: {0}", Account.SmtpLoginName));
             SendString(string.Format("To: {0}", NewEmail.ToAccounts()));
             if(NewEmail.Cc != null)
@@ -179,8 +176,12 @@ namespace MinimalEmailClient.Services
             if (NewEmail.Bcc != null)
                 SendString(string.Format("Bcc: {0}", NewEmail.BccAccounts()));
             SendString(string.Format("Subject: {0}", NewEmail.Subject));
+
+            // MIME header
             SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"", encapsulationToken));
+            // Text Body
             SendString(string.Format("--{0}\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{1}", encapsulationToken, NewEmail.Message));
+            // Attachments
             foreach (MimePart attachment in NewEmail.AttachmentList)
             {
                 SendString("--" + encapsulationToken);
@@ -190,7 +191,6 @@ namespace MinimalEmailClient.Services
             SendString("--" + encapsulationToken + "--\r\n.");
             ReadResponse();
 
-            Trace.WriteLine("\nend");
             return true;
         }
 
@@ -288,63 +288,7 @@ namespace MinimalEmailClient.Services
         }
 
         #endregion
-        #region MimeEntities
 
-        private bool StoreEntities(List<string> attachmentList)
-        {            
-            foreach (string iter in attachmentList)
-            {
-                FileStream stream = File.OpenRead(iter);
-                if (!stream.CanRead)
-                {
-                    Error = "Cannot open file stream";
-                    return false;
-                }
-
-                string mimeType = MimeTypes.GetMimeType(iter);
-                ContentType fileType = ContentType.Parse(mimeType);
-                MimePart attachment;
-                if (fileType.IsMimeType("text", "*"))
-                {
-                    attachment = new TextPart(fileType.MediaSubtype);
-                    foreach (var param in fileType.Parameters)
-                        attachment.ContentType.Parameters.Add(param);
-                } else
-                {
-                    attachment = new MimePart(fileType);
-                }
-                attachment.FileName = Path.GetFileName(iter);
-                attachment.IsAttachment = true;
-
-                MemoryBlockStream memoryBlockStream = new MemoryBlockStream();
-                BestEncodingFilter encodingFilter = new BestEncodingFilter();
-                byte[] fileBuffer = new byte[4096];
-                int index, length, bytesRead;
-
-                while ((bytesRead = stream.Read(fileBuffer, 0, fileBuffer.Length)) > 0)
-                {
-                    encodingFilter.Filter(fileBuffer, 0, bytesRead, out index, out length);
-                    memoryBlockStream.Write(fileBuffer, 0, bytesRead);
-                }
-
-                encodingFilter.Flush(fileBuffer, 0, 0, out index, out length);
-                memoryBlockStream.Position = 0;
-
-                attachment.ContentTransferEncoding = encodingFilter.GetBestEncoding(EncodingConstraint.SevenBit);
-                attachment.ContentObject = new ContentObject(memoryBlockStream);
-
-                if (attachment != null) NewEmail.AttachmentList.Add(attachment);               
-            }
-            return true;
-        }
-
-        static ContentType GetMimeType(string filePath)
-        {
-            string mimeType = MimeTypes.GetMimeType(filePath);
-            return ContentType.Parse(mimeType);
-        }
-
-        #endregion
         #region EncodeDecode
 
         private string Base64Encode(string plainText)
