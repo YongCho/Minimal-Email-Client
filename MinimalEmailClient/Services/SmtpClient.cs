@@ -150,8 +150,6 @@ namespace MinimalEmailClient.Services
 
         public void Disconnect()
         {
-            if (NewEmail.AttachmentList != null)
-                NewEmail.AttachmentList.Clear();
             if (this.sslStream != null)
             {
                 Trace.WriteLine("Connection to " + account.SmtpServerName + " has been disconnected.");
