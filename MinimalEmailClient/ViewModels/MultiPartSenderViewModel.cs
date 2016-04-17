@@ -95,7 +95,17 @@ namespace MinimalEmailClient.ViewModels
                     if (!String.IsNullOrEmpty(this.notification.Subject))
                     {
                         Subject = this.notification.Subject;
+                    }                    
+                    if (!String.IsNullOrEmpty(this.notification.HtmlBody))
+                    {
+                        isHtml = true;
+                        HtmlBody = this.notification.HtmlBody;
+                    }else if (!String.IsNullOrEmpty(this.notification.TextBody))
+                    {
+                        MessageBody = "\n--------------------------------------------------------------------------------\n";
+                        MessageBody += this.notification.TextBody;
                     }
+                    
                 }
             }
         }
@@ -181,9 +191,25 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
+        private string htmlBody = string.Empty;
+        public string HtmlBody
+        {
+            get
+            {
+                return this.messageBody;
+            }
+            set
+            {
+                SetProperty(ref this.messageBody, value);
+                RaiseCanSendChanged();
+            }
+        }
+
+        private bool isHtml = false;
+
         #endregion
-        #endregion
-        #region Attachments
+            #endregion
+            #region Attachments
 
         private List<string> attachments = new List<string>();
 

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 using MinimalEmailClient.ViewModels;
-using System.Diagnostics;
+using System.Windows;
 
 namespace MinimalEmailClient.Views
 {
@@ -15,10 +15,11 @@ namespace MinimalEmailClient.Views
             this.DataContext = new MultiPartSenderViewModel();
         }
 
-        private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            To_TextBox.Clear();            
+            To_TextBox.Clear();
             Cc_TextBox.Clear();
+            Bcc_TextBox.Clear();
             Subject_TextBox.Clear();
             Body_TextBox.Clear();
         }
