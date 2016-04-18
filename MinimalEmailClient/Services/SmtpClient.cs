@@ -32,6 +32,7 @@ namespace MinimalEmailClient.Services
         public string Error = string.Empty;
         private byte[] buffer = new byte[2048];
         private string response = string.Empty;
+        private Random random = new Random();
         private enum smtpCodes
         {
           UnableToConnect = 101,
@@ -163,7 +164,8 @@ namespace MinimalEmailClient.Services
         public bool SendMail()
         {
             if (!AuthorizeAndPrepareServer()) return false;
-            string encapsulationToken = GenerateEncapsulationToken();
+            string innerEncapsulationToken = GenerateEncapsulationToken();
+            string outerEncapsulationToken = GenerateEncapsulationToken();
 
             Trace.WriteLine("\nSending Message..\n");
             // Main Email headers
@@ -176,16 +178,40 @@ namespace MinimalEmailClient.Services
             SendString(string.Format("Subject: {0}", NewEmail.Subject));
 
             // MIME header
-            SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"\r\n", encapsulationToken));
-            // Text Body
-            SendString(string.Format("--{0}\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{1}", encapsulationToken, NewEmail.Message));
-            // Attachments
-            foreach (MimePart attachment in NewEmail.AttachmentList)
+            SendString("MIME-Version: 1.0");
+
+            if (NewEmail.AttachmentList.Count > 0)
             {
-                SendString("--" + encapsulationToken);
-                attachment.WriteTo(this.sslStream);
+                SendString(string.Format("Content-Type: multipart/mixed; boundary=\"{0}\"", outerEncapsulationToken));
+
+                // Boundary token must be preceeded by 2 CRLFs when MIME preamble is empty.
+                SendString("\r\n--" + outerEncapsulationToken);
             }
-            SendString("--" + encapsulationToken + "--\r\n.");
+
+            // Email bodies (text/plain, text/html, etc.)
+            SendString(string.Format("Content-Type: multipart/alternative; boundary=\"{0}\"", innerEncapsulationToken));
+
+            // Text Body
+            SendString("\r\n--" + innerEncapsulationToken);
+            SendString("Content-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n" + NewEmail.Message);
+            SendString("--" + innerEncapsulationToken + "--");
+
+            if (NewEmail.AttachmentList.Count > 0)
+            {
+                SendString("");  // Just a CRLF
+
+                // Attachments
+                foreach (MimePart attachment in NewEmail.AttachmentList)
+                {
+                    SendString("--" + outerEncapsulationToken);
+                    attachment.WriteTo(this.sslStream);
+                }
+
+                SendString("--" + outerEncapsulationToken + "--");
+            }
+
+            SendString(".");
+
             ReadResponse();
 
             return true;
@@ -335,11 +361,11 @@ namespace MinimalEmailClient.Services
         {
             string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             char[] stringChars = new char[15];
-            Random random = new Random();
+
 
             for (int i = 0; i < stringChars.Length; i++)
             {
-                stringChars[i] = chars[random.Next(chars.Length)];
+                stringChars[i] = chars[this.random.Next(chars.Length)];
             }
 
             return new String(stringChars);
