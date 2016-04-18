@@ -18,12 +18,12 @@ using MimeKit.IO.Filters;
 
 namespace MinimalEmailClient.ViewModels
 {
-    public class MultiPartSenderViewModel : BindableBase, IInteractionRequestAware
+    public class NewEmailViewModel : BindableBase, IInteractionRequestAware
     {
         #region Constructor
 
         // Initialize a new instance of the MultiPartViewModel
-        public MultiPartSenderViewModel()
+        public NewEmailViewModel()
         {
             SendCommand = new DelegateCommand(SendEmail, CanSend);
             AttachFileCommand = new DelegateCommand(AttachFile);

@@ -167,7 +167,7 @@
     <Compile Include="ViewModels\MessageHeaderViewModel.cs" />
     <Compile Include="Views\Converters\BooleanToEnvelopImageSourceConverter.cs" />
     <Compile Include="Views\Converters\BoolToVisibilityConverter.cs" />
-    <Compile Include="ViewModels\MultiPartSenderViewModel.cs" />
+    <Compile Include="ViewModels\NewEmailViewModel.cs" />
     <Compile Include="ViewModels\MailboxTreeViewModel.cs" />
     <Compile Include="Views\Converters\FilePathToIconImageConverter.cs" />
     <Compile Include="Views\Converters\FileSizeToStringConverter.cs" />

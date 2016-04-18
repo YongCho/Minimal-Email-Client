@@ -11,7 +11,7 @@ namespace MinimalEmailClient.Views
         public NewEmailView()
         {
             InitializeComponent();
-            this.DataContext = new MultiPartSenderViewModel();
+            this.DataContext = new NewEmailViewModel();
         }
 
         private void UserControl_Unloaded(object sender, RoutedEventArgs e)
