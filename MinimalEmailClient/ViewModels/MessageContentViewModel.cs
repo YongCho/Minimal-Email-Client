@@ -19,6 +19,7 @@ namespace MinimalEmailClient.ViewModels
 {
     public class MessageContentViewModel : BindableBase, IInteractionRequestAware
     {
+        #region Model Properties - Subject, Sender, Recipient, Body
         public string Subject
         {
             get { return Message == null ? string.Empty : Message.Subject; }
@@ -38,19 +39,14 @@ namespace MinimalEmailClient.ViewModels
         {
             get { return Message == null ? string.Empty : Message.Body; }
         }
+        #endregion
 
+        #region ViewModel Properties - Date, TextBody, HtmlBody, ProcessedHtmlBody, Loading
         private DateTime date;
         public DateTime Date
         {
             get { return this.date; }
             private set { SetProperty(ref this.date, value); }
-        }
-
-        private bool loading;
-        public bool Loading
-        {
-            get { return this.loading; }
-            private set { SetProperty(ref this.loading, value); }
         }
 
         private string textBody = string.Empty;
@@ -67,12 +63,20 @@ namespace MinimalEmailClient.ViewModels
             private set { SetProperty(ref this.htmlBody, value); }
         }
 
-        private string browserContent = string.Empty;
-        public string BrowserContent
+        private string processedHtmlBody = string.Empty;
+        public string ProcessedHtmlBody
         {
-            get { return this.browserContent; }
-            private set { SetProperty(ref this.browserContent, value); }
+            get { return this.processedHtmlBody; }
+            private set { SetProperty(ref this.processedHtmlBody, value); }
         }
+
+        private bool loading;
+        public bool Loading
+        {
+            get { return this.loading; }
+            private set { SetProperty(ref this.loading, value); }
+        }
+        #endregion
 
         private Message message;
         public Message Message
@@ -109,27 +113,7 @@ namespace MinimalEmailClient.ViewModels
 
                     if (Message != newMessage)
                     {
-                        if (Message != null)
-                        {
-                            Message.PropertyChanged -= HandleModelPropertyChanged;
-                        }
-
-                        Message = newMessage;
-                        Date = ImapParser.ParseDate(Message.DateString);
-
-                        if (string.IsNullOrEmpty(Message.Body))
-                        {
-                            DownloadMessageBodyAsync();
-                        }
-                        else
-                        {
-                            TextBody = MimeUtility.GetTextBody(Message.Body);
-                            HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
-                            BrowserContent = PrepareBrowserContent(HtmlBody);
-                            LoadAttachments(Message.Body);
-                        }
-
-                        Message.PropertyChanged += HandleModelPropertyChanged;
+                        SetMessage(newMessage);
                     }
                 }
             }
@@ -148,9 +132,10 @@ namespace MinimalEmailClient.ViewModels
         public MessageContentViewModel()
         {
             WriteNewMessagePopupRequest = new InteractionRequest<WriteNewMessageNotification>();
-            ReplyMessageCommand = new DelegateCommand(RaiseReplyMessagePopupRequest);
             Attachments = new ObservableCollection<AttachmentViewModel>();
             HandleUiCloseCommand = new DelegateCommand(HandleInteractionFinished);
+            ReplyMessageCommand = new DelegateCommand(RaiseReplyMessagePopupRequest);
+
             if (!Directory.Exists(cidContentDirPath))
             {
                 Directory.CreateDirectory(cidContentDirPath);
@@ -158,6 +143,31 @@ namespace MinimalEmailClient.ViewModels
             if (!Directory.Exists(attachmentDirPath))
             {
                 Directory.CreateDirectory(attachmentDirPath);
+            }
+        }
+
+        private void SetMessage(Message newMessage)
+        {
+            if (Message != null)
+            {
+                Message.PropertyChanged -= HandleModelPropertyChanged;
+            }
+
+            Message = newMessage;
+            Message.PropertyChanged += HandleModelPropertyChanged;
+
+            Date = ImapParser.ParseDate(Message.DateString);
+
+            if (string.IsNullOrEmpty(Message.Body))
+            {
+                DownloadMessageBodyAsync();
+            }
+            else
+            {
+                TextBody = MimeUtility.GetTextBody(Message.Body);
+                HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
+                ProcessedHtmlBody = ProcessHtmlBody(HtmlBody);
+                LoadAttachments(Message.Body);
             }
         }
 
@@ -177,7 +187,7 @@ namespace MinimalEmailClient.ViewModels
             Date = new DateTime();
             TextBody = string.Empty;
             HtmlBody = string.Empty;
-            BrowserContent = string.Empty;
+            ProcessedHtmlBody = string.Empty;
             RaiseViewModelPropertiesChanged();
             Attachments.Clear();
         }
@@ -205,7 +215,7 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
-        private string PrepareBrowserContent(string htmlBody)
+        private string ProcessHtmlBody(string rawHtmlBody)
         {
             // Clear the files in temporary storage.
             DirectoryInfo di = new DirectoryInfo(cidContentDirPath);
@@ -223,7 +233,7 @@ namespace MinimalEmailClient.ViewModels
             MimeUtility.SaveBinariesWithCid(Message.Body, cidContentDirPath, this.savedCidContents);
 
             HtmlDocument html = new HtmlDocument();
-            html.LoadHtml(htmlBody);
+            html.LoadHtml(rawHtmlBody);
 
             var rootNode = html.DocumentNode;
             var imgNodes = rootNode.Descendants("img");
@@ -313,7 +323,7 @@ namespace MinimalEmailClient.ViewModels
                 case "Body":
                     TextBody = MimeUtility.GetTextBody(Message.Body);
                     HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
-                    BrowserContent = PrepareBrowserContent(HtmlBody);
+                    ProcessedHtmlBody = ProcessHtmlBody(HtmlBody);
                     LoadAttachments(Message.Body);
                     OnPropertyChanged(e.PropertyName);
                     break;
