@@ -183,7 +183,6 @@ namespace MinimalEmailClient.Services
             foreach (MimePart attachment in NewEmail.AttachmentList)
             {
                 SendString("--" + encapsulationToken);
-                SendString(string.Format("Content-Type: {0}", attachment.ContentType));
                 attachment.WriteTo(this.sslStream);
             }
             SendString("--" + encapsulationToken + "--\r\n.");
