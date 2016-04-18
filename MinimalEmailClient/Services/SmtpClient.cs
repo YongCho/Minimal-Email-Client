@@ -66,7 +66,7 @@ namespace MinimalEmailClient.Services
           ExceededStorageAllocation = 552,
           MailboxNameNotAllowed = 553,
           TransactionFailed = 554
-        };        
+        };
 
         #endregion
         #region Account(s)
@@ -97,12 +97,12 @@ namespace MinimalEmailClient.Services
             set
             {
                 if (value == null)
-                    throw new ArgumentNullException("Email contents are empty");      
+                    throw new ArgumentNullException("Email contents are empty");
                 newEmail = value;
             }
         }
 
-        #endregion        
+        #endregion
         #region TCP Connection(s)
 
         public bool Connect()
@@ -162,7 +162,7 @@ namespace MinimalEmailClient.Services
 
         public bool SendMail()
         {
-            if (!AuthorizeAndPrepareServer()) return false;            
+            if (!AuthorizeAndPrepareServer()) return false;
             string encapsulationToken = GenerateEncapsulationToken();
 
             Trace.WriteLine("\nSending Message..\n");
@@ -176,7 +176,7 @@ namespace MinimalEmailClient.Services
             SendString(string.Format("Subject: {0}", NewEmail.Subject));
 
             // MIME header
-            SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"", encapsulationToken));
+            SendString(string.Format("MIME-Version: 1.0\r\nContent-Type: multipart/alternative; boundary=\"{0}\"\r\n", encapsulationToken));
             // Text Body
             SendString(string.Format("--{0}\r\nContent-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n{1}", encapsulationToken, NewEmail.Message));
             // Attachments
@@ -345,6 +345,6 @@ namespace MinimalEmailClient.Services
             return new String(stringChars);
         }
 
-        #endregion        
+        #endregion
     }
 }
