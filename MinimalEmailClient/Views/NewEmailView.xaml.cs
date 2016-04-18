@@ -1,5 +1,4 @@
-﻿using System.Windows.Controls;
-using MinimalEmailClient.ViewModels;
+﻿using MinimalEmailClient.ViewModels;
 using System.Windows;
 
 namespace MinimalEmailClient.Views
@@ -7,7 +6,7 @@ namespace MinimalEmailClient.Views
     /// <summary>
     /// Interaction logic for ComposeMailView.xaml
     /// </summary>
-    public partial class NewEmailView : UserControl
+    public partial class NewEmailView : System.Windows.Controls.UserControl
     {
         public NewEmailView()
         {
