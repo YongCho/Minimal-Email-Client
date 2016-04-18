@@ -213,7 +213,7 @@ namespace MinimalEmailClient.Services
             }
 
             SelectedMailboxName = mailboxPath;
-            status = ImapParser.ParseExamine(response);
+            status = ImapParser.ParseExamineResponse(response);
             return true;
         }
 

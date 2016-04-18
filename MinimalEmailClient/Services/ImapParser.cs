@@ -117,7 +117,7 @@ namespace MinimalEmailClient.Services
             return message;
         }
 
-        public static ExamineResult ParseExamine(string examineResponse)
+        public static ExamineResult ParseExamineResponse(string examineResponse)
         {
             ExamineResult status = new ExamineResult();
             Regex regex;
