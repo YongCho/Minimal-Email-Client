@@ -1,5 +1,6 @@
 # MinimalEmailClient
 MinimalEmailClient is a simple Windows based email client that is designed to handle downloading, reading, writing, and sending emails using IMAP and SMTP protocols.
+[UML Class Diagram](https://www.draw.io/#G0B4iaHoetmJUpMzhJY2VYc29uWkk)
 
 # Contributor
 - Yong Cho
@@ -7,7 +8,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 
 # Progress (Week 4/19)
 - TODO: Implement replying and forwarding functionality.
-- TODO: Conduct reliability test on all functionalities implemented so far.
+- In-Progress: Conduct reliability test on all functionalities implemented so far.
 
 # Progress (Week 04/12)
 - We conducted research on possible ways to get notified on important IMAP server changes such as arrival of new messages, deletion of a message and message being marked as read/unread, so that we can automatically update our UI when such events occur. We found several IMAP extensions that could be used to achieve this:
