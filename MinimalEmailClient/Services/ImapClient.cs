@@ -42,7 +42,7 @@ namespace MinimalEmailClient.Services
         public Account Account
         {
             get { return this.account; }
-            set
+            private set
             {
                 if (this.account != value)
                 {
@@ -56,8 +56,8 @@ namespace MinimalEmailClient.Services
         private int nextTagSequence = 0;
         bool abortLatch = false;
 
-        TcpClient tcpClient;
-        SslStream sslStream;
+        private TcpClient tcpClient;
+        private SslStream sslStream;
 
         public event EventHandler<Message> NewMessageAtServer;
         public event EventHandler<ImapMonitorEventArgs> MessageUnseenAtServer;
