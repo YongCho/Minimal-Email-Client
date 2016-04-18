@@ -22,5 +22,15 @@ namespace MinimalEmailClient.Views
             Subject_TextBox.Clear();
             Body_TextBox.Clear();
         }
+
+        private void removeAttachmentMenu_Click(object sender, RoutedEventArgs e)
+        {
+            AttachmentViewModel selectedAttachmentVm = (AttachmentViewModel)attachmentListView.SelectedItem;
+            NewEmailViewModel viewModel = (NewEmailViewModel)this.DataContext;
+            if (selectedAttachmentVm != null && viewModel.Attachments.Contains(selectedAttachmentVm))
+            {
+                viewModel.Attachments.Remove(selectedAttachmentVm);
+            }
+        }
     }
 }

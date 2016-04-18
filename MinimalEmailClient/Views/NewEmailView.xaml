@@ -46,6 +46,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -65,7 +66,46 @@
                 <TextBox x:Name="To_TextBox" Grid.Column="1" Grid.Row="1" Height="23" Margin="6,2" Text="{Binding ToAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
                 <TextBox x:Name="Cc_TextBox" Grid.Column="1" Grid.Row="2" Height="23" Margin="6,2" Text="{Binding CcAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
                 <TextBox x:Name="Bcc_TextBox" Grid.Column="1" Grid.Row="3" Height="23" Margin="6,2" Text="{Binding BccAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
-                <TextBox x:Name="Subject_TextBox" Grid.Column="1" Grid.Row="4" Height="23" Margin="6,2" Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                <TextBox x:Name="Subject_TextBox" Grid.Column="1" Grid.Row="4" Height="23" Margin="6,2,6,0" Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TextWrapping="Wrap" />
+
+                <!-- Attachments -->
+                <Grid Grid.Column="2" Grid.RowSpan="5" Margin="0,0,6,0" MaxWidth="200">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="110" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.Style>
+                        <Style TargetType="{x:Type Grid}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Attachments.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Attachments.Count}" />
+                        <TextBlock Grid.Column="1" Margin="4,0,0,2" Text="Attachment(s)" />
+                    </Grid>
+                    <ListView x:Name="attachmentListView" Grid.Row="1" Margin="0,0,0,-5" ItemsSource="{Binding Attachments}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding FileName}" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem x:Name="removeAttachmentMenu" Header="Remove Attachment" Click="removeAttachmentMenu_Click" />
+                            </ContextMenu>
+                        </ListView.ContextMenu>
+                    </ListView>
+                </Grid>
             </Grid>
 
             <!-- Message Body -->

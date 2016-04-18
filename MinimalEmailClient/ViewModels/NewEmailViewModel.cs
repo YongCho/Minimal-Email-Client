@@ -15,6 +15,7 @@ using System.IO;
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
+using System.Collections.ObjectModel;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -27,6 +28,7 @@ namespace MinimalEmailClient.ViewModels
         {
             SendCommand = new DelegateCommand(SendEmail, CanSend);
             AttachFileCommand = new DelegateCommand(AttachFile);
+            Attachments = new ObservableCollection<AttachmentViewModel>();
         }
 
         #endregion
@@ -50,7 +52,7 @@ namespace MinimalEmailClient.ViewModels
         #region SendMailCommand
 
         public ICommand SendCommand { get; }
-        
+
         public bool CanSend()
         {
             if (FromAccount == null || String.IsNullOrEmpty(ToAccounts) || String.IsNullOrEmpty(Subject) || String.IsNullOrEmpty(MessageBody))
@@ -95,7 +97,7 @@ namespace MinimalEmailClient.ViewModels
                     if (!String.IsNullOrEmpty(this.notification.Subject))
                     {
                         Subject = this.notification.Subject;
-                    }                    
+                    }
                     if (!String.IsNullOrEmpty(this.notification.HtmlBody))
                     {
                         isHtml = true;
@@ -105,7 +107,7 @@ namespace MinimalEmailClient.ViewModels
                         MessageBody = "\n--------------------------------------------------------------------------------\n";
                         MessageBody += this.notification.TextBody;
                     }
-                    
+
                 }
             }
         }
@@ -209,9 +211,9 @@ namespace MinimalEmailClient.ViewModels
 
         #endregion
             #endregion
-            #region Attachments
+        #region Attachments
 
-        private List<string> attachments = new List<string>();
+        public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
 
         #endregion
         #region SendEmailMethod
@@ -224,7 +226,15 @@ namespace MinimalEmailClient.ViewModels
             if (!String.IsNullOrEmpty(BccAccounts)) email.Bcc = ExtractRecipients(BccAccounts);
             email.Subject = Subject;
             email.Message = MessageBody;
-            if (attachments != null ) StoreEntities(email, attachments);
+            if (Attachments != null)
+            {
+                List<string> attachmentFilePaths = new List<string>();
+                foreach (AttachmentViewModel attachmentVm in Attachments)
+                {
+                    attachmentFilePaths.Add(attachmentVm.FilePath);
+                }
+                StoreEntities(email, attachmentFilePaths);
+            }
 
             SmtpClient NewConnection = new SmtpClient(FromAccount, email);
             if (!NewConnection.Connect())
@@ -242,7 +252,7 @@ namespace MinimalEmailClient.ViewModels
             }
 
             FinishInteraction();
-            attachments.Clear();
+            Attachments.Clear();
             NewConnection.Disconnect();
         }
 
@@ -260,8 +270,8 @@ namespace MinimalEmailClient.ViewModels
             if (openFileDialog.ShowDialog() == true)
             {
                 var filePath = openFileDialog.FileName;
-                attachments.Add(filePath);
-            }            
+                Attachments.Add(new AttachmentViewModel(filePath));
+            }
         }
 
         #endregion
@@ -277,7 +287,7 @@ namespace MinimalEmailClient.ViewModels
             var parsedRecipients = whiteSpace.Replace(unparsedRecipients, "");
             string[] splitRecipients = parsedRecipients.Split(delimiterChars);
             foreach (string recipient in splitRecipients)
-            {                
+            {
                 recipients.Add(recipient);
             }
 
@@ -287,7 +297,7 @@ namespace MinimalEmailClient.ViewModels
         #endregion
         #region MimeEntities
 
-        private bool StoreEntities(OutgoingEmail email,List<string> attachmentList)
+        private bool StoreEntities(OutgoingEmail email, List<string> attachmentList)
         {
             foreach (string iter in attachmentList)
             {
