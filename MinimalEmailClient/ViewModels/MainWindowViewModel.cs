@@ -7,6 +7,7 @@ using Prism.Events;
 using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
 using System.Windows.Input;
+using System;
 
 namespace MinimalEmailClient.ViewModels
 {
@@ -18,7 +19,8 @@ namespace MinimalEmailClient.ViewModels
         public ICommand AddNewAccountCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
 
-        private Account selectedAccount;
+        private Account selectedAccount = null;
+        private Message selectedMessage = null;
 
         public MainWindowViewModel()
         {
@@ -26,11 +28,17 @@ namespace MinimalEmailClient.ViewModels
             AddNewAccountPopupRequest = new InteractionRequest<INotification>();
             WriteNewMessageCommand = new DelegateCommand(RaiseWriteNewMessagePopupRequest, CanWrite);
             AddNewAccountCommand = new DelegateCommand(RaiseAddNewAccountPopupRequest);
-            DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent);
+            DeleteMessageCommand = new DelegateCommand(RaiseDeleteMessagesEvent, CanDelete);
 
             GlobalEventAggregator.Instance.GetEvent<AccountSelectionEvent>().Subscribe(HandleAccountSelection, ThreadOption.UIThread);
             GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleAccountAdded, ThreadOption.UIThread);
             GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeleted, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<MessageSelectionEvent>().Subscribe(HandleMessageSelected, ThreadOption.UIThread);
+        }
+
+        private bool CanDelete()
+        {
+            return this.selectedMessage != null;
         }
 
         private void RaiseWriteNewMessagePopupRequest()
@@ -86,6 +94,12 @@ namespace MinimalEmailClient.ViewModels
         private void HandleAccountAdded(Account obj)
         {
             RaiseCanExecuteChanged();
+        }
+
+        private void HandleMessageSelected(Message selectedMessage)
+        {
+            this.selectedMessage = selectedMessage;
+            (DeleteMessageCommand as DelegateCommand).RaiseCanExecuteChanged();
         }
 
         private void RaiseCanExecuteChanged()

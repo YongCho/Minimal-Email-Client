@@ -26,7 +26,18 @@ namespace MinimalEmailClient.ViewModels
         public MessageHeaderViewModel SelectedMessageHeaderViewModel
         {
             get { return this.selectedMessageHeaderViewModel; }
-            set { SetProperty(ref this.selectedMessageHeaderViewModel, value); }
+            set
+            {
+                SetProperty(ref this.selectedMessageHeaderViewModel, value);
+                if (this.selectedMessageHeaderViewModel == null)
+                {
+                    GlobalEventAggregator.Instance.GetEvent<MessageSelectionEvent>().Publish(null);
+                }
+                else
+                {
+                    GlobalEventAggregator.Instance.GetEvent<MessageSelectionEvent>().Publish(this.selectedMessageHeaderViewModel.Message);
+                }
+            }
         }
         public List<MessageHeaderViewModel> SelectedMessageHeaderViewModels { get; set; }  // For multiple selection. Let it set by view on selection change events.
         private Mailbox currentMailbox;
