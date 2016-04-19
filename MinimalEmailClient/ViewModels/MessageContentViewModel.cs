@@ -89,6 +89,16 @@ namespace MinimalEmailClient.ViewModels
             }
         }
 
+        private static readonly string cidContentDirPath = Path.Combine(Globals.UserSettingsFolder, "CidContents");  // embedded binaries
+        private static readonly string attachmentDirPath = Path.Combine(Globals.UserSettingsFolder, "Attachments");  // explicit attachments
+        private Dictionary<string, string> savedCidContents = new Dictionary<string, string>();
+        private Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
+        public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
+        public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
+        public ICommand ReplyMessageCommand { get; set; }
+        public ICommand HandleUiCloseCommand { get; set; }
+        public Action FinishInteraction { get; set; }
+
         private MessageContentViewNotification notification;
         public INotification Notification
         {
@@ -118,16 +128,6 @@ namespace MinimalEmailClient.ViewModels
                 }
             }
         }
-
-        private static readonly string cidContentDirPath = Path.Combine(Globals.UserSettingsFolder, "CidContents");  // embedded binaries
-        private static readonly string attachmentDirPath = Path.Combine(Globals.UserSettingsFolder, "Attachments");  // explicit attachments
-        private Dictionary<string, string> savedCidContents = new Dictionary<string, string>();
-        private Dictionary<string, string> savedAttachments = new Dictionary<string, string>();
-        public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
-        public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
-        public ICommand ReplyMessageCommand { get; set; }
-        public ICommand HandleUiCloseCommand { get; set; }
-        public Action FinishInteraction { get; set; }
 
         public MessageContentViewModel()
         {
