@@ -100,7 +100,7 @@ namespace MinimalEmailClient.ViewModels
                     {
                         isHtml = true;
                         HtmlBody = this.notification.HtmlBody;
-                    }else if (!String.IsNullOrEmpty(this.notification.TextBody))
+                    } else if (!String.IsNullOrEmpty(this.notification.TextBody))
                     {
                         MessageBody = "\n--------------------------------------------------------------------------------\n";
                         MessageBody += this.notification.TextBody;
@@ -209,7 +209,7 @@ namespace MinimalEmailClient.ViewModels
 
         #endregion
             #endregion
-            #region Attachments
+        #region Attachments
 
         private List<string> attachments = new List<string>();
 

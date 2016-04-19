@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace MinimalEmailClient.ViewModels
@@ -164,7 +166,12 @@ namespace MinimalEmailClient.ViewModels
         private void RaiseReplyMessagePopupRequest()
         {
             Account sendingAccount;
-            sendingAccount = AccountManager.Instance.Accounts[0];
+            sendingAccount = AccountManager.Instance.Accounts.FirstOrDefault(account => account.AccountName == Message.AccountName);
+            if (sendingAccount == null)
+            {
+                MessageBoxResult error = MessageBox.Show("No user account selected for sender");
+                return;
+            }
             WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender.Split('<', '>')[1], Subject, TextBody, HtmlBody);
             notification.Title = "Re: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
