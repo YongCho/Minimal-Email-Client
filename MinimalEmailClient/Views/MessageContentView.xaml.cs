@@ -11,7 +11,7 @@ namespace MinimalEmailClient.Views
     public partial class MessageContentView : UserControl, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private enum TabIndexEnum { BrowserTab = 0, TextTab, HtmlTab, BrowserContentTab, SourceTab }
+        private enum TabIndexEnum { BrowserTab = 0, TextTab, HtmlTab, ProcessedHtmlTab, SourceTab }
 
         private int selectedTabIndex;
         public int SelectedTabIndex
@@ -25,10 +25,10 @@ namespace MinimalEmailClient.Views
                     NotifyPropertyChanged("SelectedTabIndex");
                 }
 
-                defaultViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.BrowserTab;
+                browserViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.BrowserTab;
                 textViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.TextTab;
                 htmlViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.HtmlTab;
-                browserContentViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.BrowserContentTab;
+                processedHtmlViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.ProcessedHtmlTab;
                 sourceViewMenuItem.IsChecked = this.selectedTabIndex == (int)TabIndexEnum.SourceTab;
             }
         }
@@ -71,7 +71,7 @@ namespace MinimalEmailClient.Views
             parentWindow.SizeToContent = SizeToContent.Manual;
         }
 
-        private void defaultViewMenuItem_Click(object sender, RoutedEventArgs e)
+        private void browserViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
             SelectedTabIndex = (int)TabIndexEnum.BrowserTab;
         }
@@ -86,9 +86,9 @@ namespace MinimalEmailClient.Views
             SelectedTabIndex = (int)TabIndexEnum.HtmlTab;
         }
 
-        private void browserContentViewMenuItem_Click(object sender, RoutedEventArgs e)
+        private void processedHtmlViewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            SelectedTabIndex = (int)TabIndexEnum.BrowserContentTab;
+            SelectedTabIndex = (int)TabIndexEnum.ProcessedHtmlTab;
         }
 
         private void sourceViewMenuItem_Click(object sender, RoutedEventArgs e)
@@ -114,7 +114,7 @@ namespace MinimalEmailClient.Views
             }
             else
             {
-                defaultViewMenuItem_Click(this, new RoutedEventArgs());
+                browserViewMenuItem_Click(this, new RoutedEventArgs());
             }
         }
 

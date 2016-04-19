@@ -11,10 +11,10 @@ namespace MinimalEmailClient.Services
 {
     public static class DatabaseManager
     {
-        public static readonly string DatabaseFolder = Globals.UserSettingsFolder;
-        public static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
+        private static readonly string DatabaseFolder = Globals.UserSettingsFolder;
+        private static readonly string DatabasePath = Path.Combine(DatabaseFolder, Properties.Settings.Default.DatabaseFileName);
 
-        private static string connString = string.Format("Case Sensitive=True;Data Source={0}", DatabasePath);
+        private static readonly string connString = string.Format("Case Sensitive=True;Data Source={0}", DatabasePath);
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
         private static readonly int schemaVersion = 13;
 
@@ -34,7 +34,7 @@ namespace MinimalEmailClient.Services
         }
 
         // Checks if the user's database schema matches the current development schema.
-        public static bool IsSchemaCurrent()
+        private static bool IsSchemaCurrent()
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
 

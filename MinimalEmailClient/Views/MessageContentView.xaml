@@ -34,15 +34,15 @@
             </prism:PopupWindowAction>
         </prism:InteractionRequestTrigger>
     </i:Interaction.Triggers>
-    
+
     <DockPanel>
         <!-- Menu Bar -->
         <Menu DockPanel.Dock="Top" BorderThickness="0" Background="White" BorderBrush="AliceBlue">
             <MenuItem Header="View">
-                <MenuItem x:Name="defaultViewMenuItem" Header="Default" IsCheckable="True" Click="defaultViewMenuItem_Click" />
+                <MenuItem x:Name="browserViewMenuItem" Header="Browser" IsCheckable="True" Click="browserViewMenuItem_Click" />
                 <MenuItem x:Name="textViewMenuItem" Header="Text" IsCheckable="True" Click="textViewMenuItem_Click" />
                 <MenuItem x:Name="htmlViewMenuItem" Header="HTML" IsCheckable="True" Click="htmlViewMenuItem_Click" />
-                <MenuItem x:Name="browserContentViewMenuItem" Header="Browser Content" IsCheckable="True" Click="browserContentViewMenuItem_Click" />
+                <MenuItem x:Name="processedHtmlViewMenuItem" Header="Processed HTML" IsCheckable="True" Click="processedHtmlViewMenuItem_Click" />
                 <MenuItem x:Name="sourceViewMenuItem" Header="Source" IsCheckable="True" Click="sourceViewMenuItem_Click" />
             </MenuItem>
         </Menu>
@@ -161,21 +161,21 @@
                     <TabControl x:Name="msgTabControl" SelectedIndex="{Binding ElementName=userControl, Path=SelectedTabIndex}" TabStripPlacement="Bottom" BorderThickness="0" >
                         <TabItem Header="Text" Visibility="Collapsed">
                             <!-- Visibility: Need to hide the WebBrowser control while busy indicator is on because it kills the busy indicator for some reason. -->
-                            <WebBrowser viewUtilities:WebBrowserHelper.Html="{Binding BrowserContent}" Visibility="{Binding Loading, Converter={StaticResource InverseBoolToHiddenConverter}}" />
+                            <WebBrowser viewUtilities:WebBrowserHelper.Html="{Binding ProcessedHtmlBody}" Visibility="{Binding Loading, Converter={StaticResource InverseBoolToHiddenConverter}}" />
                         </TabItem>
                         <TabItem Header="Text" Visibility="Collapsed">
                             <ScrollViewer>
                                 <TextBox x:Name="textBodyTextBox" BorderThickness="0" Text="{Binding TextBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" TextChanged="textBodyTextBox_TextChanged" />
                             </ScrollViewer>
                         </TabItem>
-                        <TabItem Header="Html" Visibility="Collapsed">
+                        <TabItem Header="HTML" Visibility="Collapsed">
                             <ScrollViewer>
                                 <TextBox x:Name="htmlBodyTextBox" BorderThickness="0" Text="{Binding HtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" TextChanged="htmlBodyTextBox_TextChanged" />
                             </ScrollViewer>
                         </TabItem>
-                        <TabItem Header="Browser Content" Visibility="Collapsed">
+                        <TabItem Header="Process HTML" Visibility="Collapsed">
                             <ScrollViewer>
-                                <TextBox x:Name="browserContentTextBox" BorderThickness="0" Text="{Binding BrowserContent, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
+                                <TextBox x:Name="processedHtmlBodyTextBox" BorderThickness="0" Text="{Binding ProcessedHtmlBody, Mode=OneWay}" FontSize="16" IsReadOnly="True" TextWrapping="Wrap" />
                             </ScrollViewer>
                         </TabItem>
                         <TabItem Header="Source" Visibility="Collapsed">

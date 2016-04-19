@@ -118,7 +118,7 @@ namespace MinimalEmailClient.Services
             }
         }
 
-        public void BeginSyncMessages(Account account)
+        private void BeginSyncMessages(Account account)
         {
             Trace.WriteLine("BeginSyncMessages: " + account.AccountName);
             abortLatches.AddOrUpdate(account.AccountName, 0, (k, v) => v = 0);

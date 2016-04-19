@@ -12,16 +12,16 @@ namespace MinimalEmailClient.Services
 {
     public class MimeUtility
     {
-        public static string GetTextBody(string body)
+        public static string GetTextBody(string rawMessageBody)
         {
-            Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
+            Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(rawMessageBody));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
             return ParseBodyFromMime(mimeMsg, "text/plain");
         }
 
-        public static string GetHtmlBody(string body)
+        public static string GetHtmlBody(string rawMessageBody)
         {
-            Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(body));
+            Stream mimeMsgStream = new MemoryStream(Encoding.ASCII.GetBytes(rawMessageBody));
             MimeMessage mimeMsg = new MimeMessage(mimeMsgStream);
             return ParseBodyFromMime(mimeMsg, "text/html");
         }
@@ -306,11 +306,6 @@ namespace MinimalEmailClient.Services
         private static bool IsValidFileName(string fileName)
         {
             return !string.IsNullOrEmpty(fileName) && fileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
-        }
-
-        private static void EncodeAttachment()
-        {
-
         }
     }
 }

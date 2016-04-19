@@ -40,7 +40,7 @@ namespace MinimalEmailClient.Services
 
         // Updates the mailbox tree in the specified account with ones from the server.
         // Also updates the database to reflect the change.
-        public void BeginSyncMailboxList(Account account)
+        private void BeginSyncMailboxList(Account account)
         {
             Task.Factory.StartNew(() => {
                 List<Mailbox> localMailboxes = DatabaseManager.GetMailboxes(account.AccountName);
