@@ -1,15 +1,27 @@
 # MinimalEmailClient
 MinimalEmailClient is a simple Windows based email client that is designed to handle downloading, reading, writing, and sending emails using IMAP and SMTP protocols.
 ### Project Diagram
-- [UML Class Diagram](https://www.dropbox.com/s/3sths8xy0ag7rki/MEClient.html?dl=1) - The diagram is created using [Online Flowchart Maker](http://draw.io). In order to view it, download the .html file and open it with a web browser.
+- [UML Class Diagram][UML Diagram] - The diagram is created using [Online Flowchart Maker](http://draw.io). In order to view it, download the .html file and open it with a web browser.
 
 # Contributor
 - Yong Cho
 - Yoo Min Cha
 
+# Progress (Week 4/26)
+- Created UML class diagram for the project. The diagram can be downloaded by following the link in the above 'Project Diagram' section.
+- We are continuing on the reliability tests and bug hunting.
+    - Working on program crashing when 'Reply' button is clicked ([#45](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/45)).
+- We may add some new features if possible. If we can't do them in time, we will leave them as future works.
+    - Allow composing HTML email ([#41](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/41)).
+    - Add address book to store frequently used outgoing email addresses ([#50](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/50)).
+
 # Progress (Week 4/19)
-- TODO: Implement replying and forwarding functionality.
-- In-Progress: Conduct reliability test on all functionalities implemented so far.
+- Implemented replying functionality. When viewing a message, the user can now click 'Reply' button to compose and send a reply email.
+- We are currently conducting reliability test and bug fixes on all the features we have implemented so far.
+    - Refactored IMAP core methods to handle unstable network condition ([23d32e4](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/23d32e485112d57b303066a722569963610b33f6)).
+    - Working on program crashing when 'Reply' button is clicked ([#45](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/45)).
+    - Fixed reply email being sent from a wrong email address ([f379302](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/f379302aee74731c23683ceb80255d8c1ca0513f)).
+    - Fixed incorrect outgoing mime format that caused our email to be not property read in some other email clients ([601fc8f](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/601fc8f47ef27650eb6cb5e68eceb497ab0d133b), [80c3b8a](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/80c3b8a5d5ea35c01b96fd3de220f0c61355e56b), [937aa91](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/937aa91b4ced79d39f802a4edf8468c871c78b2b)).
 
 # Progress (Week 04/12)
 - We conducted research on possible ways to get notified on important IMAP server changes such as arrival of new messages, deletion of a message and message being marked as read/unread, so that we can automatically update our UI when such events occur. We found several IMAP extensions that could be used to achieve this:
@@ -57,3 +69,6 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 # Setting up the environment.
 - Install Visual Studio 2015 Community. Make sure you install the components to develop C# WPF Application. This might be installed by default. If they are not installed initially, you will have an option to install them later when you open the project.
 - Double-click the .sln file to open the project.
+
+<!-- Links -->
+[UML Diagram]: https://www.dropbox.com/s/3sths8xy0ag7rki/MEClient.html?dl=1
