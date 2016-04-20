@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -176,15 +175,27 @@ namespace MinimalEmailClient.ViewModels
         private void RaiseReplyMessagePopupRequest()
         {
             Account sendingAccount;
-            sendingAccount = AccountManager.Instance.Accounts.FirstOrDefault(account => account.AccountName == Message.AccountName);
+            sendingAccount = AccountManager.Instance.GetAccountByName(Message.AccountName);
             if (sendingAccount == null)
             {
                 MessageBoxResult error = MessageBox.Show("No user account selected for sender");
                 return;
             }
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender.Split('<', '>')[1], Subject, TextBody, HtmlBody);
+            var recipient = ExtractSender();
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, recipient, Subject, TextBody, HtmlBody);
             notification.Title = "Re: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
+        }
+
+        string ExtractSender()
+        {
+            Regex whiteSpace = new Regex(@"\s+");
+            char[] delimiterChars = { ' ', ',', ';', '<', '>' };
+            List<string> recipients = new List<String>();
+
+            // begin extraction of recipients from header contents
+            var parsedRecipients = whiteSpace.Replace(Sender, "");
+            return parsedRecipients.Split(delimiterChars)[1];
         }
 
         private void HandleInteractionFinished()
