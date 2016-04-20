@@ -192,7 +192,6 @@ namespace MinimalEmailClient.ViewModels
         string ExtractSender()
         {
             char[] delimiterChars = { '<', '>' };
-            Dictionary<string, int> domain = new Dictionary<string, int>();
             string[] parsedSender = Sender.Split(delimiterChars);
             foreach (string s in parsedSender)
             {                
