@@ -30,7 +30,8 @@ namespace MinimalEmailClient.Services
             ImapClient imapClient = new ImapClient(Account);
             Error = string.Empty;
 
-            if (imapClient.Connect())
+            int tryCount = 2;
+            if (imapClient.Connect(tryCount))
             {
                 imapClient.Disconnect();
             }
@@ -41,7 +42,7 @@ namespace MinimalEmailClient.Services
             }
 
             SmtpClient smtpClient = new SmtpClient(Account);
-            
+
             if (smtpClient.Connect())
             {
                 smtpClient.Disconnect();

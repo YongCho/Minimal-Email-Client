@@ -183,7 +183,7 @@ namespace MinimalEmailClient.Services
             bool readOnly = true;
             if (!imapClient.SelectMailbox(mailboxName, readOnly, out status))
             {
-                Trace.WriteLine(imapClient.Error);
+                Debug.WriteLine("MessageManager.SyncMessage(): Unable to select mailbox " + mailboxName + ".\n" + imapClient.Error);
                 imapClient.Disconnect();
                 return;
             }
@@ -261,29 +261,33 @@ namespace MinimalEmailClient.Services
             openSyncOps.AddOrUpdate(account.AccountName, 1, (k, v) => v + 1);
 
             // Delete all messages that have been deleted from server.
-            List<int> serverUids = imapClientOnSelectedStatus.SearchUids("ALL");
-            List<string> keysToDelete = new List<string>();
-            foreach (KeyValuePair<string, Message> entry in MessagesDico)
+            List<int> serverUids = new List<int>();
+            bool searchSuccess = imapClientOnSelectedStatus.SearchUids("ALL", serverUids);
+            if (searchSuccess)
             {
-                Message msg = entry.Value;
-                if (msg.AccountName == account.AccountName &&
-                    msg.MailboxPath == mailboxName &&
-                    !serverUids.Contains(msg.Uid))
+                List<string> keysToDelete = new List<string>();
+                foreach (KeyValuePair<string, Message> entry in MessagesDico)
                 {
-                    keysToDelete.Add(entry.Key);
+                    Message msg = entry.Value;
+                    if (msg.AccountName == account.AccountName &&
+                        msg.MailboxPath == mailboxName &&
+                        !serverUids.Contains(msg.Uid))
+                    {
+                        keysToDelete.Add(entry.Key);
+                    }
                 }
-            }
 
-            List<Message> msgsDeleted = new List<Message>();
-            foreach (string key in keysToDelete)
-            {
-                Message msg = MessagesDico[key];
-                MessagesDico.Remove(key);
-                OnMessageRemoved(msg);
-                msgsDeleted.Add(msg);
-            }
+                List<Message> msgsDeleted = new List<Message>();
+                foreach (string key in keysToDelete)
+                {
+                    Message msg = MessagesDico[key];
+                    MessagesDico.Remove(key);
+                    OnMessageRemoved(msg);
+                    msgsDeleted.Add(msg);
+                }
 
-            DatabaseManager.DeleteMessages(msgsDeleted);
+                DatabaseManager.DeleteMessages(msgsDeleted);
+            }
 
             // Now synchronize the remaining messages.
             int messagesCount = lastUid - firstUid + 1;

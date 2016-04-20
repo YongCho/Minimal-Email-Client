@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -69,65 +70,138 @@ namespace MinimalEmailClient.Services
             Account = account;
         }
 
-        public bool Connect()
+        public bool Connect(int maxTryCount = 5)
         {
-            TcpClient newTcpClient = new TcpClient();
-            try
+            TcpClient newTcpClient = null;
+            SslStream newSslStream = null;
+            int tryCount = 0;
+            bool loggedIn = false;
+
+            while (tryCount < maxTryCount && !loggedIn)
             {
-                var result = newTcpClient.BeginConnect(account.ImapServerName, account.ImapPortNumber, null, null);
-                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
-                if (!success || !newTcpClient.Connected)
+                ++tryCount;
+                bool retrying = tryCount > 1 ? true : false;
+
+                if (retrying)
                 {
-                    Error = "Unable to connect to " + account.ImapServerName + ":" + account.ImapPortNumber;
+                    Debug.WriteLine("ImapClient.Connect(): Trying to connect to " + Account.ImapServerName + ":" + Account.ImapPortNumber + "..." + tryCount);
+                    if (newTcpClient != null)
+                    {
+                        newTcpClient.Close();
+                    }
+                    if (newSslStream != null)
+                    {
+                        newSslStream.Dispose();
+                    }
+                    Thread.Sleep(1000);
+                }
+
+                bool connected = false;
+                try
+                {
+                    newTcpClient = new TcpClient();
+                    var result = newTcpClient.BeginConnect(Account.ImapServerName, Account.ImapPortNumber, null, null);
+                    var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5));
+                    if (success && newTcpClient.Connected)
+                    {
+                        connected = true;
+                        if (retrying)
+                        {
+                            Debug.WriteLine("ImapClient.Connect(): Connection succeeded.");
+                        }
+                    }
+                    newTcpClient.EndConnect(result);
+                }
+                catch (Exception e)
+                {
+                    Error = e.Message;
+                    Debug.WriteLine("ImapClient.Connect(): Exception occured while trying to connect to " + Account.ImapServerName + ":" + Account.ImapPortNumber + ".\n" + Error);
+                    newTcpClient.Close();
                     return false;
                 }
-            }
-            catch (Exception e)
-            {
-                Error = e.Message;
-                return false;
-            }
 
-            try
-            {
-                SslStream newSslStream = new SslStream(newTcpClient.GetStream(), false);
-                newSslStream.AuthenticateAsClient(account.ImapServerName);
+                if (!connected)
+                {
+                    if (tryCount < maxTryCount)
+                    {
+                        // Retry connecting.
+                        continue;
+                    }
+                    else
+                    {
+                        Error = "Unable to connect to " + Account.ImapServerName + ":" + Account.ImapPortNumber;
+                        Debug.WriteLine("ImapClient.Connect(): " + Error);
+                        newTcpClient.Close();
+                        return false;
+                    }
+                }
+
+                // Now we're connected through TCP. Try to authenticate through SSL.
+                try
+                {
+                    newSslStream = new SslStream(newTcpClient.GetStream(), false);
+                    newSslStream.AuthenticateAsClient(Account.ImapServerName);
+                }
+                catch (Exception e)
+                {
+                    Error = e.Message;
+                    Debug.WriteLine("ImapClient.Connect(): Exception occured while creating SSL stream to " + Account.ImapServerName + ":" + Account.ImapPortNumber + ".\n" + Error);
+                    newTcpClient.Close();
+                    return false;
+                }
+
+                // Now we're on SSL. Try to log in.
+                if (retrying)
+                {
+                    Debug.WriteLine("ImapClient.Connect(): Logging in to " + Account.ImapServerName + "(" + Account.AccountName + ").");
+                }
+
                 newSslStream.ReadTimeout = 5000;  // For synchronous read calls.
-
                 if (TryLogin(newSslStream))
                 {
-                    this.tcpClient = newTcpClient;
-                    this.sslStream = newSslStream;
-                }
-                else
-                {
-                    Error = "Could not log in to server. Check credentials.";
-                    return false;
+                    loggedIn = true;
+                    if (retrying)
+                    {
+                        Debug.WriteLine("ImapClient.Connect(): Login succeeded.");
+                    }
                 }
             }
-            catch (Exception e)
+
+            if (!loggedIn)
             {
-                Error = e.Message;
+                // Reached max retry count. Clean up and return.
+                Error = "Could not log in to " + Account.ImapServerName + "(" + Account.AccountName + "). Check credentials.";
+                Debug.WriteLine("ImapClient.Connect(): " + Error);
+                newTcpClient.Close();
+                newSslStream.Dispose();
                 return false;
             }
 
+
+            this.tcpClient = newTcpClient;
+            this.sslStream = newSslStream;
             return true;
         }
 
         public void Disconnect()
         {
+            SelectedMailboxName = null;
+
+            if (this.tcpClient != null)
+            {
+                this.tcpClient.Close();
+            }
             if (this.sslStream != null)
             {
                 this.sslStream.Dispose();
             }
         }
 
-        private bool TryReconnect(int tryCount)
+        private bool TryReconnect(int tryCount = 1)
         {
             Disconnect();
             while (tryCount > 0)
             {
-                Trace.WriteLine("Attempting to reconnect to " + Account.ImapServerName + ":" + Account.ImapPortNumber);
                 Thread.Sleep(1000);
                 if (Connect())
                 {
@@ -145,11 +219,25 @@ namespace MinimalEmailClient.Services
         private bool TryLogin(SslStream stream)
         {
             string tag = NextTag();
-            string command = tag + " LOGIN " + account.ImapLoginName + " " + account.ImapLoginPassword + "\r\n";
-            stream.Write(Encoding.ASCII.GetBytes(command));
+            string command = tag + " LOGIN " + Account.ImapLoginName + " " + Account.ImapLoginPassword + "\r\n";
+            try
+            {
+                stream.Write(Encoding.ASCII.GetBytes(command));
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("ImapClient.TryLogin(): Exception occured while writing to stream " + Account.ImapServerName + ".\n" + e.Message);
+                return false;
+            }
 
-            string response = string.Empty;
-            return ReadResponse(tag, out response, stream);
+            string response;
+            bool responseOk = ReadResponse(tag, out response, stream);
+            if (!responseOk)
+            {
+                Debug.WriteLine("ImapClient.TryLogin(): Response not OK. Response:\n" + response);
+            }
+
+            return responseOk;
         }
 
         // Sends LIST command and returns the result as a list of Mailbox objects.
@@ -187,7 +275,7 @@ namespace MinimalEmailClient.Services
 
         public bool SelectMailbox(string mailboxPath, bool readOnly)
         {
-            ExamineResult result = new ExamineResult();
+            ExamineResult result;
             return SelectMailbox(mailboxPath, readOnly, out result);
         }
 
@@ -197,16 +285,15 @@ namespace MinimalEmailClient.Services
             status = new ExamineResult();
 
             string tag = NextTag();
-            if (readOnly)
+            string command = readOnly ? "EXAMINE" : "SELECT";
+            string queryString = tag + " " + command + " " + mailboxPath;
+
+            if (!SendString(queryString))
             {
-                SendString(tag + " EXAMINE " + mailboxPath);
-            }
-            else
-            {
-                SendString(tag + " SELECT " + mailboxPath);
+                return false;
             }
 
-            string response = string.Empty;
+            string response;
             if (!ReadResponse(tag, out response))
             {
                 return false;
@@ -219,34 +306,38 @@ namespace MinimalEmailClient.Services
 
         // Returns a sorted list of uids that match the condition.
         // Example condition string: "ALL", "SEEN", "UNSEEN"
-        public List<int> SearchUids(string conditionString)
+        public bool SearchUids(string conditionString, List<int> uidList)
         {
             if (string.IsNullOrEmpty(SelectedMailboxName))
             {
                 Error = "Mailbox must be selected before SEARCH operation.";
-                return null;
+                return false;
             }
 
-            List<int> uidList = new List<int>();
             string tag = NextTag();
-            SendString(string.Format("{0} UID SEARCH {1}", tag, conditionString));
+            if (!SendString(string.Format("{0} UID SEARCH {1}", tag, conditionString)))
+            {
+                return false;
+            }
 
             string response = string.Empty;
-            if (ReadResponse(tag, out response))
+            if (!ReadResponse(tag, out response))
             {
-                Match m = Regex.Match(response, "^\\* SEARCH ([0-9 ]*)\r\n");
-                response = m.Groups[1].Value.Trim();
-                if (!string.IsNullOrEmpty(response))
+                return false;
+            }
+
+            Match m = Regex.Match(response, "^\\* SEARCH ([0-9 ]*)\r\n");
+            response = m.Groups[1].Value.Trim();
+            if (!string.IsNullOrEmpty(response))
+            {
+                string[] uidStrings = response.Split(' ');
+                foreach (string uidString in uidStrings)
                 {
-                    string[] uidStrings = response.Split(' ');
-                    foreach (string uidString in uidStrings)
-                    {
-                        uidList.Add(Convert.ToInt32(uidString));
-                    }
+                    uidList.Add(Convert.ToInt32(uidString));
                 }
             }
 
-            return uidList;
+            return true;
         }
 
         // Fetches body of a message.
@@ -283,36 +374,52 @@ namespace MinimalEmailClient.Services
         {
             if (string.IsNullOrEmpty(SelectedMailboxName))
             {
-                Error = "Mailbox must be selected before FETCH operation.";
+                Error = "Mailbox must be selected before FETCH operation. (Account: " + Account.AccountName + ")";
+                Debug.WriteLine("ImapClient.FetchHeaders(): Mailbox is not selected. (Account: " + Account.AccountName + ")");
+                return null;
+            }
+
+            if (startSeqNum < 1 || count < 1)
+            {
                 return null;
             }
 
             var messages = new List<Message>(count);
 
-            if (startSeqNum < 1 || count < 1)
-            {
-                return messages;
-            }
-
             string tag = NextTag();
-            string command;
-            if (useUid)
+            string command = useUid
+                ? "{0} UID FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)"
+                : "{0} FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
+
+            if (!SendString(string.Format(command, tag, startSeqNum, startSeqNum + count - 1)))
             {
-                command = "{0} UID FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
+                return null;
             }
-            else
-            {
-                command = "{0} FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
-            }
-            SendString(string.Format(command, tag, startSeqNum, startSeqNum + count - 1));
 
             int bytesInBuffer = 0;
             bool doneFetching = false;
 
             while (!doneFetching)
             {
+                int bytesRead;
+
                 // Read the next chunk from the stream.
-                int bytesRead = this.sslStream.Read(this.buffer, bytesInBuffer, this.buffer.Length - bytesInBuffer);
+                try
+                {
+                    bytesRead = this.sslStream.Read(this.buffer, bytesInBuffer, this.buffer.Length - bytesInBuffer);
+                }
+                catch (IOException e)
+                {
+                    Error = e.Message;
+                    Debug.WriteLine("ImapClient.FetchHeaders(): IO Exception occured while reading from " + Account.ImapServerName + "(" + account.AccountName + ").\n" + e.Message);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    Error = e.Message;
+                    Debug.WriteLine("ImapClient.FetchHeaders(): Exception occured while reading from " + Account.ImapServerName + "(" + account.AccountName + ").\n" + e.Message);
+                    return null;
+                }
 
                 string strBuffer = Encoding.ASCII.GetString(this.buffer, 0, bytesInBuffer + bytesRead);
                 Match match;
@@ -439,9 +546,16 @@ namespace MinimalEmailClient.Services
 
         private void Logout()
         {
+            Logout(this.sslStream);
+        }
+
+        private void Logout(SslStream stream)
+        {
             string tag = NextTag();
-            SendString(tag + " LOGOUT");
-            ReadResponse(tag);
+            SendString(tag + " LOGOUT", stream);
+
+            string ignoredResponse;
+            ReadResponse(tag, out ignoredResponse, stream);
         }
 
         private string NextTag()
@@ -449,14 +563,24 @@ namespace MinimalEmailClient.Services
             return "A" + (++this.nextTagSequence);
         }
 
-        private void SendString(string str, SslStream stream)
+        private bool SendString(string str)
         {
-            stream.Write(Encoding.ASCII.GetBytes(str + "\r\n"));
+            return SendString(str, this.sslStream);
         }
 
-        private void SendString(string str)
+        private bool SendString(string str, SslStream stream)
         {
-            SendString(str, this.sslStream);
+            try
+            {
+                stream.Write(Encoding.ASCII.GetBytes(str + "\r\n"));
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("ImapClient.SendString(): Exception occured while sending to " + Account.ImapServerName + ".\n" + e.Message);
+                return false;
+            }
+
+            return true;
         }
 
         private bool ReadResponse(string tag)
@@ -512,14 +636,8 @@ namespace MinimalEmailClient.Services
             return (bool)tagOk;
         }
 
-        public void BeginMonitor(string mailboxName)
-        {
-            int defaultPollIntervalMillisec = 5000;
-            BeginMonitor(mailboxName, defaultPollIntervalMillisec);
-        }
-
         // Poll periodically for newly arrived messages and flag changes.
-        public void BeginMonitor(string mailboxName, int pollIntervalMillisec)
+        public void BeginMonitor(string mailboxName, int pollIntervalMillisec = 5000)
         {
             Task.Run(() => {
                 int prevUidNext = -1;
@@ -527,6 +645,8 @@ namespace MinimalEmailClient.Services
                 ExamineResult examineResult;
                 List<int> prevUids = null;
                 List<int> prevUnseenUids = null;
+                int selectFailCount = 0;
+                const int maxSelectFailCount = 10;
 
                 while (!this.abortLatch)
                 {
@@ -534,20 +654,28 @@ namespace MinimalEmailClient.Services
                     {
                         if (this.tcpClient.Client != null && this.tcpClient.Client.Connected)
                         {
-                            // Not a connection problem. Maybe the mailbox is deleted?
-                            Debug.WriteLine("ImapClient.BeginMonitor returning due to select error.");
-                            return;
+                            // Select failed when we have a connection. Either we are having a large delay or the mailbox is deleted.
+                            if (++selectFailCount == maxSelectFailCount)
+                            {
+                                Debug.WriteLine("ImapClient.BeginMonitor(): Unable to select mailbox " + mailboxName + " at " + Account.AccountName + ". Returning...");
+                                return;
+                            }
                         }
-                        else
+
+                        // Receive buffer could contain some garbage. Re-establish the connection before another Select.
+                        do
                         {
-                            // We do have a connection problem. Try reconnecting at an interval.
-                            while (!TryReconnect(1) && !this.abortLatch)
-                                Thread.Sleep(5000);
+                            Debug.WriteLine(string.Format("ImapClient.BeginMonitor(): Reconnecting to {0}({1}).", Account.ImapServerName, Account.AccountName));
+                            Thread.Sleep(1000);
                         }
+                        while (!TryReconnect() && !this.abortLatch);
+                        Debug.WriteLine(string.Format("ImapClient.BeginMonitor(): Connection re-established to {0}({1}).", Account.ImapServerName, Account.AccountName));
                     }
+                    selectFailCount = 0;
 
                     if (this.abortLatch)
                     {
+                        CloseMailbox();
                         return;
                     }
 
@@ -562,6 +690,14 @@ namespace MinimalEmailClient.Services
                         int newMessagesCount = examineResult.UidNext - prevUidNext;
                         bool useUidFetch = true;
                         List<Message> newMessages = FetchHeaders(prevUidNext, newMessagesCount, useUidFetch);
+                        if (newMessages == null)
+                        {
+                            // Depending on how Fetch failed, the receive buffer could contain some garbage.
+                            // It's better to start with a fresh stream.
+                            Disconnect();
+                            continue;
+                        }
+
                         foreach (Message newMessage in newMessages)
                         {
                             OnNewMessageArrived(newMessage);
@@ -576,15 +712,23 @@ namespace MinimalEmailClient.Services
                         // If this happens, UIDs of all local messages become invalid and we will need an
                         // application-wide mechanism to handle it.
                         Error = "UID reordered";
+                        CloseMailbox();
                         return;
                     }
 
                     // Check for deletion of messages.
-                    List<int> currentUids = SearchUids("ALL");
+                    List<int> currentUids = new List<int>();
+                    bool searchSuccess = SearchUids("ALL", currentUids);  // This populates currentUids.
+                    if (!searchSuccess)
+                    {
+                        // Reconnect to make sure we don't continue with garbage in the receive buffer.
+                        Disconnect();
+                        continue;
+                    }
+
                     if (prevUids != null)
                     {
                         var prevNotCurrent = prevUids.Except(currentUids).ToList();
-
                         if (prevNotCurrent.Count > 0)
                         {
                             // Message(s) deleted on server.
@@ -598,7 +742,14 @@ namespace MinimalEmailClient.Services
                     prevUids = currentUids;
 
                     // Check for changes in 'unseen' flag (messages read/unread).
-                    List<int> currentUnseenUids = SearchUids("UNSEEN");
+                    List<int> currentUnseenUids = new List<int>();
+                    searchSuccess = SearchUids("UNSEEN", currentUnseenUids);  // Populates currentUnseenUids.
+                    if (!searchSuccess)
+                    {
+                        Disconnect();
+                        continue;
+                    }
+
                     if (prevUnseenUids != null)
                     {
                         // Compare both ways because a message can go from 'read' to 'unread' or vice versa.
