@@ -78,7 +78,6 @@ namespace MinimalEmailClient.ViewModels
             get { return this.loading; }
             private set { SetProperty(ref this.loading, value); }
         }
-        private string[] genericDomains = {".com", ".org", ".net", ".int", ".edu", ".gov", ".mil",  };
         #endregion
 
         private Message message;
@@ -183,29 +182,13 @@ namespace MinimalEmailClient.ViewModels
                 MessageBoxResult error = MessageBox.Show("No user account selected for sender");
                 return;
             }
-            var recipient = ExtractSender();
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, recipient, Subject, TextBody, HtmlBody);
+
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender, Subject, TextBody, HtmlBody);
             notification.Title = "Re: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
         }
 
-        string ExtractSender()
-        {
-            char[] delimiterChars = { '<', '>' };
-            string[] parsedSender = Sender.Split(delimiterChars);
-            foreach (string s in parsedSender)
-            {                
-                foreach (string gd in genericDomains)
-                {
-                    if (s.EndsWith(gd))
-                    {
-                        return s;
-                    }
-                }
-            }
-            Trace.WriteLine("sender email address cannot be found..");
-            return null;
-        }
+
 
         private void HandleInteractionFinished()
         {

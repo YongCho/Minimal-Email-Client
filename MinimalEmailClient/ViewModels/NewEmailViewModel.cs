@@ -92,7 +92,7 @@ namespace MinimalEmailClient.ViewModels
                     }
                     if (!String.IsNullOrEmpty(this.notification.Recipient))
                     {
-                        ToAccounts = this.notification.Recipient;
+                        ToAccounts = ExtractSender(this.notification.Recipient); ;
                     }
                     if (!String.IsNullOrEmpty(this.notification.Subject))
                     {
@@ -384,6 +384,25 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
+        private string[] genericDomains = { ".com", ".org", ".net", ".int", ".edu", ".gov", ".mil", };
         public Action FinishInteraction { get; set; }
+
+        string ExtractSender(string rawSender)
+        {
+            char[] delimiterChars = { '<', '>' };
+            string[] parsedSender = rawSender.Split(delimiterChars);
+            foreach (string s in parsedSender)
+            {
+                foreach (string gd in genericDomains)
+                {
+                    if (s.EndsWith(gd))
+                    {
+                        return s;
+                    }
+                }
+            }
+            Trace.WriteLine("sender email address cannot be found..");
+            return null;
+        }
     }
 }
