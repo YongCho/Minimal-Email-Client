@@ -18,7 +18,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 # Progress (Week 4/19)
 - Implemented replying functionality. When viewing a received email, the user can now click 'Reply' button to compose and send a reply email.
 - We are currently conducting reliability test and bug fixes on all the features we have implemented so far.
-    - Refactored IMAP core methods to handle unstable network condition ([23d32e4](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/23d32e485112d57b303066a722569963610b33f6)).
+    - Refactored core ImapClient methods to handle unstable network condition ([23d32e4](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/23d32e485112d57b303066a722569963610b33f6)).
     - Working on program crashing when 'Reply' button is clicked ([#45](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/45)).
     - Fixed reply email being sent from a wrong email address ([f379302](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/f379302aee74731c23683ceb80255d8c1ca0513f)).
     - Fixed incorrect outgoing mime format that caused our email to be not property read in some other email clients ([601fc8f](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/601fc8f47ef27650eb6cb5e68eceb497ab0d133b), [80c3b8a](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/80c3b8a5d5ea35c01b96fd3de220f0c61355e56b), [937aa91](//github.com/uml-dc2-2016-spring/dc16-MEClient/commit/937aa91b4ced79d39f802a4edf8468c871c78b2b)).
