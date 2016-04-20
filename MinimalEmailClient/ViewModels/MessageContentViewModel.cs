@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -77,6 +78,7 @@ namespace MinimalEmailClient.ViewModels
             get { return this.loading; }
             private set { SetProperty(ref this.loading, value); }
         }
+        private string[] genericDomains = {".com", ".org", ".net", ".int", ".edu", ".gov", ".mil",  };
         #endregion
 
         private Message message;
@@ -189,13 +191,21 @@ namespace MinimalEmailClient.ViewModels
 
         string ExtractSender()
         {
-            Regex whiteSpace = new Regex(@"\s+");
-            char[] delimiterChars = { ' ', ',', ';', '<', '>' };
-            List<string> recipients = new List<String>();
-
-            // begin extraction of recipients from header contents
-            var parsedRecipients = whiteSpace.Replace(Sender, "");
-            return parsedRecipients.Split(delimiterChars)[1];
+            char[] delimiterChars = { '<', '>' };
+            Dictionary<string, int> domain = new Dictionary<string, int>();
+            string[] parsedSender = Sender.Split(delimiterChars);
+            foreach (string s in parsedSender)
+            {                
+                foreach (string gd in genericDomains)
+                {
+                    if (s.EndsWith(gd))
+                    {
+                        return s;
+                    }
+                }
+            }
+            Trace.WriteLine("sender email address cannot be found..");
+            return null;
         }
 
         private void HandleInteractionFinished()
