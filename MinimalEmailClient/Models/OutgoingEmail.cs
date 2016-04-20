@@ -13,9 +13,8 @@ namespace MinimalEmailClient.Models
 
         public List<string> To
         {
-            get { return to; }
+            get { return this.to; }
             set { SetProperty(ref this.to, value); }
-
         }
 
         public string ToAccounts()

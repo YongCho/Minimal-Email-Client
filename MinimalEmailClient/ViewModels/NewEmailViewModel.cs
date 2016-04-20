@@ -251,9 +251,41 @@ namespace MinimalEmailClient.ViewModels
                 return;
             }
 
+            SaveFavorites(email);
             FinishInteraction();
             Attachments.Clear();
             NewConnection.Disconnect();
+        }
+
+        private void SaveFavorites(OutgoingEmail email)
+        {
+            List<string> allOutgoingAddresses = new List<string>();
+            foreach (string to in email.To)
+            {
+                allOutgoingAddresses.Add(to);
+            }
+            if (email.Cc != null)
+            {
+                foreach (string cc in email.Cc)
+                {
+                    allOutgoingAddresses.Add(cc);
+                }
+            }
+            if (email.Bcc != null)
+            {
+                foreach (string bcc in email.Bcc)
+                {
+                    allOutgoingAddresses.Add(bcc);
+                }
+            }
+            foreach (string receiver in allOutgoingAddresses)
+            {
+                if (!FromAccount.Favorites.Contains(receiver))
+                {
+                    FromAccount.Favorites.Add(receiver);
+                    Trace.WriteLine("Adding " + receiver + " to address book.");
+                }
+            }
         }
 
         private void RaiseCanSendChanged()

@@ -1,4 +1,5 @@
 ﻿using Prism.Mvvm;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace MinimalEmailClient.Models
@@ -67,7 +68,12 @@ namespace MinimalEmailClient.Models
             get { return this.smtpPortNumber; }
             set { SetProperty(ref this.smtpPortNumber, value); }
         }
-
+        private List<string> favorites = new List<string>();
+        public List<string> Favorites
+        {
+            get { return this.favorites; }
+            set { SetProperty(ref this.favorites, value); }
+        }
         public ObservableCollection<Mailbox> Mailboxes { get; set; }
 
         public Account()
