@@ -129,7 +129,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="{Binding ElementName=col4, Path=ActualWidth}"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="2" Name="helperField"/>
+            <Grid Grid.Column="3" Name="helperField"/>
         </Grid>
 
     </Grid>
