@@ -23,14 +23,16 @@ namespace MinimalEmailClient.ViewModels
     public class NewEmailViewModel : BindableBase, IInteractionRequestAware
     {
         #region Constructor
-
+        public InteractionRequest<OpenContactsNotification> OpenContactsPopupRequest { get; set; }
         // Initialize a new instance of the MultiPartViewModel
         public NewEmailViewModel()
-        {
+        {            
             SendCommand = new DelegateCommand(SendEmail, CanSend);
             AttachFileCommand = new DelegateCommand(AttachFile);
             Attachments = new ObservableCollection<AttachmentViewModel>();
-        }
+            OpenContactsPopupRequest = new InteractionRequest<OpenContactsNotification>();
+            OpenContactsCommand = new DelegateCommand(OpenContacts);
+    }
 
         #endregion
         #region Accounts
@@ -115,6 +117,9 @@ namespace MinimalEmailClient.ViewModels
 
         #endregion
         #region Headers
+
+        public ICommand OpenContactsCommand { get; }
+
         #region ToAccounts
 
         private string toAccounts = string.Empty;
@@ -127,7 +132,7 @@ namespace MinimalEmailClient.ViewModels
                 RaiseCanSendChanged();
             }
         }
-
+        
         #endregion
         #region CcAccounts
 
@@ -256,6 +261,13 @@ namespace MinimalEmailClient.ViewModels
             FinishInteraction();
             Attachments.Clear();
             NewConnection.Disconnect();
+        }
+
+        private void OpenContacts()
+        {
+            OpenContactsNotification notification = new OpenContactsNotification(FromAccount.Favorites);
+            notification.Title = "Address Book";
+            OpenContactsPopupRequest.Raise(notification);
         }
 
         private void SaveFavorites(OutgoingEmail email)

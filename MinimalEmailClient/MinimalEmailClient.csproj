@@ -147,6 +147,7 @@
     <Compile Include="Events\GlobalEventAggregator.cs" />
     <Compile Include="Events\EventCollection.cs" />
     <Compile Include="Models\Account.cs" />
+    <Compile Include="Notifications\OpenContactsNotification.cs" />
     <Compile Include="ViewModels\AttachmentViewModel.cs" />
     <Compile Include="Models\OutgoingEmail.cs" />
     <Compile Include="Services\AccountManager.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Notifications\WriteNewMessageNotification.cs" />
     <Compile Include="ViewModels\AccountViewModel.cs" />
     <Compile Include="ViewModels\AddAccountViewModel.cs" />
+    <Compile Include="ViewModels\OpenContactsViewModel.cs" />
     <Compile Include="ViewModels\MailboxViewModel.cs" />
     <Compile Include="ViewModels\MessageListViewModel.cs" />
     <Compile Include="ViewModels\MessageContentViewModel.cs" />
@@ -188,6 +190,9 @@
     </Compile>
     <Compile Include="Views\Utilities\TreeViewItemExtensions.cs" />
     <Compile Include="Views\Utilities\WebBrowserHelper.cs" />
+    <Compile Include="Views\OpenContactsView.xaml.cs">
+      <DependentUpon>OpenContactsView.xaml</DependentUpon>
+    </Compile>
     <Page Include="Resources\MECResourceDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -228,6 +233,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MessageContentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OpenContactsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

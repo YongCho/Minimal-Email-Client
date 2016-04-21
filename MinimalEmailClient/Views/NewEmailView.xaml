@@ -2,11 +2,24 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MinimalEmailClient.Views"
         mc:Ignorable="d"
         Height="600" Width="800" Unloaded="UserControl_Unloaded">
 
+    <i:Interaction.Triggers>
+        <!-- Popup for writing a new message -->
+        <prism:InteractionRequestTrigger SourceObject="{Binding OpenContactsPopupRequest, Mode=OneWay}">
+            <prism:PopupWindowAction>
+                <prism:PopupWindowAction.WindowContent>
+                    <local:OpenContactsView />
+                </prism:PopupWindowAction.WindowContent>
+            </prism:PopupWindowAction>
+        </prism:InteractionRequestTrigger>
+    </i:Interaction.Triggers>
+    
     <Grid>
         <DockPanel LastChildFill="True">
             <!-- Menu Bar -->
@@ -58,9 +71,9 @@
                 </Grid.RowDefinitions>
 
                 <Button Grid.Column="0" Grid.Row="0" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="From" HorizontalContentAlignment="Left" />
-                <Button Grid.Column="0" Grid.Row="1" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="To..." HorizontalContentAlignment="Left" />
-                <Button Grid.Column="0" Grid.Row="2" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Cc..." HorizontalContentAlignment="Left" />
-                <Button Grid.Column="0" Grid.Row="3" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Bcc..." HorizontalContentAlignment="Left" />
+                <Button Command="{Binding OpenContactsCommand}" Grid.Column="0" Grid.Row="1" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="To..." HorizontalContentAlignment="Left" />
+                <Button Command="{Binding OpenContactsCommand}" Grid.Column="0" Grid.Row="2" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Cc..." HorizontalContentAlignment="Left" />
+                <Button Command="{Binding OpenContactsCommand}" Grid.Column="0" Grid.Row="3" Background="White" Height="22" Margin="8,0,0,0" BorderThickness="0" BorderBrush="White" Content="Bcc..." HorizontalContentAlignment="Left" />
                 <TextBlock x:Name="Subject" Grid.Column="0" Grid.Row="4" Background="White" Margin="8,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap" Text="Subject" />
                 <TextBox x:Name="From" Grid.Column="1" Grid.Row="0" Height="23" Margin="6,2" Text="{Binding FromAccount.EmailAddress}" TextWrapping="Wrap" />
                 <TextBox x:Name="To_TextBox" Grid.Column="1" Grid.Row="1" Height="23" Margin="6,2" Text="{Binding ToAccounts, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" />
