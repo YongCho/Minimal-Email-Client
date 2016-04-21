@@ -385,7 +385,6 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
-        private string[] genericDomains = { ".com", ".org", ".net", ".int", ".edu", ".gov", ".mil", };
         public Action FinishInteraction { get; set; }
         bool invalid = false;
 
