@@ -388,8 +388,8 @@ namespace MinimalEmailClient.Services
 
             string tag = NextTag();
             string command = useUid
-                ? "{0} UID FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)"
-                : "{0} FETCH {1}:{2} (FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] UID)";
+                ? "{0} UID FETCH {1}:{2} (UID FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] BODYSTRUCTURE)"
+                : "{0} FETCH {1}:{2} (UID FLAGS BODY[HEADER.FIELDS (SUBJECT DATE FROM TO)] BODYSTRUCTURE)";
 
             if (!SendString(string.Format(command, tag, startSeqNum, startSeqNum + count - 1)))
             {

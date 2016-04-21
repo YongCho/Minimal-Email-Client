@@ -11,6 +11,21 @@ namespace MinimalEmailClient.Services
         // Constructs a Message object from an untagged response string returned by a FETCH command.
         public static Message ParseFetchHeader(string untaggedItem)
         {
+            string header;
+            string bodyStructure;
+            Match match;
+
+            match = Regex.Match(untaggedItem, @"^(.*\r\n)\r\n BODYSTRUCTURE (.*)\r\n$", RegexOptions.Singleline);
+            if (match.Success)
+            {
+                header = match.Groups[1].Value;
+                bodyStructure = match.Groups[2].Value;
+            }
+            else
+            {
+                throw new Exception("ImapParser.ParseFetchHeader(): Unable to parse header and body structure.");
+            }
+
             // Server divides long subjects and senders, etc. into multiple lines.
             // We have to merge these multi-line blocks into a single block first.
             // Here is an example.
@@ -28,13 +43,13 @@ namespace MinimalEmailClient.Services
             // Most multi-line Quoted-Printables include encoding information in each line. We only need the encoding information
             // in the first line. The ones in the subsequent lines must be removed as we merge the lines.
             // Matches "?=\r\n =?<charset>?Q?" where <charset> is whatever charset it is ("utf-8", "euc-kr", etc.).
-            untaggedItem = Regex.Replace(untaggedItem, "\\?=\r\n =\\?[-\\w]+\\?[QqBb]{1}\\?", "");
+            header = Regex.Replace(header, "\\?=\r\n =\\?[-\\w]+\\?[QqBb]{1}\\?", "");
 
             // "?= \r\n " appears in a multi-line Quoted-Printable without charset information.
             // Finally, "\r\n " and "\r\n\t" appears in multi-line non-Quoted-Printables.
             // I'm not sure if they need to be replaced with a single space or removed altogether.
             // Continue experimenting on this.
-            untaggedItem = untaggedItem.Replace("?=\r\n ", "").Replace("\r\n ", " ").Replace("\r\n\t", " ");
+            header = header.Replace("?=\r\n ", "").Replace("\r\n ", " ").Replace("\r\n\t", " ");
 
 
             // Now we merged all multi-line blocks into their own line.
@@ -42,77 +57,66 @@ namespace MinimalEmailClient.Services
 
             Message message = new Message();
 
-            Match m;
-
             string itemHeaderPattern = "^(.*)\r\n";
-            m = Regex.Match(untaggedItem, itemHeaderPattern);
+            match = Regex.Match(header, itemHeaderPattern);
             int uid = -1;
-            if (m.Success)
+            if (match.Success)
             {
-                string itemHeader = m.Groups[1].ToString();
+                string itemHeader = match.Groups[1].ToString();
 
                 string flagsPattern = "FLAGS \\((?<flags>[^\\(\\)]*)\\)";
-                m = Regex.Match(itemHeader, flagsPattern);
-                if (m.Success)
+                match = Regex.Match(itemHeader, flagsPattern);
+                if (match.Success)
                 {
-                    string flagString = m.Groups["flags"].ToString();
+                    string flagString = match.Groups["flags"].ToString();
                     message.FlagString = flagString;
                 }
 
                 string uidPattern = "UID (\\d+)";
-                m = Regex.Match(itemHeader, uidPattern);
-                if (m.Success)
+                match = Regex.Match(itemHeader, uidPattern);
+                if (match.Success)
                 {
-                    uid = Convert.ToInt32(m.Groups[1].ToString());
-                    message.Uid = uid;
-                }
-            }
-
-            // UID is not in the first line. The response must be an alternate pattern
-            // where the UID is in the last line.
-            if (uid == -1)
-            {
-                string uidPattern = "\r\n UID (\\d+)\\)\r\n";
-                m = Regex.Match(untaggedItem, uidPattern);
-                if (m.Success)
-                {
-                    uid = Convert.ToInt32(m.Groups[1].ToString());
+                    uid = Convert.ToInt32(match.Groups[1].ToString());
                     message.Uid = uid;
                 }
             }
 
             string subjectPattern = "^Subject: (.*)\r\n";
-            m = Regex.Match(untaggedItem, subjectPattern, RegexOptions.Multiline);
-            if (m.Success)
+            match = Regex.Match(header, subjectPattern, RegexOptions.Multiline);
+            if (match.Success)
             {
-                string subject = m.Groups[1].ToString();
+                string subject = match.Groups[1].ToString();
                 subject = Decoder.DecodeSingleLine(subject);
                 message.Subject = subject;
 
             }
 
             string datePattern = "^Date: ([^\r\n]*)";
-            m = Regex.Match(untaggedItem, datePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            if (m.Success)
+            match = Regex.Match(header, datePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (match.Success)
             {
-                string dateString = m.Groups[1].ToString();
+                string dateString = match.Groups[1].ToString();
                 message.DateString = dateString;
             }
 
             string senderPattern = "^From: (.*)\r\n";
-            m = Regex.Match(untaggedItem, senderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            if (m.Success)
+            match = Regex.Match(header, senderPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (match.Success)
             {
-                message.Sender = Decoder.DecodeSingleLine(m.Groups[1].ToString());
+                message.Sender = Decoder.DecodeSingleLine(match.Groups[1].ToString());
             }
 
             string recipientPattern = "^To: (.*)\r\n";
-            m = Regex.Match(untaggedItem, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            if (m.Success)
+            match = Regex.Match(header, recipientPattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            if (match.Success)
             {
-                string recipient = Decoder.DecodeSingleLine(m.Groups[1].ToString().Trim());
+                string recipient = Decoder.DecodeSingleLine(match.Groups[1].ToString().Trim());
                 message.Recipient = recipient;
             }
+
+            string attachmentStartPattern = " \\(\"attachment\" ";
+            match = Regex.Match(bodyStructure, attachmentStartPattern, RegexOptions.IgnoreCase);
+            message.HasAttachment = match.Success ? true : false;
 
             return message;
         }

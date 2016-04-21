@@ -16,7 +16,7 @@ namespace MinimalEmailClient.Services
 
         private static readonly string connString = string.Format("Case Sensitive=True;Data Source={0}", DatabasePath);
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
-        private static readonly int schemaVersion = 13;
+        private static readonly int schemaVersion = 15;
 
         public static bool Initialize()
         {
@@ -106,7 +106,7 @@ namespace MinimalEmailClient.Services
                         cmd.ExecuteNonQuery();
 
                         // NVARCHAR would not work for the Recipient column because some email messages have many recipients. I've seen messages with 'Recipient' header containing up to 26000+ characters.
-                        cmd.CommandText = @"CREATE TABLE Messages (AccountName NVARCHAR(50), MailboxPath NVARCHAR(100), Uid INT, Subject NVARCHAR(500), DateString NVARCHAR(500), Sender NVARCHAR(500), Recipient NTEXT, FlagString NVARCHAR(500), Body NTEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
+                        cmd.CommandText = @"CREATE TABLE Messages (AccountName NVARCHAR(50), MailboxPath NVARCHAR(100), Uid INT, Subject NVARCHAR(500), DateString NVARCHAR(500), Sender NVARCHAR(500), Recipient NTEXT, FlagString NVARCHAR(500), HasAttachment BIT, Body NTEXT, PRIMARY KEY (AccountName, MailboxPath, Uid), FOREIGN KEY (AccountName, MailboxPath) REFERENCES Mailboxes(AccountName, Path) ON DELETE CASCADE ON UPDATE CASCADE);";
                         cmd.ExecuteNonQuery();
 
                         cmd.CommandText = @"CREATE TABLE DbInfo (EntryName NVARCHAR(50) PRIMARY KEY, EntryValue NVARCHAR(500));";
@@ -595,6 +595,7 @@ namespace MinimalEmailClient.Services
                                     message.Sender = (string)reader["Sender"];
                                     message.Recipient = (string)reader["Recipient"];
                                     message.FlagString = (string)reader["FlagString"];
+                                    message.HasAttachment = (bool)reader["HasAttachment"];
                                     message.Body = (string)reader["Body"];
 
                                     messages.Add(message);
@@ -655,7 +656,7 @@ namespace MinimalEmailClient.Services
                 {
                     try
                     {
-                        cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @Sender, @Recipient, @FlagString, @Body);";
+                        cmd.CommandText = "INSERT INTO Messages VALUES(@AccountName, @MailboxPath, @Uid, @Subject, @DateString, @Sender, @Recipient, @FlagString, @HasAttachment, @Body);";
 
                         foreach (Message msg in messages)
                         {
@@ -668,6 +669,7 @@ namespace MinimalEmailClient.Services
                             cmd.Parameters.AddWithValue("@Sender", msg.Sender);
                             cmd.Parameters.AddWithValue("@Recipient", msg.Recipient);
                             cmd.Parameters.AddWithValue("@FlagString", msg.FlagString);
+                            cmd.Parameters.AddWithValue("@HasAttachment", msg.HasAttachment);
                             cmd.Parameters.AddWithValue("@Body", msg.Body);
                             cmd.Prepare();
 

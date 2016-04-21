@@ -45,6 +45,11 @@ namespace MinimalEmailClient.ViewModels
             get { return Message.IsSeen; }
         }
 
+        public bool HasAttachment
+        {
+            get { return Message.HasAttachment; }
+        }
+
         private DateTime date;
         public DateTime Date
         {
@@ -74,6 +79,7 @@ namespace MinimalEmailClient.ViewModels
                 case "SenderAddress":
                 case "SenderName":
                 case "IsSeen":
+                case "HasAttachment":
                     OnPropertyChanged(e.PropertyName);
                     break;
                 case "DateString":

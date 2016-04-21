@@ -131,6 +131,13 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.body, value); }
         }
 
+        private bool hasAttachment = false;
+        public bool HasAttachment
+        {
+            get { return this.hasAttachment; }
+            set { SetProperty(ref this.hasAttachment, value); }
+        }
+
         public string UniqueKeyString { get; private set; }
 
         private void SetSenderNameAndAddress(string sender)
