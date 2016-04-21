@@ -10,7 +10,8 @@
              xmlns:viewModels="clr-namespace:MinimalEmailClient.ViewModels"
              xmlns:prism="http://prismlibrary.com/"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="600">
+             d:DesignHeight="300" d:DesignWidth="600"
+             UseLayoutRounding="True">
 
     <i:Interaction.Triggers>
         <!-- Popup for opening the selected message -->
