@@ -239,6 +239,7 @@
 
     <!-- Apply one of the templates to a menu item based on its position. -->
     <Style TargetType="{x:Type MenuItem}">
+        <Setter Property="Foreground" Value="Black" />
         <Style.Triggers>
             <Trigger Property="Role" Value="TopLevelItem">
                 <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
