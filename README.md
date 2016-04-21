@@ -31,7 +31,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 - The problem was that different IMAP servers support different extensions and no single extension is supported by all the popular commercial IMAP servers. We decided not to implement any of the above extensions and instead implemented traditional 'periodic polling' method to achieve the similar result. This method has the disadvantage of wasting some network resources but works on all servers.
 - Finished implementing file attachment to outgoing email.
 - Allow sender to send to multiple recipients.
-- TODO: Implement reply and forwarding email capabilities
+- Implement reply capability.
 
 # Progress (Week 04/05)
 - Implemented handling of attached files in a received message. The program now scans the message's MIME body and extracts/displays all attached files (both binary and text attachments) when the user opens an email message. 
