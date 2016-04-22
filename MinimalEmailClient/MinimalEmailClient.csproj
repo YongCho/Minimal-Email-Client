@@ -305,6 +305,9 @@
   <ItemGroup>
     <Resource Include="Resources\Images\document.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\attachment2.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

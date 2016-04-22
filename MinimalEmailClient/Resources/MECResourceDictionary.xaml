@@ -239,6 +239,7 @@
 
     <!-- Apply one of the templates to a menu item based on its position. -->
     <Style TargetType="{x:Type MenuItem}">
+        <Setter Property="Foreground" Value="Black" />
         <Style.Triggers>
             <Trigger Property="Role" Value="TopLevelItem">
                 <Setter Property="Template" Value="{DynamicResource {ComponentResourceKey ResourceId=TopLevelItemTemplateKey, TypeInTargetAssembly={x:Type MenuItem}}}"/>
@@ -274,9 +275,9 @@
     <!-- Context Menu Style -->
     <Style TargetType="{x:Type ContextMenu}">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Background" Value="{DynamicResource MenuPopupBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource MenuItemBackgroundBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource MenuPopupBorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource MenuItemBorderBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="2"/>
         <Setter Property="Grid.IsSharedSizeScope" Value="True"/>
