@@ -22,7 +22,7 @@ namespace MinimalEmailClient.ViewModels
 {
     public class NewEmailViewModel : BindableBase, IInteractionRequestAware
     {
-        #region 
+        #region Constructor
 
         private bool isHtml = false;
         public InteractionRequest<OpenContactsNotification> OpenContactsPopupRequest { get; set; }
@@ -265,7 +265,7 @@ namespace MinimalEmailClient.ViewModels
 
         private void OpenContacts()
         {
-            OpenContactsNotification notification = new OpenContactsNotification(FromAccount.Favorites);
+            OpenContactsNotification notification = new OpenContactsNotification(FromAccount.AccountName);
             notification.Title = "Address Book";
             OpenContactsPopupRequest.Raise(notification);
         }
@@ -293,11 +293,7 @@ namespace MinimalEmailClient.ViewModels
             }
             foreach (string receiver in allOutgoingAddresses)
             {
-                if (!FromAccount.Favorites.Contains(receiver))
-                {
-                    FromAccount.Favorites.Add(receiver);
-                    Trace.WriteLine("Adding " + receiver + " to address book.");
-                }
+                DatabaseManager.InsertContact(FromAccount.AccountName, receiver);
             }
         }
 

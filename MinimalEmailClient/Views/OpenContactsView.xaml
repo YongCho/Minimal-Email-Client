@@ -10,6 +10,6 @@
         Height="500" Width="280">
 
     <Grid>
-        <ListBox ItemsSource="{Binding Contacts}" SelectedItem="{Binding SelectedContact}"></ListBox>
+        <ListBox ItemsSource="{Binding Contacts, Mode=OneWay}" SelectedItem="{Binding SelectedContact}" IsSynchronizedWithCurrentItem="True"></ListBox>
     </Grid>
 </UserControl>

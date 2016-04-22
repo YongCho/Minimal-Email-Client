@@ -6,11 +6,11 @@ namespace MinimalEmailClient.Notifications
 {
     public class OpenContactsNotification : Notification
     {
-        public List<string> Contacts = new List<string> ();
+        public string User = string.Empty;
 
-        public OpenContactsNotification(List<string> contacts)
+        public OpenContactsNotification(string user)
         {
-            Contacts = contacts;
+            User = user;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace MinimalEmailClient.Services
 
         private static readonly string connString = string.Format("Case Sensitive=True;Data Source={0}", DatabasePath);
         // Manually increment this when you want to recreate the database (maybe you changed the schema?).
-        private static readonly int schemaVersion = 15;
+        private static readonly int schemaVersion = 16;
 
         public static bool Initialize()
         {
@@ -110,6 +110,9 @@ namespace MinimalEmailClient.Services
                         cmd.ExecuteNonQuery();
 
                         cmd.CommandText = @"CREATE TABLE DbInfo (EntryName NVARCHAR(50) PRIMARY KEY, EntryValue NVARCHAR(500));";
+                        cmd.ExecuteNonQuery();
+
+                        cmd.CommandText = @"CREATE TABLE Contacts (AccountName NVARCHAR(50), EmailAddress NVARCHAR(50));";
                         cmd.ExecuteNonQuery();
 
                         cmd.CommandText = @"INSERT INTO DbInfo VALUES('SchemaVersion', @SchemaVersion);";
@@ -303,6 +306,147 @@ namespace MinimalEmailClient.Services
 
                 return numRowsDeleted == 1;
             }
+        }
+
+        public static List<string> GetContacts(string user)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
+            List<string> contacts = new List<string>();
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+            else
+            {
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
+                {
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
+                    {
+                        try
+                        {
+                            cmd.CommandText = @"SELECT * FROM Contacts WHERE AccountName = @AccountName;";
+                            cmd.Parameters.AddWithValue("@AccountName", user);
+                            using (SqlCeDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    contacts.Add((string)reader["EmailAddress"]);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
+                        }
+                    }
+                }
+            }
+
+            return contacts;
+        }
+
+        public static bool ContactExists(string newContact)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
+            List<string> contacts = new List<string>();
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+            else
+            {
+                using (SqlCeConnection conn = new SqlCeConnection(connString))
+                {
+                    conn.Open();
+                    using (SqlCeCommand cmd = conn.CreateCommand())
+                    {
+                        try
+                        {
+                            cmd.CommandText = @"SELECT * FROM Contacts;";
+                            using (SqlCeDataReader reader = cmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    if ( newContact == (string)reader["EmailAddress"])
+                                        return true;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex.Message);
+                        }
+                        finally
+                        {
+                            conn.Close();
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static bool InsertContact(string user, string newContact)
+        {
+            if (ContactExists(newContact))
+            {
+                return false;
+            }
+            string ignoredErrorMsg;
+            return InsertContact(user, newContact, out ignoredErrorMsg);
+        }
+
+        // Stores an Account object into the Accounts table.
+        public static bool InsertContact(string user, string newContact, out string errorMsg)
+        {
+            Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
+
+            errorMsg = string.Empty;
+
+            if (!DatabaseExists())
+            {
+                CreateDatabase();
+            }
+
+            int numRowsInserted = 0;
+
+            using (SqlCeConnection conn = new SqlCeConnection(connString))
+            {
+                conn.Open();
+                using (SqlCeCommand cmd = conn.CreateCommand())
+                {
+                    try
+                    {
+                        cmd.CommandText = @"INSERT INTO Contacts VALUES(@AccountName, @EmailAddress);";
+                        cmd.Parameters.AddWithValue("@AccountName", user);
+                        cmd.Parameters.AddWithValue("@EmailAddress", newContact);
+                        cmd.Prepare();
+
+                        numRowsInserted = cmd.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(ex.Message);
+                        errorMsg = ex.Message;
+                    }
+                    finally
+                    {
+                        conn.Close();
+                    }
+                }
+            }
+
+            return numRowsInserted == 1 ? true : false;
         }
 
         // Loads all mailboxes from the Mailboxes table and returns them as a list of Mailbox objects.
