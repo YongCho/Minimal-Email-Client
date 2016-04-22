@@ -22,7 +22,7 @@ namespace MinimalEmailClient.ViewModels
 {
     public class NewEmailViewModel : BindableBase, IInteractionRequestAware
     {
-        #region 
+        #region Constructor
 
         private bool isHtml = false;
         public InteractionRequest<OpenContactsNotification> OpenContactsPopupRequest { get; set; }
