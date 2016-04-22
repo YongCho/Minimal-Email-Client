@@ -22,7 +22,9 @@ namespace MinimalEmailClient.ViewModels
 {
     public class NewEmailViewModel : BindableBase, IInteractionRequestAware
     {
-        #region Constructor
+        #region 
+
+        private bool isHtml = false;
         public InteractionRequest<OpenContactsNotification> OpenContactsPopupRequest { get; set; }
         // Initialize a new instance of the MultiPartViewModel
         public NewEmailViewModel()
@@ -212,8 +214,6 @@ namespace MinimalEmailClient.ViewModels
                 RaiseCanSendChanged();
             }
         }
-
-        private bool isHtml = false;
 
         #endregion
             #endregion

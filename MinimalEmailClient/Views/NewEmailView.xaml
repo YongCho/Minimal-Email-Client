@@ -37,7 +37,7 @@
                          " Background="White" BorderBrush="Black" Height="Auto" Width="Auto">
 
                     <!-- 'Send' button -->
-                    <Button Command="{Binding SendCommand}">
+                    <Button Command="{Binding SendC    ommand}">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/MinimalEmailClient;component/Resources/Images/send.png" Stretch="Uniform" Height="20" Width="20" Margin="0,0,3,0" />
                             <TextBlock Text="Send" VerticalAlignment="Center" />

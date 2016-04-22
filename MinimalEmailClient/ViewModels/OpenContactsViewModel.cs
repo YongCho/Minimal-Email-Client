@@ -1,20 +1,17 @@
 ﻿using Prism.Interactivity.InteractionRequest;
 using Prism.Mvvm;
-using System;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Input;
-using System.Collections.Generic;
 using MinimalEmailClient.Models;
-using MinimalEmailClient.Services;
 using MinimalEmailClient.Notifications;
-
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System;
 
 namespace MinimalEmailClient.ViewModels
 {
-    public class OpenContactsViewModel : BindableBase
+    public class OpenContactsViewModel : BindableBase, IInteractionRequestAware
     {
-        public List<string> Contacts = new List<string>();
+        public List<string> ContactsList = new List<string>();
         #region INotification
 
         private OpenContactsNotification notification;
@@ -30,14 +27,39 @@ namespace MinimalEmailClient.ViewModels
                 {
                     this.notification = value as OpenContactsNotification;
                     this.OnPropertyChanged(() => this.Notification);
-                    if (this.notification.Contacts == null)
+                    if (this.notification.Contacts != null)
                     {
-                        Contacts = this.notification.Contacts;
+                        ContactsList = this.notification.Contacts;
                     }
                 }
             }
         }
 
+        public Action FinishInteraction { get; set; }
+
         #endregion
+        private string selectedContact = string.Empty;
+        public string SelectedContact
+        {
+            get { return this.selectedContact; }
+            set
+            {
+                SetProperty(ref this.selectedContact, value);
+                RaiseViewModelPropertiesChanged();
+            }
+        }
+
+        private void RaiseViewModelPropertiesChanged()
+        {
+            OnPropertyChanged("SelectedContact");
+        }
+
+        public ObservableCollection<string> Contacts;
+
+        public OpenContactsViewModel()
+        {
+            Trace.WriteLine("Address Book populating..");
+            Contacts = new ObservableCollection<string>(ContactsList);            
+        }
     }
 }
