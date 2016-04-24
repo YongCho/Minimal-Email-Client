@@ -98,6 +98,7 @@ namespace MinimalEmailClient.ViewModels
         public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
         public InteractionRequest<WriteNewMessageNotification> WriteNewMessagePopupRequest { get; set; }
         public ICommand ReplyMessageCommand { get; set; }
+        public ICommand ForwardMessageCommand { get; set; }
         public ICommand HandleUiCloseCommand { get; set; }
         public Action FinishInteraction { get; set; }
 
@@ -137,6 +138,7 @@ namespace MinimalEmailClient.ViewModels
             Attachments = new ObservableCollection<AttachmentViewModel>();
             HandleUiCloseCommand = new DelegateCommand(HandleInteractionFinished);
             ReplyMessageCommand = new DelegateCommand(RaiseReplyMessagePopupRequest);
+            ForwardMessageCommand = new DelegateCommand(RaiseForwardMessagePopupRequest);
 
             if (!Directory.Exists(cidContentDirPath))
             {
@@ -182,13 +184,24 @@ namespace MinimalEmailClient.ViewModels
                 MessageBoxResult error = MessageBox.Show("No user account selected for sender");
                 return;
             }
-
             WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender, Subject, TextBody, HtmlBody);
-            notification.Title = "Re: " + Subject;
+            notification.Title = "RE: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
         }
 
-
+        private void RaiseForwardMessagePopupRequest()
+        {
+            Account sendingAccount;
+            sendingAccount = AccountManager.Instance.GetAccountByName(Message.AccountName);
+            if (sendingAccount == null)
+            {
+                MessageBoxResult error = MessageBox.Show("No user account selected for sender");
+                return;
+            }
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Subject, TextBody, HtmlBody);
+            notification.Title = "FW: " + Subject;
+            WriteNewMessagePopupRequest.Raise(notification);
+        }
 
         private void HandleInteractionFinished()
         {
