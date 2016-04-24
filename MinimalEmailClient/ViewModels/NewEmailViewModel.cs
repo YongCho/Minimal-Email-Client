@@ -273,9 +273,9 @@ namespace MinimalEmailClient.ViewModels
                     {
                         FromAccount = this.notification.CurrentAccount;
                     }
-                    if (!String.IsNullOrEmpty(this.notification.To))
+                    if (!String.IsNullOrEmpty(this.notification.Recipient))
                     {
-                        ToAccounts = ExtractSender(this.notification.To) + "; ";
+                        ToAccounts = ExtractSender(this.notification.Recipient) + "; ";
                     }
                     if (!String.IsNullOrEmpty(this.notification.Subject))
                     {
