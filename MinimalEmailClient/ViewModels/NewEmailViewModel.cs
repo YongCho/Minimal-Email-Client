@@ -285,7 +285,8 @@ namespace MinimalEmailClient.ViewModels
                     {
                         isHtml = true;
                         HtmlBody = this.notification.HtmlBody;
-                    } else if (!String.IsNullOrEmpty(this.notification.TextBody))
+                    }
+                    if (!String.IsNullOrEmpty(this.notification.TextBody))
                     {
                         MessageBody = "\n--------------------------------------------------------------------------------\n";
                         MessageBody += this.notification.TextBody;
@@ -392,9 +393,12 @@ namespace MinimalEmailClient.ViewModels
             string[] splitRecipients = parsedRecipients.Split(delimiterChars);
             foreach (string recipient in splitRecipients)
             {
-                recipients.Add(recipient);
+                if (IsValidEmail(recipient))
+                {
+                    recipients.Add(recipient);
+                    Trace.WriteLine("Sending to " + recipient);
+                }
             }
-
             return recipients;
         }
 
