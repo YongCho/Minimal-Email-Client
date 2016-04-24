@@ -7,9 +7,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MinimalEmailClient.Views"
         mc:Ignorable="d"
-        Height="500" Width="280">
+        Height="500" Width="280" Unloaded="UserControl_Unloaded">
 
     <Grid>
-        <ListBox ItemsSource="{Binding Contacts, Mode=OneWay}" SelectedItem="{Binding SelectedContact}" IsSynchronizedWithCurrentItem="True"></ListBox>
+        <ListBox ItemsSource="{Binding Contacts, Mode=OneWay}" SelectedItem="{Binding SelectedContact}" IsSynchronizedWithCurrentItem="True">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding UpdateRecipientCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ListBox>
     </Grid>
 </UserControl>

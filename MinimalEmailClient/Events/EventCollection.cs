@@ -3,6 +3,14 @@ using MinimalEmailClient.Models;
 
 namespace MinimalEmailClient.Events
 {
+    public class UpdateRecipientsEvent : PubSubEvent<string>
+    {
+    }
+
+    public class AddressBookClosedEvent : PubSubEvent<string>
+    {
+    }
+
     public class NewAccountAddedEvent : PubSubEvent<Account>
     {
     }

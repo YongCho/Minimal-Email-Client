@@ -4,126 +4,35 @@ using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.IO;
 using MinimalEmailClient.Models;
 using MinimalEmailClient.Services;
 using MinimalEmailClient.Notifications;
 using Prism.Commands;
 using Microsoft.Win32;
-using System.Text.RegularExpressions;
-using System.IO;
 using MimeKit;
 using MimeKit.IO;
 using MimeKit.IO.Filters;
-using System.Collections.ObjectModel;
-using System.Globalization;
+using MinimalEmailClient.Events;
+using Prism.Events;
 
 namespace MinimalEmailClient.ViewModels
 {
     public class NewEmailViewModel : BindableBase, IInteractionRequestAware
     {
-        #region Constructor
-
-        private bool isHtml = false;
-        public InteractionRequest<OpenContactsNotification> OpenContactsPopupRequest { get; set; }
-        // Initialize a new instance of the MultiPartViewModel
-        public NewEmailViewModel()
-        {            
-            SendCommand = new DelegateCommand(SendEmail, CanSend);
-            AttachFileCommand = new DelegateCommand(AttachFile);
-            Attachments = new ObservableCollection<AttachmentViewModel>();
-            OpenContactsPopupRequest = new InteractionRequest<OpenContactsNotification>();
-            OpenContactsCommand = new DelegateCommand(OpenContacts);
-    }
-
-        #endregion
-        #region Accounts
-
-        private Account fromAccount;
-        public Account FromAccount
-        {
-            get
-            {
-                return this.fromAccount;
-            }
-            private set
-            {
-                SetProperty(ref this.fromAccount, value);
-                RaiseCanSendChanged();
-            }
-        }
-
-        #endregion
-        #region SendMailCommand
-
-        public ICommand SendCommand { get; }
-
-        public bool CanSend()
-        {
-            if (FromAccount == null || String.IsNullOrEmpty(ToAccounts) || String.IsNullOrEmpty(Subject) || String.IsNullOrEmpty(MessageBody))
-                return false;
-            return true;
-        }
-
-        #endregion
-        #region AttachFileCommand
-
-        public ICommand AttachFileCommand { get; set; }
-
-        #endregion
-        #region INotification
-
-        private WriteNewMessageNotification notification;
-        public INotification Notification
-        {
-            get
-            {
-                return this.notification;
-            }
-            set
-            {
-                if (value is WriteNewMessageNotification)
-                {
-                    this.notification = value as WriteNewMessageNotification;
-                    this.OnPropertyChanged(() => this.Notification);
-                    if (this.notification.CurrentAccount == null)
-                    {
-                        Trace.WriteLine("No user account selected as the sending account.");
-                    }
-                    else
-                    {
-                        Trace.WriteLine(this.notification.CurrentAccount);
-                        FromAccount = this.notification.CurrentAccount;
-                    }
-                    if (!String.IsNullOrEmpty(this.notification.Recipient))
-                    {
-                        ToAccounts = ExtractSender(this.notification.Recipient); ;
-                    }
-                    if (!String.IsNullOrEmpty(this.notification.Subject))
-                    {
-                        Subject = this.notification.Subject;
-                    }
-                    if (!String.IsNullOrEmpty(this.notification.HtmlBody))
-                    {
-                        isHtml = true;
-                        HtmlBody = this.notification.HtmlBody;
-                    } else if (!String.IsNullOrEmpty(this.notification.TextBody))
-                    {
-                        MessageBody = "\n--------------------------------------------------------------------------------\n";
-                        MessageBody += this.notification.TextBody;
-                    }
-
-                }
-            }
-        }
-
-        #endregion
-        #region Headers
-
-        public ICommand OpenContactsCommand { get; }
+        #region Headers        
 
         #region ToAccounts
 
+        private bool toSelected = false;
+        private bool SelectTo()
+        {
+            return toSelected = true;
+        }
         private string toAccounts = string.Empty;
         public string ToAccounts
         {
@@ -134,10 +43,15 @@ namespace MinimalEmailClient.ViewModels
                 RaiseCanSendChanged();
             }
         }
-        
+
         #endregion
         #region CcAccounts
 
+        private bool ccSelected = false;
+        private bool SelectCc()
+        {
+            return ccSelected = true;
+        }
         private string ccAccounts = string.Empty;
         public string CcAccounts
         {
@@ -154,6 +68,11 @@ namespace MinimalEmailClient.ViewModels
         #endregion
         #region BccAccounts
 
+        private bool bccSelected = false;
+        private bool SelectBcc()
+        {
+            return bccSelected = true;
+        }
         private string bccAccounts = string.Empty;
         public string BccAccounts
         {
@@ -216,7 +135,168 @@ namespace MinimalEmailClient.ViewModels
         }
 
         #endregion
-            #endregion
+        #endregion
+        #region Constructor
+
+        private bool isHtml = false;
+
+        public InteractionRequest<OpenContactsNotification> OpenContactsPopupRequest { get; set; }
+
+        // Initialize a new instance of the NewEmailViewModel
+        public NewEmailViewModel()
+        {
+            GlobalEventAggregator.Instance.GetEvent<UpdateRecipientsEvent>().Subscribe(HandleUpdateRecipientEvent, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<AddressBookClosedEvent>().Subscribe(clearHeaderSelection, ThreadOption.UIThread);
+            SendCommand = new DelegateCommand(SendEmail, CanSend);
+            AttachFileCommand = new DelegateCommand(AttachFile);
+            Attachments = new ObservableCollection<AttachmentViewModel>();
+            OpenContactsPopupRequest = new InteractionRequest<OpenContactsNotification>();
+            OpenContactsFromToCommand = new DelegateCommand(OpenContacts, SelectTo);
+            OpenContactsFromCcCommand = new DelegateCommand(OpenContacts, SelectCc);
+            OpenContactsFromBccCommand = new DelegateCommand(OpenContacts, SelectBcc);
+        }
+
+        private void HandleUpdateRecipientEvent(string recipient)
+        {
+            if (recipient == null)
+            {
+                throw new ArgumentNullException("recipient");
+            }
+            if (toSelected)
+            {
+                ToAccounts += recipient + "; ";
+            }
+            else if (ccSelected)
+            {
+                CcAccounts += recipient + "; ";
+            }
+            else if (bccSelected)
+            {
+                BccAccounts += recipient + "; ";
+            }
+            else
+                Trace.WriteLine("Error: Recipient Header button has not been selected. Cannot retrieve recipient from Address Book.");
+        }
+
+        private void clearHeaderSelection(string eventMsg)
+        {
+            clearHeaderSelection();
+        }
+
+        private void clearHeaderSelection()
+        {
+            toSelected = false;
+            ccSelected = false;
+            bccSelected = false;
+        }
+
+        #endregion
+        #region Commands      
+
+        #region SendMailCommand
+
+        public ICommand SendCommand { get; }
+
+        public bool CanSend()
+        {
+            if (FromAccount == null || String.IsNullOrEmpty(ToAccounts) || String.IsNullOrEmpty(Subject) || String.IsNullOrEmpty(MessageBody))
+                return false;
+            return true;
+        }
+
+        #endregion
+
+        #region OpenAddressBook
+
+        public ICommand OpenContactsFromToCommand { get; set; }
+        public ICommand OpenContactsFromCcCommand { get; set; }
+        public ICommand OpenContactsFromBccCommand { get; set; }
+
+        private void OpenContacts()
+        {
+            OpenContactsNotification notification = new OpenContactsNotification(FromAccount.AccountName);
+            notification.Title = "Address Book";
+            OpenContactsPopupRequest.Raise(notification);
+        }
+
+        #endregion
+        #region AttachFile
+
+        public ICommand AttachFileCommand { get; set; }
+
+        private void AttachFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var filePath = openFileDialog.FileName;
+                Attachments.Add(new AttachmentViewModel(filePath));
+            }
+        }
+
+        #endregion
+
+        #endregion
+        #region Accounts
+
+        private Account fromAccount;
+        public Account FromAccount
+        {
+            get
+            {
+                return this.fromAccount;
+            }
+            private set
+            {
+                SetProperty(ref this.fromAccount, value);
+                RaiseCanSendChanged();
+            }
+        }
+
+        #endregion        
+        #region INotification
+
+        private WriteNewMessageNotification notification;
+        public INotification Notification
+        {
+            get
+            {
+                return this.notification;
+            }
+            set
+            {
+                if (value is WriteNewMessageNotification)
+                {
+                    this.notification = value as WriteNewMessageNotification;
+                    this.OnPropertyChanged(() => this.Notification);
+                    if (this.notification.CurrentAccount != null)
+                    {
+                        FromAccount = this.notification.CurrentAccount;
+                    }
+                    if (!String.IsNullOrEmpty(this.notification.To))
+                    {
+                        ToAccounts = ExtractSender(this.notification.To) + "; ";
+                    }
+                    if (!String.IsNullOrEmpty(this.notification.Subject))
+                    {
+                        Subject = this.notification.Subject;
+                    }
+                    if (!String.IsNullOrEmpty(this.notification.HtmlBody))
+                    {
+                        isHtml = true;
+                        HtmlBody = this.notification.HtmlBody;
+                    } else if (!String.IsNullOrEmpty(this.notification.TextBody))
+                    {
+                        MessageBody = "\n--------------------------------------------------------------------------------\n";
+                        MessageBody += this.notification.TextBody;
+                    }
+
+                }
+            }
+        }
+
+        #endregion
+
         #region Attachments
 
         public ObservableCollection<AttachmentViewModel> Attachments { get; set; }
@@ -263,13 +343,6 @@ namespace MinimalEmailClient.ViewModels
             NewConnection.Disconnect();
         }
 
-        private void OpenContacts()
-        {
-            OpenContactsNotification notification = new OpenContactsNotification(FromAccount.AccountName);
-            notification.Title = "Address Book";
-            OpenContactsPopupRequest.Raise(notification);
-        }
-
         private void SaveFavorites(OutgoingEmail email)
         {
             List<string> allOutgoingAddresses = new List<string>();
@@ -293,26 +366,16 @@ namespace MinimalEmailClient.ViewModels
             }
             foreach (string receiver in allOutgoingAddresses)
             {
-                DatabaseManager.InsertContact(FromAccount.AccountName, receiver);
+                if (DatabaseManager.InsertContact(FromAccount.AccountName, receiver))
+                {
+                    Trace.WriteLine(receiver + " added to Contacts.");
+                } 
             }
         }
 
         private void RaiseCanSendChanged()
         {
             (SendCommand as DelegateCommand).RaiseCanExecuteChanged();
-        }
-
-        #endregion
-        #region AttachFile
-
-        private void AttachFile()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-            {
-                var filePath = openFileDialog.FileName;
-                Attachments.Add(new AttachmentViewModel(filePath));
-            }
         }
 
         #endregion

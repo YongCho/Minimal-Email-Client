@@ -1,4 +1,6 @@
 ﻿using MinimalEmailClient.ViewModels;
+using MinimalEmailClient.Events;
+using System.Windows;
 
 namespace MinimalEmailClient.Views
 {
@@ -11,6 +13,11 @@ namespace MinimalEmailClient.Views
         {
             InitializeComponent();
             this.DataContext = new OpenContactsViewModel();
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            GlobalEventAggregator.Instance.GetEvent<AddressBookClosedEvent>().Publish("Address Book has finished interaction.");
         }
     }
 }
