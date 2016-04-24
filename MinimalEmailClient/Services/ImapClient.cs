@@ -434,11 +434,11 @@ namespace MinimalEmailClient.Services
                     {
                         string untaggedResponse = match.Groups[2].ToString();
                         Message message = ImapParser.ParseFetchHeader(untaggedResponse);
-                        message.AccountName = Account.AccountName;
-                        message.MailboxPath = SelectedMailboxName;
 
                         if (message != null)
                         {
+                            message.AccountName = Account.AccountName;
+                            message.MailboxPath = SelectedMailboxName;
                             messages.Add(message);
                         }
 

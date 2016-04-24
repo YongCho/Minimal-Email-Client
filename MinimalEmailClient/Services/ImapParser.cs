@@ -23,7 +23,8 @@ namespace MinimalEmailClient.Services
             }
             else
             {
-                throw new Exception("ImapParser.ParseFetchHeader(): Unable to parse header and body structure.");
+                Debug.WriteLine("ImapParser.ParseFetchHeader(): Unable to parse header and body structure. Received:\n" + untaggedItem);
+                return null;
             }
 
             // Server divides long subjects and senders, etc. into multiple lines.
