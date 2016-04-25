@@ -291,6 +291,13 @@ namespace MinimalEmailClient.ViewModels
                         MessageBody = "\n--------------------------------------------------------------------------------\n";
                         MessageBody += this.notification.TextBody;
                     }
+                    if(this.notification.SavedAttachments != null)
+                    {
+                        foreach (string path in this.notification.SavedAttachments.Values)
+                        {
+                            Attachments.Add(new AttachmentViewModel(path));
+                        }
+                    }
 
                 }
             }

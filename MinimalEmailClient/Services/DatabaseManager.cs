@@ -352,7 +352,7 @@ namespace MinimalEmailClient.Services
             return contacts;
         }
 
-        public static bool ContactExists(string newContact)
+        public static bool ContactExists(string user, string newContact)
         {
             Trace.WriteLine(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -376,7 +376,7 @@ namespace MinimalEmailClient.Services
                             {
                                 while (reader.Read())
                                 {
-                                    if ( newContact == (string)reader["EmailAddress"])
+                                    if ( newContact == (string)reader["EmailAddress"]  && user == (string)reader["AccountName"])
                                         return true;
                                 }
                             }
@@ -398,7 +398,7 @@ namespace MinimalEmailClient.Services
 
         public static bool InsertContact(string user, string newContact)
         {
-            if (ContactExists(newContact))
+            if (ContactExists(user, newContact))
             {
                 return false;
             }
