@@ -125,11 +125,11 @@ namespace MinimalEmailClient.ViewModels
         {
             get
             {
-                return this.messageBody;
+                return this.htmlBody;
             }
             set
             {
-                SetProperty(ref this.messageBody, value);
+                SetProperty(ref this.htmlBody, value);
                 RaiseCanSendChanged();
             }
         }
@@ -313,6 +313,7 @@ namespace MinimalEmailClient.ViewModels
             if (!String.IsNullOrEmpty(BccAccounts)) email.Bcc = ExtractRecipients(BccAccounts);
             email.Subject = Subject;
             email.Message = MessageBody;
+            if (isHtml) email.HtmlPart = HtmlBody;
             if (Attachments != null)
             {
                 List<string> attachmentFilePaths = new List<string>();
@@ -331,7 +332,7 @@ namespace MinimalEmailClient.ViewModels
                 return;
             }
 
-            if (!NewConnection.SendMail())
+            if (!NewConnection.SendMail(isHtml))
             {
                 Trace.WriteLine(NewConnection.Error);
                 MessageBoxResult result = MessageBox.Show(NewConnection.Error);

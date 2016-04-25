@@ -75,6 +75,13 @@ namespace MinimalEmailClient.Models
             set { SetProperty(ref this.message, value); }
         }
 
+        private string htmlPart = string.Empty;
+        public string HtmlPart
+        {
+            get { return this.htmlPart; }
+            set { SetProperty(ref this.htmlPart, value); }
+        }
+
         private List<MimePart> attachmentList = new List<MimePart>();
         public List<MimePart> AttachmentList
         {

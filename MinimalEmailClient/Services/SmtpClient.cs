@@ -161,10 +161,9 @@ namespace MinimalEmailClient.Services
         #endregion
         #region SendMail
 
-        public bool SendMail()
+        public bool SendMail(bool isHtml)
         {
             if (!AuthorizeAndPrepareServer()) return false;
-            string innerEncapsulationToken = GenerateEncapsulationToken();
             string outerEncapsulationToken = GenerateEncapsulationToken();
 
             Trace.WriteLine("\nSending Message..\n");
@@ -187,14 +186,20 @@ namespace MinimalEmailClient.Services
                 // Boundary token must be preceeded by 2 CRLFs when MIME preamble is empty.
                 SendString("\r\n--" + outerEncapsulationToken);
             }
-
             // Email bodies (text/plain, text/html, etc.)
-            SendString(string.Format("Content-Type: multipart/alternative; boundary=\"{0}\"", innerEncapsulationToken));
+            else SendString(string.Format("Content-Type: multipart/alternative; boundary=\"{0}\"", outerEncapsulationToken));
+
+            if (isHtml)
+            {
+                SendString("\r\n--" + outerEncapsulationToken);
+                SendString("Content-Type: text/html; charset=\"UTF - 8\"\r\n\r\n" + NewEmail.HtmlPart);
+                SendString("--" + outerEncapsulationToken);
+            }
 
             // Text Body
-            SendString("\r\n--" + innerEncapsulationToken);
+            SendString("\r\n--" + outerEncapsulationToken);
             SendString("Content-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n" + NewEmail.Message);
-            SendString("--" + innerEncapsulationToken + "--");
+            SendString("--" + outerEncapsulationToken + "--");
 
             if (NewEmail.AttachmentList.Count > 0)
             {
