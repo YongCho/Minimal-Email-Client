@@ -48,6 +48,7 @@ namespace MinimalEmailClient.ViewModels
         }
         private MessageManager messageManager = MessageManager.Instance;
 
+        public event EventHandler<MessageHeaderViewModel> NewMessageArrived;
         public InteractionRequest<MessageContentViewNotification> MessageContentViewPopupRequest { get; set; }
         public ICommand OpenMessageContentViewCommand { get; set; }
         public ICommand DeleteMessageCommand { get; set; }
@@ -55,6 +56,7 @@ namespace MinimalEmailClient.ViewModels
         public MessageListViewModel()
         {
             LoadMessages();
+            messageManager.NewMessageArrived += OnNewMessageArrived;
             messageManager.MessageAdded += OnMessageAdded;
             messageManager.MessageRemoved += OnMessageRemoved;
 
@@ -69,26 +71,6 @@ namespace MinimalEmailClient.ViewModels
 
             GlobalEventAggregator.Instance.GetEvent<MailboxSelectionEvent>().Subscribe(HandleMailboxSelectionChange, ThreadOption.UIThread);
             GlobalEventAggregator.Instance.GetEvent<DeleteMessagesEvent>().Subscribe(HandleDeleteMessagesEvent, ThreadOption.UIThread);
-        }
-
-        public void OnMessageAdded(object sender, Message newMessage)
-        {
-            Application.Current.Dispatcher.Invoke(() => { MessageHeaderViewModels.Add(new MessageHeaderViewModel(newMessage)); });
-        }
-
-        public void OnMessageRemoved(object sender, Message removedMessage)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                foreach (MessageHeaderViewModel messageVm in MessageHeaderViewModels)
-                {
-                    if (messageVm.Message == removedMessage)
-                    {
-                        MessageHeaderViewModels.Remove(messageVm);
-                        break;
-                    }
-                }
-            });
         }
 
         private void LoadMessages()
@@ -106,6 +88,34 @@ namespace MinimalEmailClient.ViewModels
             foreach (Message msg in messages)
             {
                 MessageHeaderViewModels.Add(new MessageHeaderViewModel(msg));
+            }
+        }
+
+        private void OnMessageAdded(object sender, Message newMessage)
+        {
+            Application.Current.Dispatcher.Invoke(() => { MessageHeaderViewModels.Add(new MessageHeaderViewModel(newMessage)); });
+        }
+
+        private void OnMessageRemoved(object sender, Message removedMessage)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (MessageHeaderViewModel messageVm in MessageHeaderViewModels)
+                {
+                    if (messageVm.Message == removedMessage)
+                    {
+                        MessageHeaderViewModels.Remove(messageVm);
+                        break;
+                    }
+                }
+            });
+        }
+
+        private void OnNewMessageArrived(object sender, Message newMessage)
+        {
+            if (NewMessageArrived != null)
+            {
+                NewMessageArrived(this, new MessageHeaderViewModel(newMessage));
             }
         }
 

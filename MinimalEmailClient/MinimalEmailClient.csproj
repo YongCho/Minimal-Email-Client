@@ -45,6 +45,10 @@
       <HintPath>..\packages\MimeKit.1.2.22\lib\net45\BouncyCastle.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.8\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
@@ -174,6 +178,9 @@
     <Compile Include="Views\Converters\FilePathToIconImageConverter.cs" />
     <Compile Include="Views\Converters\FileSizeToStringConverter.cs" />
     <Compile Include="Views\Converters\LeftMarginMultiplierConverter.cs" />
+    <Compile Include="Views\NewMessageBalloon.xaml.cs">
+      <DependentUpon>NewMessageBalloon.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Utilities\PasswordBindingHelper.cs" />
     <Compile Include="Views\AddAcountView.xaml.cs">
       <DependentUpon>AddAcountView.xaml</DependentUpon>
@@ -233,6 +240,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MessageContentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NewMessageBalloon.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -310,6 +321,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\forward.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\meclient.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

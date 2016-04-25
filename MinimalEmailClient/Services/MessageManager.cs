@@ -14,6 +14,7 @@ namespace MinimalEmailClient.Services
         public Dictionary<string, Message> MessagesDico;  // Key is the Message object unique id.
         private ConcurrentDictionary<string, int> abortLatches = new ConcurrentDictionary<string, int>();  // <account name, 0 or 1>; set to 1 to abort sync
         private ConcurrentDictionary<string, int> openSyncOps = new ConcurrentDictionary<string, int>();  // <account name, # of sync methods running>
+        public event EventHandler<Message> NewMessageArrived;
         public event EventHandler<Message> MessageAdded;
         public event EventHandler<Message> MessageRemoved;
         public event EventHandler<Message> MessageModified;
@@ -92,6 +93,14 @@ namespace MinimalEmailClient.Services
         private void HandleMailboxListSyncFinished(Account account)
         {
             BeginSyncMessages(account);
+        }
+
+        protected virtual void OnNewMessageArrived(Message newMessage)
+        {
+            if (NewMessageArrived != null)
+            {
+                NewMessageArrived(this, newMessage);
+            }
         }
 
         protected virtual void OnMessageAdded(Message newMessage)
@@ -403,6 +412,7 @@ namespace MinimalEmailClient.Services
             if (!MessagesDico.ContainsKey(newMessage.UniqueKeyString))
             {
                 MessagesDico.Add(newMessage.UniqueKeyString, newMessage);
+                OnNewMessageArrived(newMessage);
                 OnMessageAdded(newMessage);
                 DatabaseManager.StoreMessage(newMessage);
             }
