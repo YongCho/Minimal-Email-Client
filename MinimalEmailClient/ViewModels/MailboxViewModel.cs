@@ -35,6 +35,13 @@ namespace MinimalEmailClient.ViewModels
             set { SetProperty(ref this.isExpanded, value); }
         }
 
+        private bool isSelected = false;
+        public bool IsSelected
+        {
+            get { return this.isSelected; }
+            set { SetProperty(ref this.isSelected, value); }
+        }
+
         public ObservableCollection<MailboxViewModel> MailboxViewModelSubTree { get; set; }
 
         public MailboxViewModel(Mailbox mailbox)

@@ -82,6 +82,7 @@ namespace MinimalEmailClient.ViewModels
         {
             GlobalEventAggregator.Instance.GetEvent<NewAccountAddedEvent>().Subscribe(HandleNewAccountAddedEvent, ThreadOption.UIThread);
             GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeletedEvent, ThreadOption.UIThread);
+            GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished, ThreadOption.UIThread);
             DeleteAccountCommand = new DelegateCommand<AccountViewModel>(BeginDeleteAccount);
 
             LoadAccounts();
@@ -91,6 +92,10 @@ namespace MinimalEmailClient.ViewModels
         {
             if (accountVm != null)
             {
+                if (CurrentMailbox.AccountName == accountVm.Account.AccountName)
+                {
+                    SelectedTreeViewItem = null;
+                }
                 Task.Run(() => { AccountManager.Instance.DeleteAccount(accountVm.Account); });
             }
         }
@@ -106,7 +111,6 @@ namespace MinimalEmailClient.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 AccountViewModels.Add(newAccountViewModel);
-                SelectedTreeViewItem = newAccountViewModel;
             });
         }
 
@@ -117,6 +121,30 @@ namespace MinimalEmailClient.ViewModels
                 if (accountVm.Account.AccountName == accountName)
                 {
                     Application.Current.Dispatcher.Invoke(() => { AccountViewModels.Remove(accountVm); });
+                    break;
+                }
+            }
+        }
+
+        private void HandleMailboxListSyncFinished(Account account)
+        {
+            // Don't change selection if an item is already selected.
+            if (SelectedTreeViewItem != null)
+            {
+                return;
+            }
+
+            // Select the first mailbox.
+            foreach (AccountViewModel accountVm in AccountViewModels)
+            {
+                if (accountVm.Account.AccountName == account.AccountName)
+                {
+                    Application.Current.Dispatcher.Invoke(() => {
+                        if (accountVm.MailboxViewModelTree.Count > 0)
+                        {
+                            accountVm.MailboxViewModelTree[0].IsSelected = true;
+                        }
+                    });
                     break;
                 }
             }
@@ -137,6 +165,12 @@ namespace MinimalEmailClient.ViewModels
             foreach (Account acc in accounts)
             {
                 AccountViewModels.Add(new AccountViewModel(acc));
+            }
+
+            // Select the first mailbox of the first account by default.
+            if (AccountViewModels.Count > 0 && AccountViewModels[0].MailboxViewModelTree.Count > 0)
+            {
+                AccountViewModels[0].MailboxViewModelTree[0].IsSelected = true;
             }
         }
     }
