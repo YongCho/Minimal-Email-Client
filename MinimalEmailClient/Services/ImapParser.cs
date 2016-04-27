@@ -23,8 +23,33 @@ namespace MinimalEmailClient.Services
             }
             else
             {
-                Debug.WriteLine("ImapParser.ParseFetchHeader(): Unable to parse header and body structure. Received:\n" + untaggedItem);
-                return null;
+                // 2nd pattern. Bodystructure must be in the first line.
+                match = Regex.Match(untaggedItem, @"\* .* (BODYSTRUCTURE (\())");
+                if (match.Success)
+                {
+                    // Parse Bodystructure out of the response by looking for the last closing parenthesis.
+                    int startIndex = match.Groups[2].Index;
+                    int endIndex = startIndex;
+                    int parenDiff = 1;
+                    while (parenDiff > 0)
+                    {
+                        ++endIndex;
+                        if (untaggedItem[endIndex] == ')')
+                            --parenDiff;
+                        else if (untaggedItem[endIndex] == '(')
+                            ++parenDiff;
+                    }
+
+                    bodyStructure = untaggedItem.Substring(startIndex, endIndex - startIndex + 1);
+
+                    // Remove all the way from the "BODYSTRUCTURE " to the last closing parenthesis and the following blank space.
+                    header = untaggedItem.Remove(match.Groups[1].Index, endIndex - match.Groups[1].Index + 2);
+                }
+                else
+                {
+                    Debug.WriteLine("ImapParser.ParseFetchHeader(): Unable to parse header and body structure. Received:\n" + untaggedItem);
+                    return null;
+                }
             }
 
             // Server divides long subjects and senders, etc. into multiple lines.
