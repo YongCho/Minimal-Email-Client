@@ -10,7 +10,7 @@ MinimalEmailClient is a simple Windows based email client that is designed to ha
 # Progress (Week 4/26)
 - Created UML class diagram for the project. The diagram can be downloaded by following the link in the above 'Project Diagram' section.
 - We are continuing on reliability tests and bug hunting.
-- Working on program crashing when 'Reply' button is clicked ([#45](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/45)).
+- Fixed program crashing when 'Reply' button is clicked ([#45](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/45)).
 - Allow replying and forwarding HTML email ([#41](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/41)).
 - Add address book to store frequently used outgoing email addresses ([#50](//github.com/uml-dc2-2016-spring/dc16-MEClient/issues/50)).
 
