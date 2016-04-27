@@ -291,16 +291,33 @@ namespace MinimalEmailClient.ViewModels
                         MessageBody = "\n--------------------------------------------------------------------------------\n";
                         MessageBody += this.notification.TextBody;
                     }
-                    if(this.notification.SavedAttachments != null)
+                    if(this.notification.SavedAttachments.Count > 0)
                     {
                         foreach (string path in this.notification.SavedAttachments.Values)
                         {
                             Attachments.Add(new AttachmentViewModel(path));
                         }
                     }
-
+                    if (this.notification.CidAttachments.Count > 0)
+                    {
+                        foreach (string path in this.notification.CidAttachments.Values)
+                        {
+                            if (!ContainsPath(path))
+                                Attachments.Add(new AttachmentViewModel(path));
+                        }
+                    }
                 }
             }
+        }
+
+        private bool ContainsPath(string path)
+        {
+            foreach (AttachmentViewModel avm in Attachments)
+            {
+                if (path == avm.FileName)
+                    return true;
+            }
+            return false;
         }
 
         #endregion

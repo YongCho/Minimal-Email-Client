@@ -164,20 +164,21 @@ namespace MinimalEmailClient.Services
         public bool SendMail(bool isHtml)
         {
             if (!AuthorizeAndPrepareServer()) return false;
+            string innerEncapsulationToken = GenerateEncapsulationToken();
             string outerEncapsulationToken = GenerateEncapsulationToken();
 
             Trace.WriteLine("\nSending Message..\n");
             // Main Email headers
             SendString(string.Format("From: {0}", Account.SmtpLoginName));
             SendString(string.Format("To: {0}", NewEmail.ToAccounts()));
-            if(NewEmail.Cc != null)
+            if (NewEmail.Cc != null)
                 SendString(string.Format("Cc: {0}", NewEmail.CcAccounts()));
             if (NewEmail.Bcc != null)
                 SendString(string.Format("Bcc: {0}", NewEmail.BccAccounts()));
             SendString(string.Format("Subject: {0}", NewEmail.Subject));
 
             // MIME header
-            SendString("MIME-Version: 1.0");
+            SendString("MIME-Version: 1.0" );
 
             if (NewEmail.AttachmentList.Count > 0)
             {
@@ -186,20 +187,20 @@ namespace MinimalEmailClient.Services
                 // Boundary token must be preceeded by 2 CRLFs when MIME preamble is empty.
                 SendString("\r\n--" + outerEncapsulationToken);
             }
+
             // Email bodies (text/plain, text/html, etc.)
-            else SendString(string.Format("Content-Type: multipart/alternative; boundary=\"{0}\"", outerEncapsulationToken));
+            SendString(string.Format("Content-Type: multipart/alternative; boundary=\"{0}\"", innerEncapsulationToken));
 
             if (isHtml)
             {
-                SendString("\r\n--" + outerEncapsulationToken);
+                SendString("\r\n--" + innerEncapsulationToken);
                 SendString("Content-Type: text/html; charset=\"UTF - 8\"\r\n\r\n" + NewEmail.HtmlPart);
-                SendString("--" + outerEncapsulationToken);
-            }
+            }            
 
             // Text Body
-            SendString("\r\n--" + outerEncapsulationToken);
-            SendString("Content-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n" + NewEmail.Message);
-            SendString("--" + outerEncapsulationToken + "--");
+            SendString("\r\n--" + innerEncapsulationToken);
+            SendString("Content-Type: text/plain; charset=\"UTF - 8\"\r\n\r\n" + NewEmail.Message);            
+            SendString("--" + innerEncapsulationToken + "--");
 
             if (NewEmail.AttachmentList.Count > 0)
             {

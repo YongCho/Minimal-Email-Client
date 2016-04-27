@@ -184,7 +184,7 @@ namespace MinimalEmailClient.ViewModels
                 MessageBoxResult error = MessageBox.Show("No user account selected for sender");
                 return;
             }
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender, Subject, TextBody, ProcessedHtmlBody, savedAttachments);
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Sender, Subject, TextBody, ProcessedHtmlBody, savedAttachments, savedCidContents);
             notification.Title = "RE: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
         }
@@ -198,7 +198,7 @@ namespace MinimalEmailClient.ViewModels
                 MessageBoxResult error = MessageBox.Show("No user account selected for sender");
                 return;
             }
-            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Subject, TextBody, ProcessedHtmlBody, savedAttachments);
+            WriteNewMessageNotification notification = new WriteNewMessageNotification(sendingAccount, Subject, TextBody, ProcessedHtmlBody, savedAttachments, savedCidContents);
             notification.Title = "FW: " + Subject;
             WriteNewMessagePopupRequest.Raise(notification);
         }

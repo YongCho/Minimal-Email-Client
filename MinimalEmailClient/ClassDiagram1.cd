@@ -1,0 +1,454 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MinimalEmailClient.App" Collapsed="true">
+    <Position X="0.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Bootstrapper" Collapsed="true">
+    <Position X="7.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Bootstrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Common.Globals" Collapsed="true">
+    <Position X="9.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Common\Globals.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.UpdateRecipientsEvent" Collapsed="true">
+    <Position X="4" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.AddressBookClosedEvent" Collapsed="true">
+    <Position X="12.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.NewAccountAddedEvent" Collapsed="true">
+    <Position X="7.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.AccountDeletedEvent" Collapsed="true">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.MailboxSelectionEvent" Collapsed="true">
+    <Position X="7.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.AccountSelectionEvent" Collapsed="true">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.MessageSelectionEvent" Collapsed="true">
+    <Position X="4" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.MailboxListSyncFinishedEvent" Collapsed="true">
+    <Position X="5.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.DeleteMessagesEvent" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Events\EventCollection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Events.GlobalEventAggregator" Collapsed="true">
+    <Position X="7.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAA=</HashCode>
+      <FileName>Events\GlobalEventAggregator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Models.Account" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CBIAICACAAAAAAAEABAACECAAAAAgCACAAQgAkgMACA=</HashCode>
+      <FileName>Models\Account.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Models.Mailbox" Collapsed="true">
+    <Position X="4" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAhBAAAAAAAAAAEAAAEAQIABAECAgAAAAYAAAAEIQA=</HashCode>
+      <FileName>Models\Mailbox.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Models.CompareMailbox" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Mailbox.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Models.Message" Collapsed="true">
+    <Position X="4" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAghBQAAAAQEkABGAJABQgCAAQAAACAAACQAAIQsAQE=</HashCode>
+      <FileName>Models\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Models.OutgoingEmail" Collapsed="true">
+    <Position X="7.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIQGAAAAAAAAAAEAIAABAiAAAAIAAAQAAAAMEAAgDg=</HashCode>
+      <FileName>Models\OutgoingEmail.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Notifications.MessageContentViewNotification" Collapsed="true">
+    <Position X="9.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAgA=</HashCode>
+      <FileName>Notifications\MessageContentViewNotification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Notifications.OpenContactsNotification" Collapsed="true">
+    <Position X="2.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Notifications\OpenContactsNotification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Notifications.WriteNewMessageNotification" Collapsed="true">
+    <Position X="7.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAABAAAAgAAAAYAAAAAAAAAAAQAAAAIAAAAAAAA=</HashCode>
+      <FileName>Notifications\WriteNewMessageNotification.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Properties.Resources" Collapsed="true">
+    <Position X="11" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Properties.Settings" Collapsed="true">
+    <Position X="12.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAAAAAAAAIAACAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.AccountManager" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAARAAAwAAAAAAABAAAABAAACAQAACAQAAAAA=</HashCode>
+      <FileName>Services\AccountManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.DatabaseManager" Collapsed="true">
+    <Position X="11" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACQAUAAAAAgAAYQIAIAAAAAESEAAEAAAwQAAgQjIAAA=</HashCode>
+      <FileName>Services\DatabaseManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.Decoder" Collapsed="true">
+    <Position X="12.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAIAAA=</HashCode>
+      <FileName>Services\Decoder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.ImapMonitorEventArgs" Collapsed="true">
+    <Position X="12.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAABAEAAAAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>Services\ImapClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.ImapClient" Collapsed="true">
+    <Position X="11" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIQAAAVAABAICRZCBIAAAIIAIAAABAABCAtAUBAUAEA=</HashCode>
+      <FileName>Services\ImapClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.ImapParser" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Services\ImapParser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.MessageManager" Collapsed="true">
+    <Position X="2.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AKAAEAEAIAACQYQJoAAgAAAAGABCAQCAWACAAAABiAA=</HashCode>
+      <FileName>Services\MessageManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.MimeUtility" Collapsed="true">
+    <Position X="5.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAABAAAAAAAAAAAAAAQAAAQAAEAACAAAABAAA=</HashCode>
+      <FileName>Services\MimeUtility.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.NewAccountValidator" Collapsed="true">
+    <Position X="9.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAACAAQAAAAAAAAAAAAAAAAAAAAAAQAAAAEA=</HashCode>
+      <FileName>Services\NewAccountValidator.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Services.SmtpClient" Collapsed="true">
+    <Position X="0.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQQAAEEAAAAIEQQAAIAAAIAAAAAAEACBAAZAQAABAEA=</HashCode>
+      <FileName>Services\SmtpClient.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.AccountViewModel" Collapsed="true">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAQAIAAEAAAAAAAAAAAAAAAAAAAAgAAQoAAAEU=</HashCode>
+      <FileName>ViewModels\AccountViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.AddAccountViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>UEIUFAQCwAQQCAJAEAgDAATAAAIEwigSgEQANxBECCA=</HashCode>
+      <FileName>ViewModels\AddAccountViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.AttachmentViewModel" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAAAAAAAAAAAAAAAAEAAAEBAAABAABA=</HashCode>
+      <FileName>ViewModels\AttachmentViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.MailboxTreeViewModel" Collapsed="true">
+    <Position X="11" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAIAQACAAAACAAEACAAAAAAAQBAAAkASAAAAAA=</HashCode>
+      <FileName>ViewModels\MailboxTreeViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.MailboxViewModel" Collapsed="true">
+    <Position X="12.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEQAQABAAEAAEBAAABAAAAAAAAAAAAAAAAABAAAU=</HashCode>
+      <FileName>ViewModels\MailboxViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.MainWindowViewModel" Collapsed="true">
+    <Position X="2.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAQAAAACAAEAQAQAAAAAFBAACCQAADQAgABAA=</HashCode>
+      <FileName>ViewModels\MainWindowViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.MessageContentViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEEAAAARAAAAgEEAGIABYIJAAECARICBggIAYQSKgCw=</HashCode>
+      <FileName>ViewModels\MessageContentViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.MessageHeaderViewModel" Collapsed="true">
+    <Position X="11" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAQEAABAAIAAAAAAAAAAAAABAAQAIQAgACQ=</HashCode>
+      <FileName>ViewModels\MessageHeaderViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.MessageListViewModel" Collapsed="true">
+    <Position X="0.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAEAIAIAAAAEAAIABAAQAIAAEBAACFACAEEQAIACAA=</HashCode>
+      <FileName>ViewModels\MessageListViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.NewEmailViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>GQSSAABAAAQUgJEEAKAAUADgAgBAwBEAygJAAdAioAA=</HashCode>
+      <FileName>ViewModels\NewEmailViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.ViewModels.OpenContactsViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAQAAAAAAgAAAAQAAABEAgAAQAAAgAAAAAQAAAA=</HashCode>
+      <FileName>ViewModels\OpenContactsViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.AddAcountView" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Views\AddAcountView.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.MailboxTreeView" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\MailboxTreeView.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.MessageContentView" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gABAAgAAAAQAAIAEAAAARABAgBAAIQAEAAAAAABAAAA=</HashCode>
+      <FileName>Views\MessageContentView.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.MessageListView" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAAAAAAAAAAAAQAAAAAAAAAAAACAAAAAAAAAA=</HashCode>
+      <FileName>Views\MessageListView.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.NewEmailView" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="11" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\NewEmailView.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.NewMessageBalloon" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\NewMessageBalloon.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.OpenContactsView" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\OpenContactsView.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Converters.BooleanToEnvelopImageSourceConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\Converters\BooleanToEnvelopImageSourceConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Converters.BoolToVisibilityConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgQAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Views\Converters\BoolToVisibilityConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Converters.FilePathToIconImageConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\Converters\FilePathToIconImageConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Converters.FileSizeToStringConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\Converters\FileSizeToStringConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Converters.LeftMarginMultiplierConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAABAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\Converters\LeftMarginMultiplierConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Utilities.FixedWidthGridViewColumn" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAACAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAA=</HashCode>
+      <FileName>Views\Utilities\FixedWidthGridViewColumn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Utilities.PasswordBindingHelper" Collapsed="true">
+    <Position X="9.25" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAIQAgEBAEAAAAAAIAAABAAAAAAgAAAICA=</HashCode>
+      <FileName>Views\Utilities\PasswordBindingHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Utilities.TreeViewItemExtensions" Collapsed="true">
+    <Position X="2.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAA=</HashCode>
+      <FileName>Views\Utilities\TreeViewItemExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinimalEmailClient.Views.Utilities.WebBrowserHelper" Collapsed="true">
+    <Position X="5.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEQAAAAAAAAAAgAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Views\Utilities\WebBrowserHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="MinimalEmailClient.Services.ExamineResult" Collapsed="true">
+    <Position X="0.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABCAAAAAAAAAAAAAAAAAAAAAAAQAAAAIAAAEAIAA=</HashCode>
+      <FileName>Services\ImapClient.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
