@@ -65,6 +65,8 @@ namespace MinimalEmailClient.Services
         public event EventHandler<ImapMonitorEventArgs> MessageSeenAtServer;
         public event EventHandler<ImapMonitorEventArgs> MessageDeletedAtServer;
 
+        public enum FlagAction { Add, Remove }
+
         public ImapClient(Account account)
         {
             Account = account;
@@ -474,6 +476,32 @@ namespace MinimalEmailClient.Services
             }
 
             return messages;
+        }
+
+        public bool SetFlag(FlagAction action, int uid, string flagString)
+        {
+            if (string.IsNullOrEmpty(SelectedMailboxName))
+            {
+                Error = "Mailbox must be selected before STORE operation. (Account: " + Account.AccountName + ")";
+                Debug.WriteLine("ImapClient.SetFlag(): Mailbox is not selected. (Account: " + Account.AccountName + ")");
+                return false;
+            }
+
+            string tag = NextTag();
+            string command = tag + " UID STORE " + uid + " " + ((action == FlagAction.Add) ? "+FLAGS" : "-FLAGS") + " (" + flagString + ")";
+            if (!SendString(command))
+            {
+                Debug.WriteLine("ImapClient.SetFlag(): Unable to send command.");
+                return false;
+            }
+            string response;
+            if (!ReadResponse(tag, out response))
+            {
+                Debug.WriteLine("ImapClient.SetFlag(): Unable to read response.");
+                return false;
+            }
+            Trace.WriteLine(response);
+            return true;
         }
 
         public void DeleteMessages(List<Message> messages)

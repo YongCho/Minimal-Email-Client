@@ -168,10 +168,33 @@ namespace MinimalEmailClient.ViewModels
             }
             else
             {
+                // Loading a message whose body has already been downloaded.
                 TextBody = MimeUtility.GetTextBody(Message.Body);
                 HtmlBody = MimeUtility.GetHtmlBody(Message.Body);
                 ProcessedHtmlBody = ProcessHtmlBody(HtmlBody);
                 LoadAttachments(Message.Body);
+
+                if (!Message.IsSeen)
+                {
+                    // Set the \Seen flag.
+                    Message.IsSeen = true;
+                    DatabaseManager.Update(Message);
+
+                    Task.Run(() => {
+                        ImapClient imap = new ImapClient(notification.SelectedAccount);
+                        if (imap.Connect())
+                        {
+                            // Not readonly because we need to set the \Seen flag.
+                            bool readOnly = false;
+                            if (imap.SelectMailbox(notification.SelectedMailbox.DirectoryPath, readOnly))
+                            {
+                                imap.SetFlag(ImapClient.FlagAction.Add, Message.Uid, "\\Seen");
+                            }
+
+                            imap.Disconnect();
+                        }
+                    });
+                }
             }
         }
 
