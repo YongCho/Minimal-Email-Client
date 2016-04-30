@@ -25,6 +25,8 @@ The program can be divided into following parts in terms of flow:
 - Downloading email body from IMAP server
 - Sending email through SMTP server
 
+![IMAP Flow Diagram](Demo/flow.png)
+
 ### Initializating components
 - When the program starts, app.xaml.cs instantiates MainWindow class which in turn instantiates all other view classes (\*View.xaml, \*View.xaml.cs) and their associated view-model classes (\*ViewModel.cs). It also checks the database path and creates an empty database file if it does not already exist.
 
@@ -38,8 +40,6 @@ Downloading mailbox list is driven by the static instance of AccountManager sing
 ### Downloading Email Headers
 Once the mailbox list is synchronized, email headers are downloaded for each mailbox. Downloading emails is driven by MessageManager class and is accomplished in three background threads per user email account. Each thread creates an instance of ImapClient class and makes separate connections to the IMAP server. 
 
-// Image
-
 - The first thread downloads all email headers in the Inbox starting from the most recent to the oldest. As it downloads the headers, it compares them with the local copies obtained from the DatabaseManager and adds/removes/updates them as necessary so the local copies match the server copies. It also raises an event for each message added, removed, or updated. The events are processed by the MessageListViewModel class residing in the UI thread which then makes necessary updates to the email list in the main window. Once all headers are downloaded, the thread terminates.
 - The second thread downloads email headers from folders other than the Inbox. It uses the same algorithm as the first thread and goes through each mailbox one by one to download all the headers in it. 
 - When MessageManager starts downloading the Inbox, it also runs ImapClient.BeginMonitor method which runs in the third thread and polls the server in 5-second interval to monitor any changes in the Inbox such as arrival of a new email, deletion of an email, or emails being marked as read/unread. When such change is detected, it raises an event which is first caught by the MessageManager to update the local email list then is relayed to the MessageListViewModel to update the UI.
@@ -47,8 +47,6 @@ Once the mailbox list is synchronized, email headers are downloaded for each mai
 In downloading the Inbox and the other mailboxes in separate threads, we considered the fact that typical email client users would spend most of their time viewing Inbox so the Inbox must be downloaded as soon as possible. However, Inbox is also where most emails are found, and it could take up to several minutes to download all headers in the Inbox depending on how many emails are in it. By downloading the rest of the mailboxes in a separate thread, users would be able to see an update in those mailboxes without having to wait for the inbox to be completely downloaded.
 
 ### Downloading Email Body
-
-// Image 
 
 Downloading an email body is strictly driven by a user event. The process is initiated by the user double-clicking on one of the emails within the MessageListView UI. At this point, 
 
