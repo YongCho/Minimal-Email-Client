@@ -88,6 +88,8 @@ Messages containing file attachments utilize the MIME standard, which was develo
 
 In structuring our codes, we divided them into three layers - Models, Views, View-Models(Controllers). Each layer has distinct roles and is loosely coupled (or not coupled at all) with the other layers to maximize modularity and maintainability.
 
+- [UML Class Diagram](https://www.dropbox.com/s/3sths8xy0ag7rki/MEClient.html?dl=1) - Open the .html file with a web browser.
+
 ### Model Layer (Core Logic/Data Access)
 Files in the following folders belong to this layer:
 
@@ -113,7 +115,7 @@ Files in the following folders belong to this layer:
 
 View classes implement the UI elements such as windows, popups, menus, toolbars, buttons, labels, input forms, and so on. They also define the positioning and styling of the elements such as width, height, margin, padding, fore/background color, border thickness, font face and size and such. As for a typical Windows GUI project, we defined all UI elements and styles in XAML. Here are the visual representations of some of the view classes.
 
-// Put pictures here.
+![Main Window Views](Demo/MainWindow.png)
 
 ### View-Model Layer (Interaction)
 Files in the following folders belong to this layer:
