@@ -11,6 +11,8 @@ The primary goal of this project was to create a working email client that is ca
 
 The second, and personally more important, goal of our project was to train ourselves in researching new technologies and improving our skills as developers. In order to accomplish this goal, we chose the framework and language we were not already familiar with and decided to take on the challenge of learning them as we go. Also, we took the risk of sacrificing some performance and reliability of our program by implementing the IMAP and SMTP clients on our own. We avoided the use of 3rd-party libraries which would have made the task much more trivial. Our goal was to extend our understanding of the concepts learned in class regarding mail protocols and also to familiarize ourselves in reading the RFC documents.
 
+[Project PPT Slide](https://docs.google.com/presentation/d/1TfVpZWhDpjrGtGKyCNm9gf6EsvDThNODSEyPhHcA_rY/edit?usp=sharing)
+
 # Project Design
 
 ## Overview
