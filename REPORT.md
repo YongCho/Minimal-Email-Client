@@ -102,7 +102,7 @@ This layer defines main data types used in the program such as Account, Mailbox,
 - DatabaseManager: Provides methods that encapsulates database connection and abstracts CRUD operations.
 - AccountManager: Maintains a collection of all Account and Mailbox objects and makes them available to view-model classes. Uses methods provided by ImapClient class to synchronize the list of mailboxes with the IMAP servers in the background.
 - MessageManager: Maintains a collection of all email (Message) objects and uses methods provided by ImapClient class to keep the email collection current and download any new emails.
-- SmtpClient: 
+- SmtpClient: Implements methods used by NewEmailViewModel to construct MIME and send it over SMTP server.
 
 
 ### View Layer (Presention)
