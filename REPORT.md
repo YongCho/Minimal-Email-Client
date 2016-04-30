@@ -66,7 +66,7 @@ Messages containing file attachments utilize the MIME standard, which was develo
 
 
 # File Structure
-In structuring our codes, we divided them into three layers - Models, Views, View-Models(Controllers). Each layer has distinct roles and is loosely coupled (or not coupled at all) with the other layers to maximize modularity and maintainability.
+
 
 <ul>
 <li><strong>MinimalEmailClient</strong>
@@ -88,7 +88,7 @@ In structuring our codes, we divided them into three layers - Models, Views, Vie
 </li>
 </ul>
 
-
+In structuring our codes, we divided them into three layers - Models, Views, View-Models(Controllers). Each layer has distinct roles and is loosely coupled (or not coupled at all) with the other layers to maximize modularity and maintainability.
 
 ### Model Layer (Core Logic/Data Access)
 Files in the following folders belong to this layer:
