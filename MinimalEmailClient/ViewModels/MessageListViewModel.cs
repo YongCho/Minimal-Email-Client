@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -84,7 +83,7 @@ namespace MinimalEmailClient.ViewModels
                 MessageHeaderViewModels.Clear();
             }
 
-            List<Message> messages = messageManager.MessagesDico.Values.ToList();
+            List<Message> messages = messageManager.Messages();
             foreach (Message msg in messages)
             {
                 MessageHeaderViewModels.Add(new MessageHeaderViewModel(msg));

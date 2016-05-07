@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MinimalEmailClient.Services
@@ -33,6 +34,11 @@ namespace MinimalEmailClient.Services
             LoadMessagesFromDb();
             GlobalEventAggregator.Instance.GetEvent<MailboxListSyncFinishedEvent>().Subscribe(HandleMailboxListSyncFinished);
             GlobalEventAggregator.Instance.GetEvent<AccountDeletedEvent>().Subscribe(HandleAccountDeleted);
+        }
+
+        public List<Message> Messages()
+        {
+            return MessagesDico.Values.ToList();
         }
 
         private async void HandleAccountDeleted(string accountName)
